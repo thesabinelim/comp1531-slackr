@@ -132,10 +132,10 @@ This will submit the contents of your repo on GitLab and perform a check to make
 |Section|Weighting|Criteria|
 |---|---|---|
 |Pytests|40%| <ul><li>Demonstrated an understanding of good test **coverage**</li><li>Demonstrated an understanding of the importance of **clarity** on the communication of test purposes</li><li>Demonstrated an understanding of good test **design**</li><li>Tests not under or over engineered</li></ul>|
-|Stories PDF|25%|<ul><li>Demonstration of an understanding of a user's needs when using a product</li><li>Clear sense of the coverage needed for requirements (i.e. all reasonable possibilities explored)</li><li>Strong understanding of the granularity in which to express requirements (not too specific, not too broad)</li><li>Demonstration of an understanding of the language typically used when writing user stories</li><li>Demonstration of an understanding of the difference between high-level/epic user stories and their subsequent user story components</li></ul>|
-|Assumptions PDF|10%|<ul><li>Clear and obvious effort and time gone into thinking about possible assumptions that are being made when interpreting the specification</li></ul>|
-|Reflection & Plan PDF|10%|<ul><li>Communication of plan for development in a written format</li><li>Communication of plan for development in a diagramatic format</li><li>Demonstration of understanding of how to draw and anticipate a timeline</li><li>Demonstration of thoughtfullness regarding software tools to assist the team in meeting the development iteration</li></ul>|
-|Teamwork PDF|15%|<ul><li>Highlighting the timing and outcome of team meetings</li><li>Demonstration that responsibilities were allocated across team members</li><li>Clear reflection on areas for improvement</li><li>Impression that team has worked together collaboratively</li><li>Impression that team had processes in place to work through disagreements or tension</li><li>Impression that team had a thought out methodology for completing this iteration</li></ul>|
+|Stories markdown file|25%|<ul><li>Demonstration of an understanding of a user's needs when using a product</li><li>Clear sense of the coverage needed for requirements (i.e. all reasonable possibilities explored)</li><li>Strong understanding of the granularity in which to express requirements (not too specific, not too broad)</li><li>Demonstration of an understanding of the language typically used when writing user stories</li><li>Demonstration of an understanding of the difference between high-level/epic user stories and their subsequent user story components</li></ul>|
+|Assumptions markdown file|10%|<ul><li>Clear and obvious effort and time gone into thinking about possible assumptions that are being made when interpreting the specification</li></ul>|
+|Planning markdown file|10%|<ul><li>Communication of plan for development in a written format</li><li>Communication of plan for development in a diagramatic format</li><li>Demonstration of understanding of how to draw and anticipate a timeline</li><li>Demonstration of thoughtfullness regarding software tools to assist the team in meeting the development iteration</li></ul>|
+|Teamwork|15%|Note: This section is assessed by your tutor implicity. No submission is needed for this part. <ul><li>Highlighting the timing and outcome of team meetings</li><li>Demonstration that responsibilities were allocated across team members</li><li>Clear reflection on areas for improvement</li><li>Impression that team has worked together collaboratively</li><li>Impression that team had processes in place to work through disagreements or tension</li><li>Impression that team had a thought out methodology for completing this iteration</li></ul>|
 
 ### Advice
 
@@ -182,12 +182,23 @@ Details will be released in week 7
 |named exactly **channels**|List of dictionaries, where each dictionary contains types { id, name }|
 |named exactly **members**|List of dictionaries, where each dictionary contains types { u_id, name_first, name_last }|
 
+### Token
+Many of these functions (nearly all of them) need to be called from the perspective of a user who is logged in already. When calling these "authorised" functions, we need to know:
+1) Which user is calling it
+2) That the person who claims they are that user, is actually that user 
+
+We could solve this trivially by storing the user ID of the logged in user on the front end, and every time the front end (from Sally and Bob) calls your background, they just sent a user ID. This solves our first problem (1), but doesn't solve our second problem! Because someone could just "hack" the front end and change their user id and then log themselves in as someone else.
+
+To solve this when a user logs in or registers the backend should return a "token" (basically a hash) that the front end will store and pass into most of your functions in future. When these "authorised" functions are called, you can check if a token is valid, and determine the user ID.
+
+There are a few different ways to do this. However, you don't need to decide on a way until Iteration 2. For now you can just ensure the tokens returned from login/register and the same as ones passed into other functions.
+
 ### Functions
 
-|Function name|Parameters|Return type|
-|-------------|----------|-----------|
-|auth_login|(email, password)|{ token }|
-|auth_logout|(token)|{}|
+|Function name|Parameters|Return type|Exception|Description|
+|-------------|----------|-----------|-----------|-----------|
+|auth_login|(email, password)|{ token }|**ValueError** when:<ul><li>Email entered is not a value email</li></ul><br />**InputError** when:<ul><li>Email entered does not belong to a user</li></ul> | Given a registered users' email and password and generates a valid token for the user to remain authenticated |
+|auth_logout|(token)|{}|N/A|Given an active token, invalidates the taken to log the user out|
 |auth_register|(email, password, name_first, name_last)|{ token }|
 |auth_passwordreset_request|(email)|{}|
 |auth_passwordreset_reset|(reset_code)|{}|
@@ -214,8 +225,8 @@ Details will be released in week 7
 |user_profile_setemail|(token, email)|{}|
 |user_profile_sethandle|(token, handle_str)|{}|
 |user_profiles_uploadphoto|(token, img_url, x_start, y_start, x_end, y_end)|{}|
-|standup_start|(token)|{ time_finish }|
-|standup_send|(token, message)|{}|
+|standup_start|(token, channel_id)|{ time_finish }|
+|standup_send|(token, channel_id, message)|{}|
 |search|(token, query_str)|{ messages }|
 |admin_userpermission_add|(token, u_id, permission_id)|{}|
 |admin_userpermission_remove|(token, u_id, permission_id)|{}|
