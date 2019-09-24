@@ -112,7 +112,7 @@ The scaffold for user stories will be provided in the lecture on Monday 23rd Sep
 
 ### Submission
 
-This iteration is due to be submitted at 5pm Sunday 6th October (**week 3**). You will then be demonstrating this in your week 4 lab. All team members **must** attend this lab session.
+This iteration is due to be submitted at 5pm Sunday 6th October (**week 3**). You will then be demonstrating this in your week 4 lab (week 5 for monday tutes). All team members **must** attend this lab session.
 
 To submit, run this command in the CSE environment:
 
@@ -139,7 +139,7 @@ This will submit the contents of your repo on GitLab and perform a check to make
 
 ### Demonstration
 
-When you demonstrate this iteration in your week 4 lab, the breakdown will go approximately like this:
+When you demonstrate this iteration in your week 4 lab (week 5 for monday tutes), the breakdown will go approximately like this:
 
 * 5 minutes of demonstration of the code you produced
 * 5 minutes of demonstration of your stories, assumptions, and plan
@@ -219,7 +219,7 @@ Details will be released in week 7
 
 |Iteration|Code and report due                  |Demonstration to tutor(s)      |Assessment weighting of project (%)|
 |---------|-------------------------------------|-------------------------------|-----------------------------------|
-|   1     |8pm Sunday 6th October (**week 3**)  |In YOUR **week 4** laboratory  |30%                                |
+|   1     |8pm Sunday 6th October (**week 3**)  |In YOUR **week 4** laboratory (week 5 for monday tutes)  |30%                                |
 |   2     |8pm Sunday 27th October (**week 6**) |In YOUR **week 7** laboratory  |40%                                |
 |   3     |8pm Sunday 17th November (**week 9**)|In YOUR **week 10** laboratory |30%                                |
 
