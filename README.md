@@ -1,5 +1,7 @@
 # COMP1531 Major Project
 
+A video describing this project and the background here can be found here.
+
 ## Aims:
 
 * To provide students with hands on experience testing, developing, and maintaining a backend server in python.
@@ -11,9 +13,12 @@
 
 ## Changelog
 
+* 24/09/2019: Clarify that Monday tutes will DEMO iteration 1 in week 5
 Nothing here yet
 
 ## Background
+
+An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
 
 To manage the transition from trimesters to hexamesters in 2020, UNSW has established a new focus on building an in-house digital collaboration and communication tool for groups and teams.
 
@@ -47,7 +52,7 @@ Beside the information available in the interface that Sally and Bob provided, y
 10. Ability to modify a user's admin privileges: (MEMBER, ADMIN, OWNER)
 11. Ability to begin a "standup", which is a 15 minute period where users can send messages that at the end of the period will automatically be collated and summarised to all users
 
-To get further information about the requirements, Rayden Pty Ltd will provide a pre-recorded video briefing (with verbal and visual descriptions) of what they'd like to see in the Slackr product. This will be released on September 23rd.
+To get further information about the requirements, Rayden Pty Ltd has provided a pre-recorded video briefing (with verbal and visual descriptions) of what UNSW would like to see in the Slackr product. This can be found [HERE](https://youtu.be/0_jaxpOSoj4).
 
 ## Setup
 
