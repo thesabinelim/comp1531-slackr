@@ -26,6 +26,7 @@ Nothing here yet
  * admin_userpermission_add and admin_userpermission_remove combined into admin_userpermission_change
 * 25/09/2019: channel_messages correct description given 
 * 25/09/2019: "Interface pecifications" => "Interface specifications"
+* 25/09/2019:  Task 2 for iteration 1 better explained
 
 ## Background
 
@@ -89,7 +90,9 @@ In this iteration, you are expected to:
 
     These should all be in files of the formn `*_test.py`. See below for more information.
 
-2. Create user stories for your current understanding of the product based on your previous understanding of a slack-like app.
+2. Create user stories driven by your understanding of UNSW's requirements.
+    
+    We recommend you get familiar with the slack-app (the one we invited you to) in order to understand the mechanics of a slack-like app to provide better articulated user stories. Consider this a form of market research on "similar products" to better understand where UNSW are coming from.
 
     Each individual story should form its own card on the project task board.
 
