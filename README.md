@@ -1,5 +1,7 @@
 # COMP1531 Major Project
 
+A video describing this project and the background here can be found here.
+
 ## Aims:
 
 * To provide students with hands on experience testing, developing, and maintaining a backend server in python.
@@ -11,9 +13,19 @@
 
 ## Changelog
 
+* 24/09/2019: Clarify that Monday tutes will DEMO iteration 1 in week 5
 Nothing here yet
+* 24/09/2019: 
+ * auth_passwordreset_reset has had "password" added to end
+ * standup_start has new parameter "channel_id"
+ * standup_send has new parameter "channel_id"
+ * message_unreact has a new parameter "react_id"
+ * message_edit had the order of its two parameters swappd
+24/09/2019: Exceptions and descriptions added to interface items
 
 ## Background
+
+An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
 
 To manage the transition from trimesters to hexamesters in 2020, UNSW has established a new focus on building an in-house digital collaboration and communication tool for groups and teams.
 
@@ -47,7 +59,7 @@ Beside the information available in the interface that Sally and Bob provided, y
 10. Ability to modify a user's admin privileges: (MEMBER, ADMIN, OWNER)
 11. Ability to begin a "standup", which is a 15 minute period where users can send messages that at the end of the period will automatically be collated and summarised to all users
 
-To get further information about the requirements, Rayden Pty Ltd will provide a pre-recorded video briefing (with verbal and visual descriptions) of what they'd like to see in the Slackr product. This will be released on September 23rd.
+To get further information about the requirements, Rayden Pty Ltd has provided a pre-recorded video briefing (with verbal and visual descriptions) of what UNSW would like to see in the Slackr product. This can be found [HERE](https://youtu.be/0_jaxpOSoj4).
 
 ## Setup
 
@@ -127,10 +139,10 @@ This will submit the contents of your repo on GitLab and perform a check to make
 |Section|Weighting|Criteria|
 |---|---|---|
 |Pytests|40%| <ul><li>Demonstrated an understanding of good test **coverage**</li><li>Demonstrated an understanding of the importance of **clarity** on the communication of test purposes</li><li>Demonstrated an understanding of good test **design**</li><li>Tests not under or over engineered</li></ul>|
-|Stories PDF|25%|<ul><li>Demonstration of an understanding of a user's needs when using a product</li><li>Clear sense of the coverage needed for requirements (i.e. all reasonable possibilities explored)</li><li>Strong understanding of the granularity in which to express requirements (not too specific, not too broad)</li><li>Demonstration of an understanding of the language typically used when writing user stories</li><li>Demonstration of an understanding of the difference between high-level/epic user stories and their subsequent user story components</li></ul>|
-|Assumptions PDF|10%|<ul><li>Clear and obvious effort and time gone into thinking about possible assumptions that are being made when interpreting the specification</li></ul>|
-|Reflection & Plan PDF|10%|<ul><li>Communication of plan for development in a written format</li><li>Communication of plan for development in a diagramatic format</li><li>Demonstration of understanding of how to draw and anticipate a timeline</li><li>Demonstration of thoughtfullness regarding software tools to assist the team in meeting the development iteration</li></ul>|
-|Teamwork PDF|15%|<ul><li>Highlighting the timing and outcome of team meetings</li><li>Demonstration that responsibilities were allocated across team members</li><li>Clear reflection on areas for improvement</li><li>Impression that team has worked together collaboratively</li><li>Impression that team had processes in place to work through disagreements or tension</li><li>Impression that team had a thought out methodology for completing this iteration</li></ul>|
+|Stories markdown file|25%|<ul><li>Demonstration of an understanding of a user's needs when using a product</li><li>Clear sense of the coverage needed for requirements (i.e. all reasonable possibilities explored)</li><li>Strong understanding of the granularity in which to express requirements (not too specific, not too broad)</li><li>Demonstration of an understanding of the language typically used when writing user stories</li><li>Demonstration of an understanding of the difference between high-level/epic user stories and their subsequent user story components</li></ul>|
+|Assumptions markdown file|10%|<ul><li>Clear and obvious effort and time gone into thinking about possible assumptions that are being made when interpreting the specification</li></ul>|
+|Planning markdown file|10%|<ul><li>Communication of plan for development in a written format</li><li>Communication of plan for development in a diagramatic format</li><li>Demonstration of understanding of how to draw and anticipate a timeline</li><li>Demonstration of thoughtfullness regarding software tools to assist the team in meeting the development iteration</li></ul>|
+|Teamwork|15%|Note: This section is assessed by your tutor implicity. No submission is needed for this part. <ul><li>Highlighting the timing and outcome of team meetings</li><li>Demonstration that responsibilities were allocated across team members</li><li>Clear reflection on areas for improvement</li><li>Impression that team has worked together collaboratively</li><li>Impression that team had processes in place to work through disagreements or tension</li><li>Impression that team had a thought out methodology for completing this iteration</li></ul>|
 
 ### Advice
 
@@ -173,47 +185,62 @@ Details will be released in week 7
 |has suffix **_str**|string|
 |has suffix **end**|integer|
 |has suffix **start**|integer|
-|named exactly **messages**|List of dictionaries, where each dictionary contains types { u_id, message, time_created, is_unread }|
-|named exactly **channels**|List of dictionaries, where each dictionary contains types { id, name }|
-|named exactly **members**|List of dictionaries, where each dictionary contains types { u_id, name_first, name_last }|
+|(outputs only) named exactly **messages**|List of dictionaries, where each dictionary contains types { u_id, message, time_created, is_unread }|
+|(outputs only) named exactly **channels**|List of dictionaries, where each dictionary contains types { id, name }|
+|(outputs only) named exactly **members**|List of dictionaries, where each dictionary contains types { u_id, name_first, name_last }|
+
+### Token
+Many of these functions (nearly all of them) need to be called from the perspective of a user who is logged in already. When calling these "authorised" functions, we need to know:
+1) Which user is calling it
+2) That the person who claims they are that user, is actually that user 
+
+We could solve this trivially by storing the user ID of the logged in user on the front end, and every time the front end (from Sally and Bob) calls your background, they just sent a user ID. This solves our first problem (1), but doesn't solve our second problem! Because someone could just "hack" the front end and change their user id and then log themselves in as someone else.
+
+To solve this when a user logs in or registers the backend should return a "token" (basically a hash) that the front end will store and pass into most of your functions in future. When these "authorised" functions are called, you can check if a token is valid, and determine the user ID.
+
+There are a few different ways to do this. However, you don't need to decide on a way until Iteration 2. For now you can just ensure the tokens returned from login/register and the same as ones passed into other functions.
 
 ### Functions
 
-|Function name|Parameters|Return type|
-|-------------|----------|-----------|
-|auth_login|(email, password)|{ token }|
-|auth_logout|(token)|{}|
-|auth_register|(email, password, name_first, name_last)|{ token }|
-|auth_passwordreset_request|(email)|{}|
-|auth_passwordreset_reset|(reset_code)|{}|
-|channel_invite|(token, channel_id, u_id)|{}|
-|channel_details|(token, channel_id)|{ name, owner_members, all_members }|
-|channel_messages|(token, channel_id, start)|{ messages, start, end }|
-|channel_leave|(token, channel_id)|{}|
-|channel_join|(token, channel_id)|{}|
-|channel_addowner|(token, channel_id, u_id)|{}|
-|channel_removeowner|(token, channel_id, u_id)|{}|
-|channels_list|(token)|{ channels }|
-|channels_listall|(token)|{ channels }|
-|channels_create|(token, name, is_public)|{ channel_id }|
-|message_sendlater|(token, message, time_sent)|{}|
-|message_send|(token, message)|{}|
-|message_remove|(token, message_id)|{}|
-|message_edit|(token, message, message_id)|{}|
-|message_react|(token, message_id, react_id)|{}|
-|message_unreact|(token, message_id)|{}|
-|message_pin|(token, message_id)|{}|
-|message_unpin|(token, message_id)|{}|
-|user_profile|(token)|{ email, name_first, name_last, handle_str }|
-|user_profile_setname|(token, name_first, name_last)|{}|
-|user_profile_setemail|(token, email)|{}|
-|user_profile_sethandle|(token, handle_str)|{}|
-|user_profiles_uploadphoto|(token, img_url, x_start, y_start, x_end, y_end)|{}|
-|standup_start|(token)|{ time_finish }|
-|standup_send|(token, message)|{}|
-|search|(token, query_str)|{ messages }|
-|admin_userpermission_add|(token, u_id, permission_id)|{}|
-|admin_userpermission_remove|(token, u_id, permission_id)|{}|
+#### Notes:
+ * To check a valid email, just use the method provided [here](https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/) (unless you feel you have a better method)
+ * A valid password must contain at least 5 characters
+
+|Function name|Parameters|Return type|Exception|Description|
+|-------------|----------|-----------|-----------|-----------|
+|auth_login|(email, password)|{ token }|**InputError** when:<ul><li>Email entered is not a valid email</li><li>Email entered does not belong to a user</li></ul> | Given a registered users' email and password and generates a valid token for the user to remain authenticated |
+|auth_logout|(token)|{}|N/A|Given an active token, invalidates the taken to log the user out|
+|auth_register|(email, password, name_first, name_last)|{ token }|**InputError** when:<ul><li>Email entered is not a valid email.</li><li>Email address is already being used by another user</li><li>Password entered is not a valid password</li><li>name_first is more than 50 characters</li><li>name_last is more than 50 characters</ul>|Given a user's first and last name, email address, and password, create a new account for them and return a new token for authentication in their session|
+|auth_passwordreset_request|(email)|{}|N/A|Given an email address, if the user is a registered user, send's them a an email containing a specific secret code, that when entered in auth_passwordreset_reset, shows that the user trying to reset the password is the one who got sent this email.|
+|auth_passwordreset_reset|(reset_code, new_password)|{}|**InputError** when:<ul><li>reset_code is not a valid reset code</li><li>Email entered is not a valid email.</li><li>Password entered is not a valid password</li>|Given a reset code for a user, set that user's new password to the password provided|
+|channel_invite|(token, channel_id, u_id)|{}|**InputError** when:<ul><li>channel_id does not refer to a valid channel that the authorised user is part of.</li><li>u_id does not refer to a valid user</li></ul>|Invites a user (with user id u_id) to join a channel with ID channel_id. Once invited the user is added to the channel immediately|
+|channel_details|(token, channel_id)|{ name, owner_members, all_members }|**InputError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, provide basic details about the channel|
+|channel_messages|(token, channel_id, start)|{ messages, start, end }|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>start is greater than the total number of messages in the channel</li></ul>**AccessError** when<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, provide basic details about the channel|Given a Channel with ID channel_id that the authorised user is part of, return up to 50 messages between index "start" and "start + 50". Message with index 0 is the most recent message in the channel. This function returns a new index "end" which is the value of "start + 50", or, if this function has returned the least recent messages in the channel, returns -1 to indicate there are no more messages to load after this return.|
+|channel_leave|(token, channel_id)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>Email entered does not belong to a user</li></ul>|Given a channel ID, the user removed as a member of this channel|
+|channel_join|(token, channel_id)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>channel_id refers to a channel that is private (when the authorised user is not an admin)</li></ul>|Given a channel_id of a channel that the authorised user can join, adds them to that channel|
+|channel_addowner|(token, channel_id, u_id)|{}|||
+|channel_removeowner|(token, channel_id, u_id)|{}|||
+|channels_list|(token)|{ channels }|N/A|Provide a list of all channels (and their associated details) that the authorised user is part of|
+|channels_listall|(token)|{ channels }|N/A|Provide a list of all channels (and their associated details)|
+|channels_create|(token, name, is_public)|{ channel_id }|||
+|message_sendlater|(token, message, time_sent)|{}|||
+|message_send|(token, message)|{}|**InputError** when:<ul><li>Message is more than 1000 characters</li></ul>|Given a channel ID, the user removed as a member of this channel|
+|message_remove|(token, message_id)|{}|**InputError** when:<ul><li>Message (based on ID) no longer exists</li></ul>**AccessError** when<ul><li>User does not have permission to remove that row</li.</ul>|Given a channel ID, the user removed as a member of this channel|
+|message_edit|(token, message_id, message)|{}|**InputError** when:<ul><li>message_id is not a valid message that either 1) is a message sent by the authorised user, or; 2) If the authorised user is an admin, is a any message within a channel that the authorised user has joined</li></ul>|Given a message, update it's text with new text|
+|message_react|(token, message_id, react_id)|{}|**InputError** when:<ul><li>message_id is not a valid message within a channel that the authorised user has joined</li><li>react_id is not a valid React ID</li><li>Message with ID message_id already contains an active React with ID react_id</li></ul>|Given a message within a channel the authorised user is part of, add a "react" to that particular message|
+|message_unreact|(token, message_id, react_id)|{}|**InputError** when:<ul><li>message_id is not a valid message within a channel that the authorised user has joined</li><li>react_id is not a valid React ID</li><li>Message with ID message_id does not contain an active React with ID react_id</li></ul>|Given a message within a channel the authorised user is part of, remove a "react" to that particular message|
+|message_pin|(token, message_id)|{}|**InputError** when:<ul><li>message_id is not a valid message</li><li>The authorised user is not an admin</li><li>Message with ID message_id is already pinned</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|Given a message within a channel, mark it as "pinned" to be given special display treatment by the frontend|
+|message_unpin|(token, message_id)|{}|**InputError** when:<ul><li>message_id is not a valid message</li><li>The authorised user is not an admin</li><li>Message with ID message_id is already unpinned</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|Given a message within a channel, remove it's mark as unpinned|
+|user_profile|(token)|{ email, name_first, name_last, handle_str }|||
+|user_profile_setname|(token, name_first, name_last)|{}|||
+|user_profile_setemail|(token, email)|{}|||
+|user_profile_sethandle|(token, handle_str)|{}|||
+|user_profiles_uploadphoto|(token, img_url, x_start, y_start, x_end, y_end)|{}|||
+|standup_start|(token, channel_id)|{ time_finish }|||
+|standup_send|(token, channel_id, message)|{}|||
+|search|(token, query_str)|{ messages }|||
+|admin_userpermission_add|(token, u_id, permission_id)|{}|||
+|admin_userpermission_remove|(token, u_id, permission_id)|{}|||
 
 ## Due Dates and Weightings
 
