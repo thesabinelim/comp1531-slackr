@@ -15,15 +15,18 @@ A video describing this project and the background here can be found here.
 
 * 24/09/2019: Clarify that Monday tutes will DEMO iteration 1 in week 5
 Nothing here yet
-* 24/09/2019: 
+* 24/09/2019:
  * auth_passwordreset_reset has had "password" added to end
  * standup_start has new parameter "channel_id"
  * standup_send has new parameter "channel_id"
  * message_unreact has a new parameter "react_id"
  * message_edit had the order of its two parameters swappd
  * channel_id added to message_send and message_sendlater
-24/09/2019: Exceptions and descriptions added to interface items
+* 24/09/2019: Exceptions and descriptions added to interface items
  * admin_userpermission_add and admin_userpermission_remove combined into admin_userpermission_change
+* 25/09/2019: channel_messages correct description given 
+* 25/09/2019: "Interface pecifications" => "Interface specifications"
+
 ## Background
 
 An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
@@ -166,7 +169,7 @@ Details will be released in week 4
 
 Details will be released in week 7
 
-## Interface pecifications from Sally and Bob
+## Interface specifications from Sally and Bob
 
 ### Data types
 
@@ -193,7 +196,7 @@ Details will be released in week 7
 ### Token
 Many of these functions (nearly all of them) need to be called from the perspective of a user who is logged in already. When calling these "authorised" functions, we need to know:
 1) Which user is calling it
-2) That the person who claims they are that user, is actually that user 
+2) That the person who claims they are that user, is actually that user
 
 We could solve this trivially by storing the user ID of the logged in user on the front end, and every time the front end (from Sally and Bob) calls your background, they just sent a user ID. This solves our first problem (1), but doesn't solve our second problem! Because someone could just "hack" the front end and change their user id and then log themselves in as someone else.
 
