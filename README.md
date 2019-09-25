@@ -15,7 +15,7 @@ A video describing this project and the background here can be found here.
 
 * 24/09/2019: Clarify that Monday tutes will DEMO iteration 1 in week 5
 Nothing here yet
-* 24/09/2019: 
+* 24/09/2019:
  * auth_passwordreset_reset has had "password" added to end
  * standup_start has new parameter "channel_id"
  * standup_send has new parameter "channel_id"
@@ -193,7 +193,7 @@ Details will be released in week 7
 ### Token
 Many of these functions (nearly all of them) need to be called from the perspective of a user who is logged in already. When calling these "authorised" functions, we need to know:
 1) Which user is calling it
-2) That the person who claims they are that user, is actually that user 
+2) That the person who claims they are that user, is actually that user
 
 We could solve this trivially by storing the user ID of the logged in user on the front end, and every time the front end (from Sally and Bob) calls your background, they just sent a user ID. This solves our first problem (1), but doesn't solve our second problem! Because someone could just "hack" the front end and change their user id and then log themselves in as someone else.
 
@@ -243,13 +243,10 @@ There are a few different ways to do this. However, you don't need to decide on 
 |user_profile|(token)|{ email, name_first, name_last, handle_str }|**InputError** when:<ul><li>handle is more than 20 characters</li></ul>|Update the authorised user's handle|
 |user_profile_setname|(token, name_first, name_last)|{}|**InputError** when:<ul><li>name_first is more than 50 characters</li><li>name_last is more than 50 characters</ul></ul>|Update the authorised user's first and last name|
 |user_profile_setemail|(token, email)|{}|**InputError** when:<ul><li>Email entered is not a valid email.</li><li>Email address is already being used by another user</li>|Update the authorised user's email address|
-
 |user_profile_sethandle|(token, handle_str)|{}|**InputError** when:<ul><li>handle_str is no more than 20 characters</li><li>name_last is more than 50 characters</li><li>Image at img_url is not a jpg</ul>|Update the authorised user's first and last name|
 |user_profiles_uploadphoto|(token, img_url, x_start, y_start, x_end, y_end)|{}|**InputError** when:<ul><li>img_url is returns an HTTP status other than 200.</li><li>x_start, y_start, x_end, y_end are all within the dimensions of the image at the URL.</li>handle_str is no more than 20 characters</li></ul>|Given a URL of an image on the internet, crops the image within bounds (x_start, y_start) and (x_end, y_end). Position (0,0) is the top left.|
-
 |standup_start|(token, channel_id)|{ time_finish }|**InputError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|For a given channel, start the standup period whereby for the next 15 minutes if someone calls "standup_send" with a message, it is buffered during the 15 minute window then at the end of the 15 minute window a message will be added to the message queue in the channel from the user who started the standup. |
 |standup_send|(token, channel_id, message)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>Message is more than 1000 characters</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li><li>If the standup time has stopped</li></ul>|Sending a message to get buffered in the standup queue, assuming a standup is currently active|
-
 |search|(token, query_str)|{ messages }|N/A|Given a query string, return a collection of messages that match the query|
 |admin_userpermission_change|(token, u_id, permission_id)|{}|**InputError** when:<ul><li>u_id does not refer to a valid user<li>permission_id does not refer to a value permission</li></ul>**AccessError** when<ul><li>The authorised user is not an admin or owner</li></ul>|Given a User by their user ID, set their permissions to new permissions described by permission_id|
 
