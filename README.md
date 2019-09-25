@@ -21,8 +21,9 @@ Nothing here yet
  * standup_send has new parameter "channel_id"
  * message_unreact has a new parameter "react_id"
  * message_edit had the order of its two parameters swappd
+ * channel_id added to message_send and message_sendlater
 24/09/2019: Exceptions and descriptions added to interface items
-
+ * admin_userpermission_add and admin_userpermission_remove combined into admin_userpermission_change
 ## Background
 
 An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
@@ -205,6 +206,14 @@ There are a few different ways to do this. However, you don't need to decide on 
 #### Notes:
  * To check a valid email, just use the method provided [here](https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/) (unless you feel you have a better method)
  * A valid password must contain at least 5 characters
+ * Members in a channel have two permissions.
+   1) Owner of the channel (the person who created it, and whoever else that creator adds)
+   2) Members of the channel
+ * Slackr user's have three permissions
+   1) Owners, which have the same privileges as an admin (permission_id 1)
+   1) Admins, who have special permissions that members don't (permission_id 2)
+   1) Members, who do not have any special permissions (permission_id 3)
+ * All slackr members are by default members, except for the very first user who signs up, who is an admin
 
 |Function name|Parameters|Return type|Exception|Description|
 |-------------|----------|-----------|-----------|-----------|
@@ -218,29 +227,31 @@ There are a few different ways to do this. However, you don't need to decide on 
 |channel_messages|(token, channel_id, start)|{ messages, start, end }|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>start is greater than the total number of messages in the channel</li></ul>**AccessError** when<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, provide basic details about the channel|Given a Channel with ID channel_id that the authorised user is part of, return up to 50 messages between index "start" and "start + 50". Message with index 0 is the most recent message in the channel. This function returns a new index "end" which is the value of "start + 50", or, if this function has returned the least recent messages in the channel, returns -1 to indicate there are no more messages to load after this return.|
 |channel_leave|(token, channel_id)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>Email entered does not belong to a user</li></ul>|Given a channel ID, the user removed as a member of this channel|
 |channel_join|(token, channel_id)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>channel_id refers to a channel that is private (when the authorised user is not an admin)</li></ul>|Given a channel_id of a channel that the authorised user can join, adds them to that channel|
-|channel_addowner|(token, channel_id, u_id)|{}|||
-|channel_removeowner|(token, channel_id, u_id)|{}|||
+|channel_addowner|(token, channel_id, u_id)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>When user with user id u_id is already an owner of the channel</li></ul>**AccessError** when the authorised user is not an owner of the slackr, or an owner of this channel</li></ul>|Make user with user id u_id an owner of this channel|
+|channel_removeowner|(token, channel_id, u_id)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>When user with user id u_id is not an owner of the channel</li></ul>**AccessError** when the authorised user is not an owner of the slackr, or an owner of this channel</li></ul>|Remove user with user id u_id an owner of this channel|
 |channels_list|(token)|{ channels }|N/A|Provide a list of all channels (and their associated details) that the authorised user is part of|
 |channels_listall|(token)|{ channels }|N/A|Provide a list of all channels (and their associated details)|
-|channels_create|(token, name, is_public)|{ channel_id }|||
-|message_sendlater|(token, message, time_sent)|{}|||
-|message_send|(token, message)|{}|**InputError** when:<ul><li>Message is more than 1000 characters</li></ul>|Given a channel ID, the user removed as a member of this channel|
+|channels_create|(token, name, is_public)|{ channel_id }|**InputError** when:<ul><li>Name is more than 20 characters long</li></ul>|Creates a new channel with that name that is either a public or private channel|
+|message_sendlater|(token, channel_id, message, time_sent)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>Message is more than 1000 characters</li><li>Time sent is a time in the past</li></ul>|Send a message from authorised_user to the channel specified by channel_id automatically at a specified time in the future|
+|message_send|(token, channel_id, message)|{}|**InputError** when:<ul><li>Message is more than 1000 characters</li></ul>|Send a message from authorised_user to the channel specified by channel_id|
 |message_remove|(token, message_id)|{}|**InputError** when:<ul><li>Message (based on ID) no longer exists</li></ul>**AccessError** when<ul><li>User does not have permission to remove that row</li.</ul>|Given a channel ID, the user removed as a member of this channel|
 |message_edit|(token, message_id, message)|{}|**InputError** when:<ul><li>message_id is not a valid message that either 1) is a message sent by the authorised user, or; 2) If the authorised user is an admin, is a any message within a channel that the authorised user has joined</li></ul>|Given a message, update it's text with new text|
 |message_react|(token, message_id, react_id)|{}|**InputError** when:<ul><li>message_id is not a valid message within a channel that the authorised user has joined</li><li>react_id is not a valid React ID</li><li>Message with ID message_id already contains an active React with ID react_id</li></ul>|Given a message within a channel the authorised user is part of, add a "react" to that particular message|
 |message_unreact|(token, message_id, react_id)|{}|**InputError** when:<ul><li>message_id is not a valid message within a channel that the authorised user has joined</li><li>react_id is not a valid React ID</li><li>Message with ID message_id does not contain an active React with ID react_id</li></ul>|Given a message within a channel the authorised user is part of, remove a "react" to that particular message|
 |message_pin|(token, message_id)|{}|**InputError** when:<ul><li>message_id is not a valid message</li><li>The authorised user is not an admin</li><li>Message with ID message_id is already pinned</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|Given a message within a channel, mark it as "pinned" to be given special display treatment by the frontend|
 |message_unpin|(token, message_id)|{}|**InputError** when:<ul><li>message_id is not a valid message</li><li>The authorised user is not an admin</li><li>Message with ID message_id is already unpinned</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|Given a message within a channel, remove it's mark as unpinned|
-|user_profile|(token)|{ email, name_first, name_last, handle_str }|||
-|user_profile_setname|(token, name_first, name_last)|{}|||
-|user_profile_setemail|(token, email)|{}|||
-|user_profile_sethandle|(token, handle_str)|{}|||
-|user_profiles_uploadphoto|(token, img_url, x_start, y_start, x_end, y_end)|{}|||
-|standup_start|(token, channel_id)|{ time_finish }|||
-|standup_send|(token, channel_id, message)|{}|||
-|search|(token, query_str)|{ messages }|||
-|admin_userpermission_add|(token, u_id, permission_id)|{}|||
-|admin_userpermission_remove|(token, u_id, permission_id)|{}|||
+|user_profile|(token)|{ email, name_first, name_last, handle_str }|**InputError** when:<ul><li>handle is more than 20 characters</li></ul>|Update the authorised user's handle|
+|user_profile_setname|(token, name_first, name_last)|{}|**InputError** when:<ul><li>name_first is more than 50 characters</li><li>name_last is more than 50 characters</ul></ul>|Update the authorised user's first and last name|
+|user_profile_setemail|(token, email)|{}|**InputError** when:<ul><li>Email entered is not a valid email.</li><li>Email address is already being used by another user</li>|Update the authorised user's email address|
+
+|user_profile_sethandle|(token, handle_str)|{}|**InputError** when:<ul><li>handle_str is no more than 20 characters</li><li>name_last is more than 50 characters</li><li>Image at img_url is not a jpg</ul>|Update the authorised user's first and last name|
+|user_profiles_uploadphoto|(token, img_url, x_start, y_start, x_end, y_end)|{}|**InputError** when:<ul><li>img_url is returns an HTTP status other than 200.</li><li>x_start, y_start, x_end, y_end are all within the dimensions of the image at the URL.</li>handle_str is no more than 20 characters</li></ul>|Given a URL of an image on the internet, crops the image within bounds (x_start, y_start) and (x_end, y_end). Position (0,0) is the top left.|
+
+|standup_start|(token, channel_id)|{ time_finish }|**InputError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|For a given channel, start the standup period whereby for the next 15 minutes if someone calls "standup_send" with a message, it is buffered during the 15 minute window then at the end of the 15 minute window a message will be added to the message queue in the channel from the user who started the standup. |
+|standup_send|(token, channel_id, message)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>Message is more than 1000 characters</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li><li>If the standup time has stopped</li></ul>|Sending a message to get buffered in the standup queue, assuming a standup is currently active|
+
+|search|(token, query_str)|{ messages }|N/A|Given a query string, return a collection of messages that match the query|
+|admin_userpermission_change|(token, u_id, permission_id)|{}|**InputError** when:<ul><li>u_id does not refer to a valid user<li>permission_id does not refer to a value permission</li></ul>**AccessError** when<ul><li>The authorised user is not an admin or owner</li></ul>|Given a User by their user ID, set their permissions to new permissions described by permission_id|
 
 ## Due Dates and Weightings
 
