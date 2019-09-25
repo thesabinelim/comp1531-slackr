@@ -178,9 +178,9 @@ Details will be released in week 7
 |has suffix **_str**|string|
 |has suffix **end**|integer|
 |has suffix **start**|integer|
-|named exactly **messages**|List of dictionaries, where each dictionary contains types { u_id, message, time_created, is_unread }|
-|named exactly **channels**|List of dictionaries, where each dictionary contains types { id, name }|
-|named exactly **members**|List of dictionaries, where each dictionary contains types { u_id, name_first, name_last }|
+|(outputs only) named exactly **messages**|List of dictionaries, where each dictionary contains types { u_id, message, time_created, is_unread }|
+|(outputs only) named exactly **channels**|List of dictionaries, where each dictionary contains types { id, name }|
+|(outputs only) named exactly **members**|List of dictionaries, where each dictionary contains types { u_id, name_first, name_last }|
 
 ### Token
 Many of these functions (nearly all of them) need to be called from the perspective of a user who is logged in already. When calling these "authorised" functions, we need to know:
@@ -197,15 +197,22 @@ There are a few different ways to do this. However, you don't need to decide on 
 
 |Function name|Parameters|Return type|Exception|Description|
 |-------------|----------|-----------|-----------|-----------|
-|auth_login|(email, password)|{ token }|**ValueError** when:<ul><li>Email entered is not a value email</li></ul><br />**InputError** when:<ul><li>Email entered does not belong to a user</li></ul> | Given a registered users' email and password and generates a valid token for the user to remain authenticated |
+
+|auth_login|(email, password)|{ token }|**InputError** when:<ul><li>Email entered is not a valid email</li><li>Email entered does not belong to a user</li></ul> | Given a registered users' email and password and generates a valid token for the user to remain authenticated |
 |auth_logout|(token)|{}|N/A|Given an active token, invalidates the taken to log the user out|
+
 |auth_register|(email, password, name_first, name_last)|{ token }|
-|auth_passwordreset_request|(email)|{}|
-|auth_passwordreset_reset|(reset_code)|{}|
-|channel_invite|(token, channel_id, u_id)|{}|
-|channel_details|(token, channel_id)|{ name, owner_members, all_members }|
-|channel_messages|(token, channel_id, start)|{ messages, start, end }|
-|channel_leave|(token, channel_id)|{}|
+
+|auth_passwordreset_request|(email)|{}|N/A|Given an email address, if the user is a registered user, send's them a an email containing a specific secret code, that when entered in auth_passwordreset_reset, shows that the user trying to reset the password is the one who got sent this email.|
+
+|auth_passwordreset_reset|(reset_code, new_password)|{}|
+
+|channel_invite|(token, channel_id, u_id)|{}|**InputError** when:<ul><li>channel_id does not refer to a valid channel that the authorised user is part of.</li><li>u_id does not refer to a valid user</li></ul>|Invites a user (with user id u_id) to join a channel with ID channel_id. Once invited the user is added to the channel immediately|
+|channel_details|(token, channel_id)|{ name, owner_members, all_members }|**InputError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError**<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, provide basic details about the channel|
+|channel_messages|(token, channel_id, start)|{ messages, start, end }|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>start is greater than the total number of messages in the channel</li></ul>**AccessError**<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, provide basic details about the channel|Given a Channel with ID channel_id that the authorised user is part of, return up to 50 messages between index "start" and "start + 50". Message with index 0 is the most recent message in the channel. This function returns a new index "end" which is the value of "start + 50", or, if this function has returned the least recent messages in the channel, returns -1 to indicate there are no more messages to load after this return.|
+
+|channel_leave|(token, channel_id)|{}|**InputError** when:<ul><li>Channel (based on ID) does not exist</li><li>Email entered does not belong to a user</li></ul>|Given a channel ID, the user removed as a member of this channel|
+
 |channel_join|(token, channel_id)|{}|
 |channel_addowner|(token, channel_id, u_id)|{}|
 |channel_removeowner|(token, channel_id, u_id)|{}|
@@ -213,13 +220,15 @@ There are a few different ways to do this. However, you don't need to decide on 
 |channels_listall|(token)|{ channels }|
 |channels_create|(token, name, is_public)|{ channel_id }|
 |message_sendlater|(token, message, time_sent)|{}|
-|message_send|(token, message)|{}|
-|message_remove|(token, message_id)|{}|
-|message_edit|(token, message, message_id)|{}|
-|message_react|(token, message_id, react_id)|{}|
-|message_unreact|(token, message_id)|{}|
-|message_pin|(token, message_id)|{}|
-|message_unpin|(token, message_id)|{}|
+
+|message_send|(token, message)|{}|**InputError** when:<ul><li>Message is more than 1000 characters</li></ul>|Given a channel ID, the user removed as a member of this channel|
+|message_remove|(token, message_id)|{}|**InputError** when:<ul><li>Message (based on ID) no longer exists</li><li>Uer does not have permission to remove tht row</li.</ul>|Given a channel ID, the user removed as a member of this channel|
+|message_edit|(token, message_id, message)|{}|**InputError** when:<ul><li>message_id is not a valid message that either 1) is a message sent by the authorised user, or; 2) If the authorised user is an admin, is a any message within a channel that the authorised user has joined</li></ul>|Given a message, update it's text with new text|
+|message_react|(token, message_id, react_id)|{}|**InputError** when:<ul><li>message_id is not a valid message within a channel that the authorised user has joined</li><li>react_id is not a valid React ID</li><li>Message with ID message_id already contains an active React with ID react_id</li></ul>|Given a message within a channel the authorised user is part of, add a "react" to that particular message|
+|message_unreact|(token, message_id, react_id)|{}|**InputError** when:<ul><li>message_id is not a valid message within a channel that the authorised user has joined</li><li>react_id is not a valid React ID</li><li>Message with ID message_id does not contain an active React with ID react_id</li></ul>|Given a message within a channel the authorised user is part of, remove a "react" to that particular message|
+|message_pin|(token, message_id)|{}|**InputError** when:<ul><li>message_id is not a valid message</li><li>The authorised user is not an admin</li><li>The authorised user is not a member of the channel that the message is within</li><li>Message with ID message_id is already pinned</li></ul>|Given a message within a channel, mark it as "pinned" to be given special display treatment by the frontend|
+|message_unpin|(token, message_id)|{}|**InputError** when:<ul><li>message_id is not a valid message</li><li>The authorised user is not an admin</li><li>The authorised user is not a member of the channel that the message is within</li><li>Message with ID message_id is already unpinned</li></ul>|Given a message within a channel, remove it's mark as unpinned|
+
 |user_profile|(token)|{ email, name_first, name_last, handle_str }|
 |user_profile_setname|(token, name_first, name_last)|{}|
 |user_profile_setemail|(token, email)|{}|
