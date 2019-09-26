@@ -26,7 +26,8 @@ Nothing here yet
  * admin_userpermission_add and admin_userpermission_remove combined into admin_userpermission_change
 * 25/09/2019: channel_messages correct description given 
 * 25/09/2019: "Interface pecifications" => "Interface specifications"
-* 25/09/2019:  Task 2 for iteration 1 better explained
+* 25/09/2019: Task 2 for iteration 1 better explained
+* 26/09/2019: More detail provided for what the "plan" should entail
 
 ## Background
 
