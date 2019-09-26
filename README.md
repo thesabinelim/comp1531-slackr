@@ -102,6 +102,10 @@ In this iteration, you are expected to:
 
 4. Write a brief 1-page plan highlighting how you will approach the following iteration (the development stage).
 
+    Since iteration 2 is about implementing the interface that has been provided to you already by Sally and Bob, you should be able to make enough sense of the requirements to 1) Estimate the time they take, 2) Break them up into logical buckets, 3) Figure out the order in which you would implement them
+
+    This isn't meant to be overly complicated. It's just to demonstrate that you've had a **thoughtful** guess at how you'd go about developing the functions.
+
     Write these in markdown in `plan.md`. You may include diagrams, tables or whatever other information you believe conveys your plan.
 
 5. Write a brief 1-page reflection on how this iteration has gone and how you successfully operated as a well-functioning team.
@@ -148,7 +152,7 @@ This will submit the contents of your repo on GitLab and perform a check to make
 |Pytests|40%| <ul><li>Demonstrated an understanding of good test **coverage**</li><li>Demonstrated an understanding of the importance of **clarity** on the communication of test purposes</li><li>Demonstrated an understanding of good test **design**</li><li>Tests not under or over engineered</li></ul>|
 |Stories markdown file|25%|<ul><li>Demonstration of an understanding of a user's needs when using a product</li><li>Clear sense of the coverage needed for requirements (i.e. all reasonable possibilities explored)</li><li>Strong understanding of the granularity in which to express requirements (not too specific, not too broad)</li><li>Demonstration of an understanding of the language typically used when writing user stories</li><li>Demonstration of an understanding of the difference between high-level/epic user stories and their subsequent user story components</li></ul>|
 |Assumptions markdown file|10%|<ul><li>Clear and obvious effort and time gone into thinking about possible assumptions that are being made when interpreting the specification</li></ul>|
-|Planning markdown file|10%|<ul><li>Communication of plan for development in a written format</li><li>Communication of plan for development in a diagramatic format</li><li>Demonstration of understanding of how to draw and anticipate a timeline</li><li>Demonstration of thoughtfullness regarding software tools to assist the team in meeting the development iteration</li></ul>|
+|Planning markdown file|10%|<ul><li>Communication of plan for development (iteration 2) in a written format</li><li>Communication of plan for development (iteration 2) in a diagramatic format</li><li>Demonstration of understanding of how to anticipate a timeline</li><li>Demonstration of thoughtfullness regarding software tools to assist the team in procuding iteration 2</li></ul>|
 |Teamwork|15%|Note: This section is assessed by your tutor implicity. No submission is needed for this part. <ul><li>Highlighting the timing and outcome of team meetings</li><li>Demonstration that responsibilities were allocated across team members</li><li>Clear reflection on areas for improvement</li><li>Impression that team has worked together collaboratively</li><li>Impression that team had processes in place to work through disagreements or tension</li><li>Impression that team had a thought out methodology for completing this iteration</li></ul>|
 
 ### Advice
