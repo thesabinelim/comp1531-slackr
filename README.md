@@ -26,7 +26,8 @@ Nothing here yet
  * admin_userpermission_add and admin_userpermission_remove combined into admin_userpermission_change
 * 25/09/2019: channel_messages correct description given 
 * 25/09/2019: "Interface pecifications" => "Interface specifications"
-* 25/09/2019:  Task 2 for iteration 1 better explained
+* 25/09/2019: Task 2 for iteration 1 better explained
+* 26/09/2019: More detail provided for what the "plan" should entail
 
 ## Background
 
@@ -101,6 +102,10 @@ In this iteration, you are expected to:
     Write these in markdown in `assumptions.md`.
 
 4. Write a brief 1-page plan highlighting how you will approach the following iteration (the development stage).
+
+    Since iteration 2 is about implementing the interface that has been provided to you already by Sally and Bob, you should be able to make enough sense of the requirements to 1) Estimate the time they take, 2) Break them up into logical buckets, 3) Figure out the order in which you would implement them
+
+    This isn't meant to be overly complicated. It's just to demonstrate that you've had a **thoughtful** guess at how you'd go about developing the functions.
 
     Write these in markdown in `plan.md`. You may include diagrams, tables or whatever other information you believe conveys your plan.
 
