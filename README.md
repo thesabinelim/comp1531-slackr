@@ -32,6 +32,7 @@ Nothing here yet
 * 27/09/2019: Reflection markdown file changed to be half to 1 page in size (reducing the burden). Clarified where it fits into the teamwork mark.
 * 27/09/2019: Emphasis placed that [this](https://youtu.be/0_jaxpOSoj4) video is the main source you should be deriving user requirements from.
 * 27/09/2019: channel_leave had an irrelevant requirement in it that has been removed now ("Email entered does not belong to a user")
+* 27/09/2019: auth_logout clarified to do nothing if an invalid token passed in
 
 ## Background
 
@@ -140,7 +141,7 @@ The scaffold for user stories will be provided in the lecture on Monday 23rd Sep
 
 ### Submission
 
-This iteration is due to be submitted at 5pm Sunday 6th October (**week 3**). You will then be demonstrating this in your week 4 lab (week 5 for monday tutes). All team members **must** attend this lab session.
+This iteration is due to be submitted at 8pm Sunday 6th October (**week 3**). You will then be demonstrating this in your week 4 lab (week 5 for monday tutes). All team members **must** attend this lab session.
 
 To submit, run this command in the CSE environment:
 
@@ -233,7 +234,7 @@ There are a few different ways to do this. However, you don't need to decide on 
 |Function name|Parameters|Return type|Exception|Description|
 |-------------|----------|-----------|-----------|-----------|
 |auth_login|(email, password)|{ token }|**ValueError** when:<ul><li>Email entered is not a valid email</li><li>Email entered does not belong to a user</li></ul> | Given a registered users' email and password and generates a valid token for the user to remain authenticated |
-|auth_logout|(token)|{}|N/A|Given an active token, invalidates the taken to log the user out|
+|auth_logout|(token)|{}|N/A|Given an active token, invalidates the taken to log the user out. Given a non-valid token, does nothing|
 |auth_register|(email, password, name_first, name_last)|{ token }|**ValueError** when:<ul><li>Email entered is not a valid email.</li><li>Email address is already being used by another user</li><li>Password entered is not a valid password</li><li>name_first is more than 50 characters</li><li>name_last is more than 50 characters</ul>|Given a user's first and last name, email address, and password, create a new account for them and return a new token for authentication in their session|
 |auth_passwordreset_request|(email)|{}|N/A|Given an email address, if the user is a registered user, send's them a an email containing a specific secret code, that when entered in auth_passwordreset_reset, shows that the user trying to reset the password is the one who got sent this email.|
 |auth_passwordreset_reset|(reset_code, new_password)|{}|**ValueError** when:<ul><li>reset_code is not a valid reset code</li><li>Email entered is not a valid email.</li><li>Password entered is not a valid password</li>|Given a reset code for a user, set that user's new password to the password provided|
