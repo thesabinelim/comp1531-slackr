@@ -30,7 +30,8 @@ Nothing here yet
 * 26/09/2019: More detail provided for what the "plan" should entail
 * 26/09/2019: Instances of InputError changed to ValueError
 * 27/09/2019: Reflection markdown file changed to be half to 1 page in size (reducing the burden). Clarified where it fits into the teamwork mark.
-
+* 27/09/2019: Emphasis placed that [this](https://youtu.be/0_jaxpOSoj4) video is the main source you should be deriving user requirements from.
+* 27/09/2019: channel_leave had an irrelevant requirement in it that has been removed now ("Email entered does not belong to a user")
 ## Background
 
 An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
@@ -67,7 +68,7 @@ Beside the information available in the interface that Sally and Bob provided, y
 10. Ability to modify a user's admin privileges: (MEMBER, ADMIN, OWNER)
 11. Ability to begin a "standup", which is a 15 minute period where users can send messages that at the end of the period will automatically be collated and summarised to all users
 
-To get further information about the requirements, Rayden Pty Ltd has provided a pre-recorded video briefing (with verbal and visual descriptions) of what UNSW would like to see in the Slackr product. This can be found [HERE](https://youtu.be/0_jaxpOSoj4).
+To get further information about the requirements, Rayden Pty Ltd has provided a pre-recorded video briefing (with verbal and visual descriptions) of what UNSW would like to see in the Slackr product. This can be found [HERE](https://youtu.be/0_jaxpOSoj4). Hint: **This video should be the main source of information from which you derive your user stories**
 
 ## Setup
 
@@ -238,7 +239,7 @@ There are a few different ways to do this. However, you don't need to decide on 
 |channel_invite|(token, channel_id, u_id)|{}|**ValueError** when:<ul><li>channel_id does not refer to a valid channel that the authorised user is part of.</li><li>u_id does not refer to a valid user</li></ul>|Invites a user (with user id u_id) to join a channel with ID channel_id. Once invited the user is added to the channel immediately|
 |channel_details|(token, channel_id)|{ name, owner_members, all_members }|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, provide basic details about the channel|
 |channel_messages|(token, channel_id, start)|{ messages, start, end }|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>start is greater than the total number of messages in the channel</li></ul>**AccessError** when<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, return up to 50 messages between index "start" and "start + 50". Message with index 0 is the most recent message in the channel. This function returns a new index "end" which is the value of "start + 50", or, if this function has returned the least recent messages in the channel, returns -1 to indicate there are no more messages to load after this return.|
-|channel_leave|(token, channel_id)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>Email entered does not belong to a user</li></ul>|Given a channel ID, the user removed as a member of this channel|
+|channel_leave|(token, channel_id)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li></ul>|Given a channel ID, the user removed as a member of this channel|
 |channel_join|(token, channel_id)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>channel_id refers to a channel that is private (when the authorised user is not an admin)</li></ul>|Given a channel_id of a channel that the authorised user can join, adds them to that channel|
 |channel_addowner|(token, channel_id, u_id)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>When user with user id u_id is already an owner of the channel</li></ul>**AccessError** when the authorised user is not an owner of the slackr, or an owner of this channel</li></ul>|Make user with user id u_id an owner of this channel|
 |channel_removeowner|(token, channel_id, u_id)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>When user with user id u_id is not an owner of the channel</li></ul>**AccessError** when the authorised user is not an owner of the slackr, or an owner of this channel</li></ul>|Remove user with user id u_id an owner of this channel|
