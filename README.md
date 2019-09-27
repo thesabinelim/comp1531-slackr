@@ -32,6 +32,7 @@ Nothing here yet
 * 27/09/2019: Reflection markdown file changed to be half to 1 page in size (reducing the burden). Clarified where it fits into the teamwork mark.
 * 27/09/2019: Emphasis placed that [this](https://youtu.be/0_jaxpOSoj4) video is the main source you should be deriving user requirements from.
 * 27/09/2019: channel_leave had an irrelevant requirement in it that has been removed now ("Email entered does not belong to a user")
+
 ## Background
 
 An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
@@ -98,7 +99,7 @@ In this iteration, you are expected to:
     
     We recommend you get familiar with the slack-app (the one we invited you to) in order to understand the mechanics of a slack-like app to provide better articulated user stories. Consider this a form of market research on "similar products" to better understand where UNSW are coming from.
 
-    Each individual story should form its own card on the project task board.
+    Each individual story should form its own card on the project task board (this can be found on gitlab). 
 
 3. Write assumptions that you feel you are making in your interpretation of the specification and of the functions provided.
 
