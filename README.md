@@ -38,6 +38,7 @@ Nothing here yet
 * 27/09/2019: user_profile description and parameters clarified and fixed
 * 27/09/2019: message_edit and message_remove interface descriptions fixed
 * 27/09/2019: user_profile_sethandle, user_profiles_uploadphoto; updated
+* 29/09/2019: user_profile_sethandle had error "name_last is more than 50 characters" removed
 
 An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
 
@@ -262,7 +263,7 @@ There are a few different ways to do this. However, you don't need to decide on 
 |user_profile|(token, u_id)|{ email, name_first, name_last, handle_str }|**ValueError** when:<ul><li>User with u_id is not a valid user</li></ul>|For a valid user, returns information about their email, first name, last name, and handle|
 |user_profile_setname|(token, name_first, name_last)|{}|**ValueError** when:<ul><li>name_first is more than 50 characters</li><li>name_last is more than 50 characters</ul></ul>|Update the authorised user's first and last name|
 |user_profile_setemail|(token, email)|{}|**ValueError** when:<ul><li>Email entered is not a valid email.</li><li>Email address is already being used by another user</li>|Update the authorised user's email address|
-|user_profile_sethandle|(token, handle_str)|{}|**ValueError** when:<ul><li>handle_str is no more than 20 characters</li><li>name_last is more than 50 characters</li></ul>|Update the authorised user's handle (i.e. display name)|
+|user_profile_sethandle|(token, handle_str)|{}|**ValueError** when:<ul><li>handle_str is no more than 20 characters</li></ul>|Update the authorised user's handle (i.e. display name)|
 |user_profiles_uploadphoto|(token, img_url, x_start, y_start, x_end, y_end)|{}|**ValueError** when:<ul><li>img_url is returns an HTTP status other than 200.</li><li>x_start, y_start, x_end, y_end are all within the dimensions of the image at the URL.</li></ul>|Given a URL of an image on the internet, crops the image within bounds (x_start, y_start) and (x_end, y_end). Position (0,0) is the top left.|
 |standup_start|(token, channel_id)|{ time_finish }|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|For a given channel, start the standup period whereby for the next 15 minutes if someone calls "standup_send" with a message, it is buffered during the 15 minute window then at the end of the 15 minute window a message will be added to the message queue in the channel from the user who started the standup. |
 |standup_send|(token, channel_id, message)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>Message is more than 1000 characters</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li><li>If the standup time has stopped</li></ul>|Sending a message to get buffered in the standup queue, assuming a standup is currently active|
