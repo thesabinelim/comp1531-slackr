@@ -39,6 +39,7 @@ Nothing here yet
 * 27/09/2019: message_edit and message_remove interface descriptions fixed
 * 27/09/2019: user_profile_sethandle, user_profiles_uploadphoto; updated
 * 29/09/2019: user_profile_sethandle had error "name_last is more than 50 characters" removed
+* 29/09/2019: user_login now has ValueError to be raised if "Password is not correct"
 
 An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
 
@@ -237,7 +238,7 @@ There are a few different ways to do this. However, you don't need to decide on 
 
 |Function name|Parameters|Return type|Exception|Description|
 |-------------|----------|-----------|-----------|-----------|
-|auth_login|(email, password)|{ token }|**ValueError** when:<ul><li>Email entered is not a valid email</li><li>Email entered does not belong to a user</li></ul> | Given a registered users' email and password and generates a valid token for the user to remain authenticated |
+|auth_login|(email, password)|{ token }|**ValueError** when:<ul><li>Email entered is not a valid email</li><li>Email entered does not belong to a user</li><li>Password is not correct</li></ul> | Given a registered users' email and password and generates a valid token for the user to remain authenticated |
 |auth_logout|(token)|{}|N/A|Given an active token, invalidates the taken to log the user out. Given a non-valid token, does nothing|
 |auth_register|(email, password, name_first, name_last)|{ token }|**ValueError** when:<ul><li>Email entered is not a valid email.</li><li>Email address is already being used by another user</li><li>Password entered is not a valid password</li><li>name_first is more than 50 characters</li><li>name_last is more than 50 characters</ul>|Given a user's first and last name, email address, and password, create a new account for them and return a new token for authentication in their session|
 |auth_passwordreset_request|(email)|{}|N/A|Given an email address, if the user is a registered user, send's them a an email containing a specific secret code, that when entered in auth_passwordreset_reset, shows that the user trying to reset the password is the one who got sent this email.|
