@@ -42,6 +42,7 @@ Nothing here yet
 * 29/09/2019: user_login now has ValueError to be raised if "Password is not correct"
 * 29/09/2019: auth_login and auth_register now return a u_id too. This isnt strictly necessary (as we'll see later), but will make testing easier.
 * 29/09/2019: message_id added to the message structure (so that lists of messages contain the id of the message)
+* 30/09/2019: Pagination explanation added
 
 An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
 
@@ -247,7 +248,7 @@ There are a few different ways to do this. However, you don't need to decide on 
 |auth_passwordreset_reset|(reset_code, new_password)|{}|**ValueError** when:<ul><li>reset_code is not a valid reset code</li><li>Password entered is not a valid password</li>|Given a reset code for a user, set that user's new password to the password provided|
 |channel_invite|(token, channel_id, u_id)|{}|**ValueError** when:<ul><li>channel_id does not refer to a valid channel that the authorised user is part of.</li><li>u_id does not refer to a valid user</li></ul>|Invites a user (with user id u_id) to join a channel with ID channel_id. Once invited the user is added to the channel immediately|
 |channel_details|(token, channel_id)|{ name, owner_members, all_members }|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, provide basic details about the channel|
-|channel_messages|(token, channel_id, start)|{ messages, start, end }|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>start is greater than the total number of messages in the channel</li></ul>**AccessError** when<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, return up to 50 messages between index "start" and "start + 50". Message with index 0 is the most recent message in the channel. This function returns a new index "end" which is the value of "start + 50", or, if this function has returned the least recent messages in the channel, returns -1 to indicate there are no more messages to load after this return.|
+|channel_messages|(token, channel_id, start)|{ messages, start, end }|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>start is greater than the total number of messages in the channel</li></ul>**AccessError** when<ul><li>Authorised user is not a member of channel with channel_id</li></ul>|Given a Channel with ID channel_id that the authorised user is part of, return up to 50 messages between index "start" and "start + 50". Message with index 0 is the most recent message in the channel. This function returns a new index "end" which is the value of "start + 50", or, if this function has returned the least recent messages in the channel, returns -1 in "end" to indicate there are no more messages to load after this return.|
 |channel_leave|(token, channel_id)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li></ul>|Given a channel ID, the user removed as a member of this channel|
 |channel_join|(token, channel_id)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li></ul>**AccessError** when<ul><li>channel_id refers to a channel that is private (when the authorised user is not an admin)</li></ul>|Given a channel_id of a channel that the authorised user can join, adds them to that channel|
 |channel_addowner|(token, channel_id, u_id)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>When user with user id u_id is already an owner of the channel</li></ul>**AccessError** when the authorised user is not an owner of the slackr, or an owner of this channel</li></ul>|Make user with user id u_id an owner of this channel|
@@ -272,6 +273,14 @@ There are a few different ways to do this. However, you don't need to decide on 
 |standup_send|(token, channel_id, message)|{}|**ValueError** when:<ul><li>Channel (based on ID) does not exist</li><li>Message is more than 1000 characters</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li><li>If the standup time has stopped</li></ul>|Sending a message to get buffered in the standup queue, assuming a standup is currently active|
 |search|(token, query_str)|{ messages }|N/A|Given a query string, return a collection of messages that match the query|
 |admin_userpermission_change|(token, u_id, permission_id)|{}|**ValueError** when:<ul><li>u_id does not refer to a valid user<li>permission_id does not refer to a value permission</li></ul>**AccessError** when<ul><li>The authorised user is not an admin or owner</li></ul>|Given a User by their user ID, set their permissions to new permissions described by permission_id|
+
+### Pagination
+The behaviour in which channel_messages returns data is called **pagination**. It's a commonly used method when it comes to getting theoretially unbounded amounts of data from a server to display on a page in chunks. Most of the timelines you know and love - Facebook, Instagram, LinkedIn - do this.
+
+For example, if we imagine a user with token "12345" is trying to read messages from channel with ID 6, and this channel has 124 messages in it, 3 calls from the client to the server would be made. These calls, and their corresponding return values would be:
+ * channel_messages("12345", 6, 0) => { [messages], 0, 49 }
+ * channel_messages("12345", 6, 50) => { [messages], 50, 99 }
+ * channel_messages("12345", 6, 100) => { [messages], 100, -1 }
 
 ## Due Dates and Weightings
 
