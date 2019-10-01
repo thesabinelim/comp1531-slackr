@@ -23,6 +23,7 @@ def test_auth_register_simple():
     assert regDict3 and 'u_id' in regDict3 and 'token' in regDict3
     # Check that registration attempts returned different values
     assert regDict3['u_id'] != regDict2['u_id'] and regDict3['token'] != regDict2['token']
+    assert regDict3['u_id'] != regDict1['u_id'] and regDict3['token'] != regDict1['token']
 
 def test_auth_register_bademail():
     with pytest.raises(ValueError):

@@ -18,7 +18,7 @@ def auth_login(email, password):
 
     raise ValueError
 
-# Given an active token, invalidates the taken to log the user out. Given a
+# Given an active token, invalidates the token to log the user out. Given a
 # non-valid token, does nothing. Returns empty dictionary.
 def auth_logout(token):
     return {}
