@@ -225,6 +225,11 @@ To solve this when a user logs in or registers the backend should return a "toke
 
 There are a few different ways to do this. However, you don't need to decide on a way until Iteration 2. For now you can just ensure the tokens returned from login/register and the same as ones passed into other functions.
 
+### Access Error
+The AccessError is not one of Python's built in types. For iteration one, you can either:
+ * Just use another error as a placeholder for now
+ * Make your own AccessError as per [instructions that we have provided](https://youtu.be/gkcRe_u_x5Q)
+
 ### Functions
 
 #### Notes:
