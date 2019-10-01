@@ -228,7 +228,7 @@ There are a few different ways to do this. However, you don't need to decide on 
 ### Access Error
 The AccessError is not one of Python's built in types. For iteration one, you can either:
  * Just use another error as a placeholder for now
- * Make your own AccessError as per [instructions that we have provided](https://youtu.be/gkcRe_u_x5Q)
+ * Make your own AccessError as per [instructions that we have provided](https://webcms3.cse.unsw.edu.au/COMP1531/19T3/resources/35860)
 
 ### Functions
 
