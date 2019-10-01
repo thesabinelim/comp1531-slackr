@@ -154,7 +154,7 @@ The scaffold for user stories will be provided in the lecture on Monday 23rd Sep
 
 This iteration is due to be submitted at 8pm Sunday 6th October (**week 3**). You will then be demonstrating this in your week 4 lab (week 5 for monday tutes). All team members **must** attend this lab session.
 
-To submit, run this command in the CSE environment:
+To submit, one team member must run this command in the CSE environment:
 
 ```sh
 1531 submit iteration1
