@@ -14,9 +14,17 @@ def message_sendlater(token, channel_id, message, time_sent):
 # Raises ValueError exception when the message is more than 1000 characters.
 # No return value.
 def message_send(token, channel_id, message):
-    pass
+    # Can't exactly test token stuff right now
+    if message.length() > 1000:
+        raise ValueError
+
+    # An assumption I'm making is that the channel_id has to be valid, like in
+    # send_later
+    # if channel_id is invalid
+    #   raise ValueError
 
 # Given a message_id for a message, this message is removed from the channel.
+# Raises ValueError when the message_id no longer exists.
 # No return value.
 def message_remove(token, message_id):
     pass
