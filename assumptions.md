@@ -12,3 +12,4 @@ channels_create:
 search:
     - Only the channels that a user has access to are searched.
     - The search function will not be case sensitive.
+    - Spaces at the end of a query will be included.
