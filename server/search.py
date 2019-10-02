@@ -1,5 +1,5 @@
 # COMP1531 Project search
-# Written by Eric Lin
+# Written by Eric Lin z5257305
 # 02/10/19
 
 
