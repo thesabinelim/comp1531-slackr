@@ -5,6 +5,7 @@ auth_register:
     - First name cannot be blank and must contain only alphanumeric characters,
       '-', '_', ''', '/', '(', ')' and '.'.
     - Names cannot contain only punctuation.
+    - Returned u_ids cannot be negative.
 
 channels_create:
     - Channel names must contain only alphanumeric characters, '-', '_', '[' and
@@ -16,9 +17,5 @@ channels_list:
     - The list of channels returned is sorted in order of id.
 
 user_profile:
-    - Can't verify anything as there is no actual backend for iteration 1.
-    - Placeholder return values are used instead to be changed in the next iteration.
-    - Similarly, an 'invalid' user id depends on the backend, and it has been
-    taken for now to just be that an id can't be negative.
     - For now, the handle_str is assumed by default to be first name and last
     name concat'd together.
