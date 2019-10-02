@@ -16,7 +16,7 @@ def user_profile(token, u_id):
         "email": f"{u_id}@example.com",
         "name_first": "test", 
         "name_last": "test",
-        "handle_str": f"{u_id}"
+        "handle_str": f"testtest"
     }
 
 # Update the authorised user's first and last name

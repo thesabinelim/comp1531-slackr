@@ -20,3 +20,5 @@ user_profile:
     - Placeholder return values are used instead to be changed in the next iteration.
     - Similarly, an 'invalid' user id depends on the backend, and it has been
     taken for now to just be that an id can't be negative.
+    - For now, the handle_str is assumed by default to be first name and last
+    name concat'd together.

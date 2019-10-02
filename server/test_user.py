@@ -13,8 +13,8 @@ def test_user_profile_return():
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     # SETUP END
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert user_dict and 'email' in user_dict and 'name_first' in user_dict \
-        and 'name_last' in user_dict and 'handle_str' in user_dict
+    assert user_dict and user_dict['email'] and user_dict['name_first'] \
+        and user_dict['name_last'] and user_dict['handle_str']
 
 def test_user_profile_negative_id():
     # SETUP BEGIN
@@ -37,14 +37,20 @@ def test_user_profile_data():
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert 'email' in user_dict == "user@example.com"
-    assert 'name_first' in user_dict == "user@example.com"
-    assert 'name_last' in user_dict == "user@example.com"
-    assert 'handle_str' in user_dict == "user@example.com"
+    assert user_dict['email'] == "user@example.com"
+    assert user_dict['name_first'] == "Test"
+    assert user_dict['name_last'] == "User"
+    assert user_dict['handle_str'] == "TestUser"
     user_dict = user_profile(reg_dict2['token'], 5242579)
-    assert 'email' in user_dict == "sabine.lim@unsw.edu.au"
+    assert user_dict['email'] == "sabine.lim@unsw.edu.au"
+    assert user_dict['name_first'] == "Sabine"
+    assert user_dict['name_last'] == "Lim"
+    assert user_dict['handle_str'] == "SabineLim"
     user_dict = user_profile(reg_dict3['token'], 4201337)
-    assert 'email' in user_dict == "gamer@twitch.tv"
+    assert user_dict['email'] == "gamer@twitch.tv"
+    assert user_dict['name_first'] == "Gabe"
+    assert user_dict['name_last'] == "Newell"
+    assert user_dict['handle_str'] == "GabeNewell"
 
 def test_user_profile_handle():
     # SETUP BEGIN
@@ -55,9 +61,9 @@ def test_user_profile_handle():
     user_dict1 = user_profile(reg_dict1['token'], 1234567)
     user_dict2 = user_profile(reg_dict2['token'], 5242579)
     user_dict3 = user_profile(reg_dict3['token'], 4201337)
-    assert 'handle_str' in user_dict1 == "1234567"
-    assert 'handle_str' in user_dict2 == "5242579"
-    assert 'handle_str' in user_dict3 == "4201337"
+    assert user_dict1['handle_str'] == "1234567"
+    assert user_dict2['handle_str'] == "5242579"
+    assert user_dict3['handle_str'] == "4201337"
 
 def test_user_profile_setname_valid():
     # SETUP BEGIN
@@ -67,15 +73,15 @@ def test_user_profile_setname_valid():
     # SETUP END
     user_profile_setname(reg_dict1['token'], "Ronald", "McDonald")
     user_dict1 = user_profile(reg_dict1['token'], 1234567)
-    assert 'name_first' in user_dict1 == "Ronald" and 'name_last' in user_dict1 == "McDonald"
+    assert user_dict1['name_first'] == "Ronald" and user_dict1['name_last'] == "McDonald"
 
     user_profile_setname(reg_dict2['token'], "Donald", "McDonald")
     user_dict2 = user_profile(reg_dict2['token'], 5242579)
-    assert 'name_first' in user_dict2 == "Donald" and 'name_last' in user_dict2 == "McDonald"
+    assert user_dict2['name_first'] == "Donald" and user_dict2['name_last'] == "McDonald"
     
     user_profile_setname(reg_dict3['token'], "Tonald", "McDonald")
     user_dict3 = user_profile(reg_dict3['token'], 4201337)
-    assert 'name_first' in user_dict2 == "Tonald" and 'name_last' in user_dict3 == "McDonald"
+    assert user_dict3['name_first'] == "Tonald" and user_dict3['name_last'] == "McDonald"
 
 def test_user_profile_setname_long_name_first():
     # SETUP BEGIN
@@ -104,23 +110,23 @@ def test_user_profile_setemail_valid():
     # SETUP END
     user_profile_setemail(reg_dict1['token'], "goodemail@example.com")
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert 'email' in user_dict == "goodemail@example.com"
+    assert user_dict['email'] == "goodemail@example.com"
 
     user_profile_setemail(reg_dict1['token'], "user@example.com")
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert 'email' in user_dict == "user@example.com"
+    assert user_dict['email'] == "user@example.com"
 
     user_profile_setemail(reg_dict1['token'], "user@example.com")
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert 'email' in user_dict == "user@example.com"
+    assert user_dict['email'] == "user@example.com"
 
     user_profile_setemail(reg_dict1['token'], "goodemail23@example.com")
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert 'email' in user_dict == "goodemail23@example.com"
+    assert user_dict['email'] == "goodemail23@example.com"
 
     user_profile_setemail(reg_dict1['token'], "goodemail@msn.com")
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert 'email' in user_dict == "goodemail@msn.com"
+    assert user_dict['email'] == "goodemail@msn.com"
 
 def test_user_profile_setemail_invalid():
     # SETUP BEGIN
@@ -151,11 +157,11 @@ def test_user_profile_sethandle_valid():
     # SETUP END
     user_profile_sethandle(reg_dict1['token'], "--xXCool--handleXx--")
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert 'handle_str' in user_dict == "--xXCool--handleXx--"
+    assert user_dict['handle_str'] == "--xXCool--handleXx--"
 
     user_profile_sethandle(reg_dict1['token'], "aaa")
     user_dict = user_profile(reg_dict1['token'], 1234567)
-    assert 'handle_str' in user_dict == "aaa"
+    assert user_dict['handle_str'] == "aaa"
 
 def test_user_profile_sethandle_long_str():
     # SETUP BEGIN
