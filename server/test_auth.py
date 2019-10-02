@@ -11,18 +11,19 @@ from auth import *
 #######################
 
 def test_auth_register_simple():
-    regDict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    assert regDict1 and 'u_id' in regDict1 and 'token' in regDict1
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    assert reg_dict1 and 'u_id' in reg_dict1 and 'token' in reg_dict1
 
-    regDict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    assert regDict2 and 'u_id' in regDict2 and 'token' in regDict2
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    assert reg_dict2 and 'u_id' in reg_dict2 and 'token' in reg_dict2
     # Check that registration attempts returned different values
-    assert regDict2['u_id'] != regDict1['u_id'] and regDict2['token'] != regDict1['token']
+    assert reg_dict2['u_id'] != reg_dict1['u_id'] and reg_dict2['token'] != reg_dict1['token']
 
-    regDict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
-    assert regDict3 and 'u_id' in regDict3 and 'token' in regDict3
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    assert reg_dict3 and 'u_id' in reg_dict3 and 'token' in reg_dict3
     # Check that registration attempts returned different values
-    assert regDict3['u_id'] != regDict2['u_id'] and regDict3['token'] != regDict2['token']
+    assert reg_dict3['u_id'] != reg_dict2['u_id'] and reg_dict3['token'] != reg_dict2['token']
+    assert reg_dict3['u_id'] != reg_dict1['u_id'] and reg_dict3['token'] != reg_dict1['token']
 
 def test_auth_register_bademail():
     with pytest.raises(ValueError):
@@ -68,22 +69,22 @@ def test_auth_register_emailtaken():
 
 def test_auth_login_simple():
     # SETUP BEGIN
-    regDict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    regDict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    regDict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
-    loginDict1 = auth_login('user@example.com', 'validpassword')
-    assert loginDict1 and 'u_id' in loginDict1 and 'token' in loginDict1
-    assert loginDict1['u_id'] == regDict1['u_id']
+    login_dict1 = auth_login('user@example.com', 'validpassword')
+    assert login_dict1 and 'u_id' in login_dict1 and 'token' in login_dict1
+    assert login_dict1['u_id'] == reg_dict1['u_id']
 
-    loginDict2 = auth_login('sabine.lim@unsw.edu.au', 'ImSoAwes0me')
-    assert loginDict2 and 'u_id' in loginDict2 and 'token' in loginDict2
-    assert loginDict2['u_id'] == regDict2['u_id']
+    login_dict2 = auth_login('sabine.lim@unsw.edu.au', 'ImSoAwes0me')
+    assert login_dict2 and 'u_id' in login_dict2 and 'token' in login_dict2
+    assert login_dict2['u_id'] == reg_dict2['u_id']
 
-    loginDict3 = auth_login('gamer@twitch.tv', 'gamers_rise_up')
-    assert loginDict3 and 'u_id' in loginDict3 and 'token' in loginDict3
-    assert loginDict3['u_id'] == regDict3['u_id']
+    login_dict3 = auth_login('gamer@twitch.tv', 'gamers_rise_up')
+    assert login_dict3 and 'u_id' in login_dict3 and 'token' in login_dict3
+    assert login_dict3['u_id'] == reg_dict3['u_id']
 
 def test_auth_login_bademail():
     with pytest.raises(ValueError):
@@ -113,14 +114,14 @@ def test_auth_login_wrongpwd():
 
 def test_auth_logout_simple():
     # SETUP BEGIN
-    regDict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    regDict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    regDict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
-    assert auth_logout(regDict1['token']) == {}
-    assert auth_logout(regDict2['token']) == {}
-    assert auth_logout(regDict3['token']) == {}
+    assert auth_logout(reg_dict1['token']) == {}
+    assert auth_logout(reg_dict2['token']) == {}
+    assert auth_logout(reg_dict3['token']) == {}
 
 def test_auth_logout_badtoken():
     assert auth_logout('badtoken') == {}
@@ -134,9 +135,9 @@ def test_auth_logout_badtoken():
 
 def test_passwordreset_request_simple():
     # SETUP BEGIN
-    regDict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    regDict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    regDict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
     assert auth_passwordreset_request('user@example.com') == {}
@@ -151,9 +152,9 @@ def test_passwordreset_request_simple():
 
 def test_passwordreset_reset_simple():
     # SETUP BEGIN
-    regDict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    regDict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    regDict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
     assert auth_passwordreset_reset('abcdef', 'alsovalidpwd') == {}
@@ -162,9 +163,9 @@ def test_passwordreset_reset_simple():
 
 def test_passwordreset_reset_badpwd():
     # SETUP BEGIN
-    regDict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    regDict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    regDict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
     with pytest.raises(ValueError):
