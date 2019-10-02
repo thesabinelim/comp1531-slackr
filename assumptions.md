@@ -1,3 +1,6 @@
+general:
+    - Tokens passed to functions will be validated first.
+
 auth_register:
     - First name cannot be blank and must contain only alphanumeric characters,
       '-', '_', ''', '/', '(', ')' and '.'.
