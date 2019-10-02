@@ -8,3 +8,6 @@ channels_create:
       ']'.
     - If a channel already exists with a certain name, you cannot create another
       channel with the same name.
+
+channels_list:
+    - The list of channels returned is sorted in order of id.

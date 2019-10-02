@@ -12,9 +12,11 @@ def auth_login(email, password):
     if email == 'user@example.com' and password == 'validpassword':
         return {'u_id': 1234567, 'token': '1234567'}
     elif email == 'sabine.lim@unsw.edu.au' and password == 'ImSoAwes0me':
-        return {'u_id': 5242579, 'token': '5242579'}
+        return {'u_id': 5242579, 'token': '7849321'}
     elif email == 'gamer@twitch.tv' and password == 'gamers_rise_up':
-        return {'u_id': 4201337, 'token': '4201337'}
+        return {'u_id': 4201337, 'token': '8479263'}
+    elif email == 'abc@def.com' and password == 'ghijklmnop':
+        return {'u_id': 9876543, 'token': '0018376'}
 
     raise ValueError
 
@@ -43,9 +45,11 @@ def auth_register(email, password, name_first, name_last):
     if email == 'user@example.com' and password == 'validpassword':
         return {'u_id': 1234567, 'token': '1234567'}
     elif email == 'sabine.lim@unsw.edu.au' and password == 'ImSoAwes0me':
-        return {'u_id': 5242579, 'token': '5242579'}
+        return {'u_id': 5242579, 'token': '7849321'}
     elif email == 'gamer@twitch.tv' and password == 'gamers_rise_up':
-        return {'u_id': 4201337, 'token': '4201337'}
+        return {'u_id': 4201337, 'token': '8479263'}
+    elif email == 'abc@def.com' and password == 'ghijklmnop':
+        return {'u_id': 9876543, 'token': '0018376'}
 
     raise ValueError
 
