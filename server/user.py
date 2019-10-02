@@ -8,13 +8,14 @@ import re
 # name, and handle.
 # Raises a ValueError when the u_id is not a valid user.
 # Returns a dictionary of user information.
+# As of iteration 1 this will fail, as all data is stored in the backend as per spec
 def user_profile(token, u_id):
     if u_id < 0:
         raise ValueError
     return { 
         "email": f"{u_id}@example.com",
-        "name_first": "Bob", 
-        "name_last": "Adams",
+        "name_first": "test", 
+        "name_last": "test",
         "handle_str": f"{u_id}"
     }
 
