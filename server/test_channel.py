@@ -19,7 +19,7 @@ def test_channel_invite_simple():
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', True)
     create_dict3 = channels_create(reg_dict3['token'], 'Steam', True)
     # SETUP END
 
@@ -50,6 +50,21 @@ def test_channel_invite_simple():
     }
     assert channels_list(reg_dict3['token']) == {
         {9703358, 'Steam'}
+    }
+
+def test_channel_invite_private():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    # SETUP END
+
+    # Sabine invites Test to PCSoc
+    assert channel_invite(reg_dict2['token'], create_dict1['channel_id'], \
+        reg_dict1['u_id']) == {}
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [{3054207, 'PCSoc'}]
     }
 
 def test_channel_invite_bad_channelid():
@@ -118,6 +133,137 @@ def test_channel_invite_allerrors():
     with pytest.raises(ValueError):
         channel_invite(reg_dict1['token'], create_dict1['channel_id'] + 1, u_id)
 
+def test_channel_reinvite():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    create_dict3 = channels_create(reg_dict3['token'], 'Steam', True)
+    # SETUP END
+
+    # Sabine invites Test to PCSoc
+    assert channel_invite(reg_dict2['token'], create_dict2['channel_id'], \
+        reg_dict1['u_id']) == {}
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'}
+        ]
+    }
+
+    # Test leaves PCSoc
+    channel_leave(reg_dict1['token'], createDict2['token'])
+
+    # Sabine reinvites Test to PCSoc
+    assert channel_invite(reg_dict2['token'], create_dict2['channel_id'], \
+        reg_dict1['u_id']) == {}
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'}
+        ]
+    }
+
+    # Check that Sabine's channel list was unmodified
+    assert channels_list(reg_dict2['token']) == {
+        'channels': [{3054207, 'PCSoc'}]
+    }
+
+#######################
+# channel_leave Tests #
+#######################
+
+def test_channel_leave_simple():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    create_dict3 = channels_create(reg_dict3['token'], 'Steam', True)
+
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    # Sabine leaves 1531 autotest
+    assert channel_leave(reg_dict2['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict2['token']) == {
+        'channels': [{3054207, 'PCSoc'}]
+    }
+
+    # Gabe leaves 1531 autotest
+    assert channel_leave(reg_dict3['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict3['token']) == {
+        'channels': [{9703358, 'Steam'}]
+    }
+
+def test_channel_leave_lastuser():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+
+    assert channel_leave(reg_dict1['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict1['token']) == {'channels': []}
+
+# Will implement this test after interface is clarified (see assumptions.md)
+def test_channel_leave_owner():
+    pass
+
+def test_channel_leave_lastchannel():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    assert channel_leave(reg_dict2['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict2['token']) == {'channels': []}
+
+def test_channel_leave_private():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', False)
+
+    channel_join(reg_dict1['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    assert channel_leave(reg_dict1['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict1['token']) == {'channels': []}
+
+def test_channel_leave_notinchannel():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+
+    with pytest.raises(ValueError):
+        channel_leave(reg_dict2['token'], create_dict1['channel_id'])
+
+def test_channel_leave_bad_channelid():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+
+    with pytest.raises(ValueError):
+        channel_leave(reg_dict1['token'], create_dict1['channel_id'] + 1)
+
 ######################
 # channel_join Tests #
 ######################
@@ -138,7 +284,7 @@ def test_channel_join_simple():
     assert channel_join(reg_dict2['token'], create_dict1['channel_id']) == {}
 
     # Gabe joins 1531 autotest
-    assert channel_invite(reg_dict3['token'], create_dict1['channel_id']) == {}
+    assert channel_join(reg_dict3['token'], create_dict1['channel_id']) == {}
 
     # Qrst joins 1531 autotest
     assert channel_join(reg_dict4['token'], create_dict1['channel_id']) == {}
@@ -191,3 +337,78 @@ def test_channel_join_noperms():
 
     with pytest.raises(AccessError):
         channel_join(reg_dict2['token'], create_dict1['channel_id'])
+
+def test_channel_join_private():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    # SETUP END
+
+    # Test attempts to join PCSoc
+    assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [{3054207, 'PCSoc'}]
+    }
+
+    # Check that Sabine's channel list was unmodified
+    assert channels_list(reg_dict2['token']) == {
+        'channels': [{3054207, 'PCSoc'}]
+    }
+
+def test_channel_rejoin():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', True)
+    # SETUP END
+
+    # Test joins PCSoc
+    assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [{7654321, '1531 autotest'}]
+    }
+
+    # Test leaves PCSoc
+    channel_leave(reg_dict1['token'], create_dict1['channel_id'])
+
+    # Test rejoins PCSoc
+    assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [{7654321, '1531 autotest'}]
+    }
+
+    # Check that Sabine's channel list was unmodified
+    assert channels_list(reg_dict2['token']) == {
+        'channels': [{3054207, 'PCSoc'}]
+    }
+
+def test_channel_rejoin_private():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    # SETUP END
+
+    # Test joins PCSoc
+    assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [{7654321, '1531 autotest'}]
+    }
+
+    # Test leaves PCSoc
+    channel_leave(reg_dict1['token'], create_dict1['channel_id'])
+
+    # Test rejoins PCSoc
+    assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [{7654321, '1531 autotest'}]
+    }
+
+    # Check that Sabine's channel list was unmodified
+    assert channels_list(reg_dict2['token']) == {
+        'channels': [{3054207, 'PCSoc'}]
+    }
