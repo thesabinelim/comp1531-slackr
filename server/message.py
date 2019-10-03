@@ -23,11 +23,6 @@ def message_send(token, channel_id, message):
     if len(message) > 1000:
         raise ValueError
 
-    # An assumption I'm making is that the channel_id has to be valid, like in
-    # send_later
-    # if channel_id is invalid
-    #   raise ValueError
-
 # Given a message_id for a message, this message is removed from the channel.
 # Raises ValueError when the message_id no longer exists.
 # Raises AccessError when message_id not sent by authorised user, AND message_id
@@ -35,7 +30,7 @@ def message_send(token, channel_id, message):
 # or owner of the slack.
 # No return value.
 def message_remove(token, message_id):
-    if channel_id < 0:
+    if message_id < 0:
         raise ValueError
     if message_id == '420':
         raise AccessError
