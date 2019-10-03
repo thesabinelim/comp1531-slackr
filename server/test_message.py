@@ -113,23 +113,48 @@ def test_message_remove_removed_message():
     with pytest.raises(ValueError):
         message_remove(reg_dict1['token'], 3)
 
-def test_message_remove_message_access():
+def test_message_remove_message_access_error():
     # SETUP BEGIN
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    
     channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], channel_1['channel_id'])
+    channel_join(reg_dict3['token'], channel_1['channel_id'])
     # SETUP END
     message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
     message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
     message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
-    message_remove(reg_dict1['token'], 1)
+    # Message sent by user
     message_remove(reg_dict1['token'], 2)
-    message_remove(reg_dict1['token'], 3)
+    # Message sent by owner of the channel, but not by the user
+    with pytest.raises(AccessError):
+        message_remove(reg_dict2['token'], 1)
+    with pytest.raises(AccessError):
+        message_remove(reg_dict2['token'], 3)
+
+    # Message was sent by random
+    message_send(reg_dict2['token'], channel_1['channel_id'], "Oof")
+    message_send(reg_dict2['token'], channel_1['channel_id'], "Ouch")
+    message_send(reg_dict2['token'], channel_1['channel_id'], "Owie")
+    # TODO !!!!!!!!!!!!!!!!!!!!
+    
     
     
 def test_message_edit():
-    pass
+    # !!!!!!!!!! TODO
     
-def test_message_react():
+def test_message_react_simple():
+    pass
+
+def test_message_react_message_invalid():
+    pass
+
+def test_message_react_react_invalid():
+    pass
+
+def test_message_react_message_already_reacted():
     pass
     
 def test_message_unreact():

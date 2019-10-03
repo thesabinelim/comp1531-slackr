@@ -25,8 +25,10 @@ def message_send(token, channel_id, message):
 
 # Given a message_id for a message, this message is removed from the channel.
 # Raises ValueError when the message_id no longer exists.
-# Raises AccessError when message_id not sent by authorised user, AND message_id
-# was not sent by an owner of the channel AND message_id was not sent by an admin
+# Raises AccessError when these are NOT true:
+#   message_id not sent by the authorised user,
+#   AND message_id was not sent by an owner of the channel,
+#   AND message_id was not sent by an admin.
 # or owner of the slack.
 # No return value.
 def message_remove(token, message_id):
