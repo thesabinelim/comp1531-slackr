@@ -21,7 +21,6 @@ def standup_start(token, channel_id):
     timeLeft = 15
     return timeLeft
 
-
 # The standup_send function takes the users token, the desired channel_id
 # and a message under 1000 characters and puts it in the standup_queue.
 # A ValueError is raised when the channel_id is invalid in the case of the
