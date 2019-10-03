@@ -4,6 +4,11 @@
 import datetime
 import pytest
 
+from auth import *
+from message import *
+from channel import *
+from channels import *
+
 def test_message_sendlater_simple():
     # SETUP BEGIN
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
@@ -19,7 +24,7 @@ def test_message_sendlater_simple():
     message_sendlater(reg_dict1['token'], channel_1['channel_id'], "Oof", now_plus_mins)
     
     now_plus_hour = now + datetime.timedelta(hours = 1)
-    message_sendlater(reg_dict2['token'], channel_1['channel_id'], "Ouch", now_plus_10)
+    message_sendlater(reg_dict2['token'], channel_1['channel_id'], "Ouch", now_plus_hour)
 
     now_plus_days = now + datetime.timedelta(days = 3)
     message_sendlater(reg_dict3['token'], channel_1['channel_id'], "Owie", now_plus_days)
