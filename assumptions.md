@@ -18,4 +18,4 @@ channels_list:
 
 user_profile:
     - For now, the handle_str is assumed by default to be first name and last
-    name concat'd together.
+      name concat'd together.
