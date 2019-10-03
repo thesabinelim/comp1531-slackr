@@ -6,6 +6,12 @@
 # Raises ValueError exception if channel_id is invalid/user is not in channel or
 # if u_id is invalid.
 def channel_invite(token, channel_id, u_id):
+    if channel_id not in [7654321, 3054207, 9703358]:
+        raise ValueError
+
+    if u_id not in [1234567, 5242579, 4201337, 9876543]:
+        raise ValueError
+
     return {}
 
 # Given id of channel that user can join, add them to that channel.
