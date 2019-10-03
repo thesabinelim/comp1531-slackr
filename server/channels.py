@@ -5,11 +5,26 @@
 # Return list of channels (and their details) that user is in.
 def channels_list(token):
     if token == '1234567':
-        return {'channels': [{7654321, '1531 autotest'}]}
+        return {
+            'channels': [
+                {7654321, '1531 autotest'}
+            ]
+        }
     elif token == '5242579':
-        return {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
+        return {
+            'channels': [
+                {3054207, 'PCSoc'},
+                {7654321, '1531 autotest'},
+                {9703358, 'Steam'}
+            ]
+        }
     elif token == '4201337':
-        return {'channels': [{7654321, '1531 autotest'}, {9703358, 'Steam'}]}
+        return {
+            'channels': [
+                {7654321, '1531 autotest'},
+                {9703358, 'Steam'}
+            ]
+        }
     elif token == '0018376':
         return {'channels': []}
 
@@ -17,7 +32,13 @@ def channels_list(token):
 
 # Return list of channels (and their details).
 def channels_listall(token):
-    return {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
+    return {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
 
 # Create new channel with that name that is either a public or private channel.
 # Raise ValueError exception if name > 20 characters.

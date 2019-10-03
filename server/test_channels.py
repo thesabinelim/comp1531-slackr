@@ -62,9 +62,31 @@ def test_channels_list_simple():
     channel_join(reg_dict3['token'], create_dict1['channel_id'])
     # SETUP END
 
-    assert channels_list(reg_dict1['token']) == {'channels': [{7654321, '1531 autotest'}]}
-    assert channels_list(reg_dict2['token']) == {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
-    assert channels_list(reg_dict3['token']) == {'channels': [{7654321, '1531 autotest'}, {9703358, 'Steam'}]}
+    # Check that Test is in 1531 autotest
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [
+            {7654321, '1531 autotest'}
+        ]
+    }
+
+    # Check that Sabine is in PCSoc, 1531 autotest and Steam
+    assert channels_list(reg_dict2['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
+
+    # Check that Gabe is in 1531 autotest and Steam
+    assert channels_list(reg_dict3['token']) == {
+        'channels': [
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
+
+    # Check that Qrst is not in any channels
     assert channels_list(reg_dict4['token']) == {'channels': []}
 
 def test_channels_list_nochannels():
@@ -113,10 +135,41 @@ def test_channels_listall_simple():
     channel_join(reg_dict3['token'], create_dict1['channel_id'])
     # SETUP END
 
-    assert channels_list(reg_dict1['token']) == {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
-    assert channels_list(reg_dict2['token']) == {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
-    assert channels_list(reg_dict3['token']) == {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
-    assert channels_list(reg_dict4['token']) == {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
+    # Check that all channels are listed for Test, who is in 1 channel
+    assert channels_list(reg_dict1['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
+
+    # Check that all channels are listed for Sabine, who is in all 3 channels
+    assert channels_list(reg_dict2['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
+
+    # Check that all channels are listed for Gabe, who is in 2 channels
+    assert channels_list(reg_dict3['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
+
+    # Check that all channels are listed for Qrst, who is in no channels
+    assert channels_list(reg_dict4['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
 
 def test_channels_listall_nochannels():
     # SETUP BEGIN
@@ -140,5 +193,20 @@ def test_channels_listall_createdjoinednone():
     create_dict3 = channels_create(reg_dict1['token'], 'Steam', True)
     # SETUP END
 
-    assert channels_list(reg_dict2['token']) == {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
-    assert channels_list(reg_dict3['token']) == {'channels': [{3054207, 'PCSoc'}, {7654321, '1531 autotest'}, {9703358, 'Steam'}]}
+    # Check that all channels are listed for Sabine, who is in no channels
+    assert channels_list(reg_dict2['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
+
+    # Check that all channels are listed for Qrst, who is in no channels
+    assert channels_list(reg_dict3['token']) == {
+        'channels': [
+            {3054207, 'PCSoc'},
+            {7654321, '1531 autotest'},
+            {9703358, 'Steam'}
+        ]
+    }
