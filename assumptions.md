@@ -19,3 +19,9 @@ channels_list:
 user_profile:
     - For now, the handle_str is assumed by default to be first name and last
     name concat'd together.
+    
+standup:
+    - assuming that time_finish refers to a time returned in the form of the users local time.
+    - that if there is only one user in a channel the channel doesnt delete when that user is removed
+    
+    
