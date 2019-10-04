@@ -1,5 +1,6 @@
 general:
     - Tokens passed to functions will be validated first.
+    - Assuming marking messages as read will be clarified in iteration 2.
 
 auth_register:
     - First name cannot be blank and must contain only alphanumeric characters,

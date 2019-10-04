@@ -308,25 +308,150 @@ def test_channel_details_bad_channelid():
 ##########################
 
 def test_channel_messages_nomessages():
-    pass
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+
+    assert channel_messages(reg_dict1['token'], ) == {
+        'messages': [],
+        'start': 0,
+        'end': -1
+    }
+
+def test_channel_messages_exactly1():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], 'Whats up')
+    # SETUP END
+
+    messages1 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert messages1
+    assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
+    assert messages1['start'] == 0 and messages1['end'] == -1
+    assert messages1['messages'][0]['u_id'] == reg_dict1['u_id']
+    assert messages1['messages'][0]['message'] == 'Whats up'
 
 def test_channel_messages_lesserthan50():
-    pass
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+
+    for x in range(15):
+        message_send(reg_dict1['token'], create_dict1['channel_id'], 'Hey there')
+        message_send(reg_dict2['token'], create_dict1['channel_id'], 'Whats up')
+    # SETUP END
+
+    messages1 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert messages1
+    assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
+    assert messages1['start'] == 0 and messages1['end'] == -1
 
 def test_channel_messages_exactly50():
-    pass
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+
+    for x in range(25):
+        message_send(reg_dict1['token'], create_dict1['channel_id'], 'Hey there')
+        message_send(reg_dict2['token'], create_dict1['channel_id'], 'Whats up')
+    # SETUP END
+
+    messages1 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert messages1
+    assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
+    assert messages1['start'] == 0 and messages1['end'] == -1
 
 def test_channel_messages_paginated():
-    pass
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+
+    for x in range(35):
+        message_send(reg_dict1['token'], create_dict1['channel_id'], 'Hey there')
+        message_send(reg_dict2['token'], create_dict1['channel_id'], 'Whats up')
+    # SETUP END
+
+    messages1 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert messages1
+    assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
+    assert messages1['start'] == 0 and messages1['end'] == 49
+
+    messages2 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 50)
+    assert messages1
+    assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
+    assert messages1['start'] == 50 and messages1['end'] == -1
 
 def test_channel_messages_notinchannel():
-    pass
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    # Sabine attempts to read messages from the empty 1531 autotest channel
+    with pytest.raises(AccessError):
+        channel_messages(reg_dict2['token'], create_dict1['channel_id'], 0)
+
+    # Test sends some messages in 1531 autotest
+    for x in range(70):
+        message_send(reg_dict1['token'], create_dict1['channel_id'], 'Hey there')
+
+    # Sabine attempts to read messages from 1531 autotest
+    with pytest.raises(AccessError):
+        channel_messages(reg_dict2['token'], create_dict1['channel_id'], 0)
 
 def test_channel_messages_bad_channelid():
-    pass
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    for x in range(70):
+        message_send(reg_dict1['token'], create_dict1['channel_id'], 'Hey there')
+    # SETUP END
+
+    with pytest.raises(ValueError):
+        channel_messages(reg_dict1['token'], create_dict1['channel_id'] + 1, 0)
 
 def test_channel_messages_bad_startno():
-    pass
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    with pytest.raises(ValueError):
+        channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+
+    for x in range(35):
+        message_send(reg_dict1['token'], create_dict1['channel_id'], 'Hey there')
+        message_send(reg_dict2['token'], create_dict1['channel_id'], 'Whats up')
+
+    with pytest.raises(ValueError):
+        channel_messages(reg_dict1['token'], create_dict1['channel_id'], 100)
 
 #######################
 # channel_leave Tests #

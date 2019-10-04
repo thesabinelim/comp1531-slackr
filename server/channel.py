@@ -33,7 +33,7 @@ def channel_details(token, channel_id):
 # Raise ValueError exception when channel with id does not exist or start is >
 # total number of messages in channel.
 # Raise AccessError exception when user is not member of channel with id.
-def channel_messages():
+def channel_messages(token, channel_id, start):
     pass
 
 # Given channel ID, remove user from channel. Returns {}.
