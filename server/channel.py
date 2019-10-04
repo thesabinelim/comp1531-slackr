@@ -14,8 +14,7 @@ def channel_invite(token, channel_id, u_id):
 
     return {}
 
-# Given channel with channel_id that authorised user is in, return basic
-# details about the channel.
+# Given channel with channel_id that user is in, return details about channel.
 # Raise ValueError exception if channel with id does not exist.
 # Raise AccessError exception if user is not member of channel.
 def channel_details(token, channel_id):
@@ -23,6 +22,17 @@ def channel_details(token, channel_id):
         raise ValueError
 
     return {}
+
+# Given channel with channel_id that user is in, return up to 50 messages
+# between index "start" and "start + 50". Message with index 0 is most recent
+# message in channel. Return a new index "end" which is value of "start + 50" or
+# if this function returned least recent messages in channel, return -1 in "end"
+# to indicate there are no more messages to load after this return.
+# Raise ValueError exception when channel with id does not exist or start is >
+# total number of messages in channel.
+# Raise AccessError exception when user is not member of channel with id.
+def channel_messages():
+    pass
 
 # Given channel ID, remove user from channel.
 # Raise ValueError exception if channel with id does not exist.
