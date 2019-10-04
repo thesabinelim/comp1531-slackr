@@ -19,3 +19,8 @@ channels_list:
 user_profile:
     - For now, the handle_str is assumed by default to be first name and last
     name concat'd together.
+
+admin_userpermission_change:
+    - The last digit of token indicates the permission of the user.
+    - This function change the token which is in the parameter.
+    - This function return a new token.
