@@ -67,7 +67,7 @@ def test_channel_join_no_autoowner():
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
         'name_last': 'User'
-    } not in in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
+    } not in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
 def test_channel_invite_private():
     # SETUP BEGIN
@@ -470,7 +470,7 @@ def test_channel_join_no_autoowner():
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
         'name_last': 'User'
-    } not in in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
+    } not in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
 def test_channel_join_bad_channelid():
     # SETUP BEGIN

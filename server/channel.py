@@ -21,7 +21,7 @@ def channel_details(token, channel_id):
     if channel_id not in [7654321, 3054207, 9703358]:
         raise ValueError
 
-    return {}
+    pass
 
 # Given channel with channel_id that user is in, return up to 50 messages
 # between index "start" and "start + 50". Message with index 0 is most recent
@@ -34,7 +34,7 @@ def channel_details(token, channel_id):
 def channel_messages():
     pass
 
-# Given channel ID, remove user from channel.
+# Given channel ID, remove user from channel. Returns {}.
 # Raise ValueError exception if channel with id does not exist.
 def channel_leave(token, channel_id):
     if channel_id not in [7654321, 3054207, 9703358]:
@@ -65,7 +65,7 @@ def channel_addowner(token, channel_id, user_id):
 # Raise ValueError exception if channel with id does not exist or user is not
 # owner of channel.
 # Raise AccessError exception if user is not owner of either slackr or channel.
-def channel_removeowner():
+def channel_removeowner(token, channel_id, user_id):
     if channel_id not in [7654321, 3054207, 9703358]:
         raise ValueError
 
