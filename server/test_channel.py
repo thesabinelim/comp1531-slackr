@@ -307,7 +307,26 @@ def test_channel_details_bad_channelid():
 # channel_messages Tests #
 ##########################
 
+def test_channel_messages_nomessages():
+    pass
 
+def test_channel_messages_lesserthan50():
+    pass
+
+def test_channel_messages_exactly50():
+    pass
+
+def test_channel_messages_paginated():
+    pass
+
+def test_channel_messages_notinchannel():
+    pass
+
+def test_channel_messages_bad_channelid():
+    pass
+
+def test_channel_messages_bad_startno():
+    pass
 
 #######################
 # channel_leave Tests #
