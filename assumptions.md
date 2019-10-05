@@ -58,3 +58,8 @@ standup:
     - standup_start returns the amount of time left in the standup however this
       doesnt get passed to standup_send, because of this I'm assuming that this
       time is saved and can be accessed in standup_send somehow.
+
+admin_userpermission_change:
+    - The last digit of token indicates the permission of the user.
+    - This function change the token which is in the parameter.
+    - This function return a new token.
