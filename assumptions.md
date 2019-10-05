@@ -52,8 +52,22 @@ user_profile:
     - For now, the handle_str is assumed by default to be first name and last name concat'd together.
 
 message_remove:
-    - The conditions for the AccessError are taken literally
+    - The conditions for the AccessError are probably wrong for this iteration
         - Only raises the exception when ALL conditions are not true
+    - It's trying to say you can edit the message if:
+        - You are the original sender
+        - OR You are a channel owner
+        - OR You are the slackr admin
+message_edit:
+    - Similarly to message_remove, the conditions seem erroneous
+    - It's trying to say you can edit the message if:
+        - You are the original sender
+        - OR You are a channel owner
+        - OR You are the slackr admin
+    - For example of what's wrong with the original logic, any user can edit any post. For an owner of the slack and channel, they can't edit any of their own posts.
+    - The 'new' text can be the same as the original
+    - The new text still must be under the original send limit of 1000 chars
+    - The new text can't be empty
 
 message_unreact:
     - Users can only unreact to messages they've already reacted to
