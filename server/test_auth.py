@@ -11,19 +11,29 @@ from auth import *
 #######################
 
 def test_auth_register_simple():
+    # Register new user Test
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    assert reg_dict1 and 'u_id' in reg_dict1 and 'token' in reg_dict1
+    assert reg_dict1
+    assert 'u_id' in reg_dict1 and 'token' in reg_dict1
 
+    # Register new user Sabine
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    assert reg_dict2 and 'u_id' in reg_dict2 and 'token' in reg_dict2
-    # Check that registration attempts returned different values
-    assert reg_dict2['u_id'] != reg_dict1['u_id'] and reg_dict2['token'] != reg_dict1['token']
+    assert reg_dict2
+    assert 'u_id' in reg_dict2 and 'token' in reg_dict2
 
+    # Check that registration attempts returned different values
+    assert reg_dict2['u_id'] != reg_dict1['u_id']
+    assert reg_dict2['token'] != reg_dict1['token']
+
+    # Register new user Gabe
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     assert reg_dict3 and 'u_id' in reg_dict3 and 'token' in reg_dict3
+
     # Check that registration attempts returned different values
-    assert reg_dict3['u_id'] != reg_dict2['u_id'] and reg_dict3['token'] != reg_dict2['token']
-    assert reg_dict3['u_id'] != reg_dict1['u_id'] and reg_dict3['token'] != reg_dict1['token']
+    assert reg_dict3['u_id'] != reg_dict2['u_id']
+    assert reg_dict3['token'] != reg_dict2['token']
+    assert reg_dict3['u_id'] != reg_dict1['u_id']
+    assert reg_dict3['token'] != reg_dict1['token']
 
 def test_auth_register_bademail():
     with pytest.raises(ValueError):
@@ -35,11 +45,11 @@ def test_auth_register_badpwd():
 
 def test_auth_register_badnames():
     with pytest.raises(ValueError):
-        auth_register('user@example.com', 'validpassword',
-            '123456789012345678901234567890123456789012345678901', 'User')
+        auth_register('user@example.com', 'validpassword', \
+        '123456789012345678901234567890123456789012345678901', 'User')
     with pytest.raises(ValueError):
-        auth_register('user@example.com', 'validpassword', 'Test',
-            '123456789012345678901234567890123456789012345678901')
+        auth_register('user@example.com', 'validpassword', 'Test', \
+        '123456789012345678901234567890123456789012345678901')
 
 def test_auth_register_emailtaken():
     # SETUP BEGIN
@@ -74,14 +84,19 @@ def test_auth_login_simple():
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
+    # Login as Test
     login_dict1 = auth_login('user@example.com', 'validpassword')
-    assert login_dict1 and 'u_id' in login_dict1 and 'token' in login_dict1
+    assert login_dict1
+    assert 'u_id' in login_dict1 and 'token' in login_dict1
     assert login_dict1['u_id'] == reg_dict1['u_id']
 
+    # Login as Sabine
     login_dict2 = auth_login('sabine.lim@unsw.edu.au', 'ImSoAwes0me')
-    assert login_dict2 and 'u_id' in login_dict2 and 'token' in login_dict2
+    assert login_dict2
+    assert 'u_id' in login_dict2 and 'token' in login_dict2
     assert login_dict2['u_id'] == reg_dict2['u_id']
 
+    # Login as Gabe
     login_dict3 = auth_login('gamer@twitch.tv', 'gamers_rise_up')
     assert login_dict3 and 'u_id' in login_dict3 and 'token' in login_dict3
     assert login_dict3['u_id'] == reg_dict3['u_id']
@@ -142,6 +157,7 @@ def test_passwordreset_request_simple():
 
     assert auth_passwordreset_request('user@example.com') == {}
     assert auth_passwordreset_request('sabine.lim@unsw.edu.au') == {}
+    assert auth_passwordreset_request('gamer@twitch.tv') == {}
 
 ##################################
 # auth_passwordreset_reset Tests #
