@@ -1,0 +1,1 @@
+1.We need to start working after the team members reach a consensus. It would save time and avoid the conflicts.
