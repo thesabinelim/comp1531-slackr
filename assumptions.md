@@ -22,4 +22,8 @@ user_profile:
 
 message_remove:
     - The conditions for the AccessError are taken literally
-      - Only raises the exception when ALL conditions are not true
+        - Only raises the exception when ALL conditions are not true
+
+message_unreact:
+    - Users can only unreact to messages they've already reacted to
+    - Admins can unreact all messages
