@@ -12,20 +12,21 @@ auth.py
       familiar with Python and writing backends. For the same reason however,
       since work on other modules cannot begun until auth_register is complete,
       we'll set a deadline of 1 day after iteration 2 begins to implement it.
+    - Claimed by Sabine, Bridget and Jake.
 
-channels.py
+channel.py and channels.py
     - As message.py relies on this module, we will implement parts of this
       module immediately after finishing auth.py. We'll delegate two people to
       work on this module, then reassign one person to message.py after critical
       functions are complete.
     - Due to being relied upon by message.py, we'll set a deadline of 3 days
       after iteration 2 begins to implement the relied upon functionality.
-    - 
+    - Claimed by Sabine and Jake (temporarily).
 
 message.py
     - Can only be implemented after some of channels.py is implemented. We'll
       delegate one person for this module (reassigned from channels.py).
-    - 
+    - Claimed by Jake.
 
 admin.py
     - Less relied upon by other modules but still very important functionality
@@ -37,13 +38,14 @@ admin.py
       critical), we'll set a deadline of 3 days after iteration 2 begins to
       implement it fully. This also allows the developer to move on to more
       important modules sooner.
+    - Claimed by Jiacheng.
 
 user.py
     - Can be implemented as soon as auth.py is complete, but since channels.py
       is more critical due to message.py relying on it, we will implement this
       after channels.py. To save development time we'll delegate a few people to
       work on channels.py and message.py while one person works on this module.
-    - 
+    - Claimed by Bridget.
 
 "Extras" (to be started at least 5 days before the final deadline)
 
@@ -53,6 +55,7 @@ search.py
       so we'll allocate one person to it once core functionality is mostly done.
     - Because this module consists of only one function, we anticipate it will
       take 2 hours at the very most to implement it.
+    - Claimed by Eric.
 
 standup.py
-    - 
+    - Claimed by Eric.
