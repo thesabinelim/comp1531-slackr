@@ -10,52 +10,69 @@ from admin import *
 # admin_userpermission Tests #
 ##############################
 
-
 def test_adminpermission_simple():
-    token1 = 1231231
-    u_id1 = 1234567
-    permission1 = admin_userpermission_change(token1,u_id1,2)%10
-    assert permission1 == 2
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    # SETUP END
 
-    token2 = 1231232
-    u_id2 = 5242579
-    permission2 = admin_userpermission_change(token2,u_id2,1)%10
-    assert permission2 == 1
+    # Test promotes Sabine to admin
+    assert admin_userpermission_change(reg_dict1['token'], reg_dict2['u_id'], 2) == {}
 
-def test_adminpermission_invaild_uid():
-    token1 = 1231231
-    u_id1 = 12345
+    # Sabine promotes Gabe to admin
+    assert admin_userpermission_change(reg_dict2['token'], reg_dict3['u_id'], 2) == {}
+
+    # Test promotes Sabine to owner
+    assert admin_userpermission_change(reg_dict1['token'], reg_dict2['u_id'], 1) == {}
+
+    # Sabine demotes Test to admin
+    assert admin_userpermission_change(reg_dict2['token'], reg_dict1['u_id'], 2) == {}
+
+    # Test demotes Gabe to user
+    assert admin_userpermission_change(reg_dict1['token'], reg_dict3['u_id'], 3) == {}
+
+def test_adminpermission_bad_uid():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    # SETUP END
+
     with pytest.raises(ValueError):
-        admin_userpermission_change(token1,u_id1,1)
-
-    token2 = 1231232
-    u_id2 = 5242
-    with pytest.raises(ValueError):
-        admin_userpermission_change(token2,u_id2,2)
+        admin_userpermission_change(reg_dict1['token'], reg_dict1['u_id'] + 1, 1)
     
-def test_adminpermission_invaild_permissionid():
-    token1 = 1231231
-    u_id1 = 1234567
-    permission1 = admin_userpermission_change(token1,u_id1,2)%10
-    assert permission1 == 2
+def test_adminpermission_bad_permissionid():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    # SETUP END
 
-    token2 = 1231232
-    u_id2 = 5242579
-    permission2 = admin_userpermission_change(token2,u_id2,1)%10
-    assert permission2 == 1
-
-    token1 = 1231231
-    u_id1 = 1234567
     with pytest.raises(ValueError):
-        admin_userpermission_change(token1,u_id1,4)
+        admin_userpermission_change(reg_dict1['token'], reg_dict2['u_id'],4)
 
-    token2 = 1231232
-    u_id2 = 5242579
     with pytest.raises(ValueError):
-        admin_userpermission_change(token2,u_id2,1235)
+        admin_userpermission_change(reg_dict1['token'], reg_dict2['u_id'], 0)
 
-def test_adminpermission_as_a_member():
-    token1 = 1231233
-    u_id1 = 1234567
+def test_adminpermission_noperms():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    # SETUP END
+
+    # Sabine tries to demote Test to admin
     with pytest.raises(AccessError):
-        admin_userpermission_change(token1,u_id1,1)
+        admin_userpermission_change(reg_dict2['token'], reg_dict1['u_id'], 2)
+
+    # Sabine tries to promote herself to admin
+    with pytest.raises(AccessError):
+        admin_userpermission_change(reg_dict2['token'], reg_dict2['u_id'], 2)
+
+    # Test promotes Sabine to owner
+    assert admin_userpermission_change(reg_dict1['token'], reg_dict1['u_id'], 2) == {}
+
+    # Sabine tries to promote herself to owner
+    with pytest.raises(AccessError):
+        admin_userpermission_change(reg_dict2['token'], reg_dict2['u_id'], 1)
+
+    # Sabine tries to demote Test to admin
+    with pytest.raises(AccessError):
+        admin_userpermission_change(reg_dict2['token'], reg_dict1['u_id'], 2)

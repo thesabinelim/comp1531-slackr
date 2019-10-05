@@ -83,6 +83,5 @@ standup:
       time is saved and can be accessed in standup_send somehow.
 
 admin_userpermission_change:
-    - The last digit of token indicates the permission of the user.
-    - This function change the token which is in the parameter.
-    - This function return a new token.
+    - The first user is an owner (as opposed to admin as the spec says).
+    - Admins can't promote themselves to owners.
