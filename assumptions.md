@@ -1,6 +1,7 @@
 general:
     - Tokens passed to functions will be validated first.
     - Ids don't get reused. e.g If a message_id of 1 gets assigned to an message, deleting that message wouldn't free up 1 for an id again, the next object would be given an id of 2.
+    - Code duplication in tests is more acceptable than in implementation code. It's easier to see what a test does when all the setup is there, and coupling together tests is a bad idea - as changing a single failing test could potentially change others if the code is too tightly factored.
 
 auth_register:
     - First name cannot be blank and must contain only alphanumeric characters,
