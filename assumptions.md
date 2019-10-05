@@ -16,7 +16,7 @@ channel_details:
 channel_leave:
     - Owner can't leave unless they are the last person in channel or they add
       another person as owner beforehand. We assume this is an oversight and
-      will be fixed in iteration 2.
+      will be fixed/clarified in iteration 2.
     - An owner leaving removes them from the channel's owner list.
 
 channel_join:
@@ -59,28 +59,26 @@ message_remove:
         - OR You are a channel owner
         - OR You are the slackr admin
 message_edit:
-    - Similarly to message_remove, the conditions seem erroneous
+    - Similarly to message_remove, the conditions seem erroneous.
     - It's trying to say you can edit the message if:
-        - You are the original sender
-        - OR You are a channel owner
-        - OR You are the slackr admin
-    - For example of what's wrong with the original logic, any user can edit any post. For an owner of the slack and channel, they can't edit any of their own posts.
-    - The 'new' text can be the same as the original
-    - The new text still must be under the original send limit of 1000 chars
-    - The new text can't be empty
+        - You are the original sender.
+        - OR You are a channel owner.
+        - OR You are the slackr admin.
+    - For example of what's wrong with the original logic, any user can edit any
+      post. For an owner of the slack and channel, they can't edit any of their
+      own posts.
+    - The 'new' text can be the same as the original.
+    - The new text still must be under the original send limit of 1000 chars.
+    - The new text can't be empty.
 
 message_unreact:
-    - Users can only unreact to messages they've already reacted to
-    - Admins can unreact all messages
+    - Users can only unreact to messages they've already reacted to.
+    - Admins can unreact all messages.
 
-standup:
-    - assuming that time_finish refers to a time returned in the form of the
-      users local time.
-    - that if there is only one user in a channel the channel doesnt delete when
-      that user is removed
-    - standup_start returns the amount of time left in the standup however this
-      doesnt get passed to standup_send, because of this I'm assuming that this
-      time is saved and can be accessed in standup_send somehow.
+standup_start:
+    - time_finish is in GMT.
+    - time_finish will be stored somewhere in the backend such that it is
+      accessible to standup_send.
 
 admin_userpermission_change:
     - The first user is an owner (as opposed to admin as the spec says).

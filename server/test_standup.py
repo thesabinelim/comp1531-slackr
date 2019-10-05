@@ -4,96 +4,109 @@
 
 import pytest
 
-from stand_up import *
-from error import *
-
-# So that channels and accounts can be created
-from channel import *
 from auth import *
+from channel import *
+from standup import *
+from error import *
 
 #######################
 # standup_start Tests #
 #######################
 
-# trying to standup_start a nonexistent channel should return a ValueError
-def test_standup_start_invalidchannel():
-    auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    token = authRegisterDict['token']
+def test_standup_start_simple():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+    
+    sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
+    assert sup_dict1
+    assert 'time_finish' in sup_dict1
+
+def test_standup_start_bad_channelid():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
 
     with pytest.raises(ValueError):
-        standup_start(token, 'Channel Name')
+        standup_start(reg_dict1['token'], create_dict1['channel_id'] + 1)
 
-# creating then leaving a channel then testing for being able
-# to standup_start that channel. This should return an AccessError.
-def test_standup_start_notmember():
-    auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    token = authRegisterDict['token']
+def test_standup_start_notinchannel():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     
-    channelsCreateDict = channels_create(token, 'channel name', public)
-    channelId = channelsCreateDict['channelId']
-    
-    channel_leave(token, channelId)
-    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+
     with pytest.raises(AccessError):
-        time = standup_start(token, channelId)
+        standup_start(reg_dict2['token'], create_dict1['channel_id'])
 
+######################
+# standup_send Tests #
+######################
 
-#######################
-#  standup_send Tests #
-#######################
+def test_standup_send_simple():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+    
+    sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
+    assert sup_dict1
+    assert 'time_finish' in sup_dict1
 
-# a standup is running however the user has left the channel so doesn't
-# have permission to add to queue should return a AccessError
-def test_standup_send_notmember():
-    auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    token = authRegisterDict['token']
+    assert standup_send(reg_dict1['token'], create_dict1['channel_id'], 'Hello World') == {}
+
+def test_standup_send_notstarted():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     
-    channelsCreateDict = channels_create(token, 'channel name', public)
-    channelId = channelsCreateDict['channelId']
-    
-    time = standup_start(token, channelId)
-    channel_leave(token, channelId)
-    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+
     with pytest.raises(AccessError):
-        standup_send(token, channelId, 'This should not add')
+        standup_send(reg_dict1['token'], create_dict1['channel_id'], 'This shouldn\'t send')
 
-# tests that when the channel doesn't exist that a ValueError returns
-def test_standup_send_nochannel():
-    auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    token = authRegisterDict['token']
+def test_standup_send_notinchannel():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+
+    with pytest.raises(AccessError):
+        standup_send(reg_dict2['token'], create_dict1['channel_id'], 'This shouldn\'t send')
+
+def test_standup_bad_channelid():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+    
+    sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
+    assert sup_dict1
+    assert 'time_finish' in sup_dict1
     
     with pytest.raises(ValueError):
-        standup_send(token, channelId, 'This should not add')
+        standup_send(reg_dict1['token'], create_dict1['channel_id'], 'This shouldn\'t send')
 
-# tests that when the standup_time is 0 a ValueError is returned
-def test_standup_send_time():
-    auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    token = authRegisterDict['token']
+def test_standup_send_toolong():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     
-    channelsCreateDict = channels_create(token, 'channel name', public)
-    channelId = channelsCreateDict['channelId']
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
     
-    time = standup_start(token, channelId)
-    time = 0
-    
-    with pytest.raises(ValueError):
-        standup_send(token, channelId, 'This should not add')
-
-# tests that when the length of the string is over 1000 characters a
-# ValueError is returned
-def test_standup_send_length():
-    auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    token = authRegisterDict['token']
-    
-    channelsCreateDict = channels_create(token, 'channel name', public)
-    channelId = channelsCreateDict['channelId']
-    
-    time = standup_start(token, channelId)
+    sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
+    assert sup_dict1
+    assert 'time_finish' in sup_dict1
     
     with pytest.raises(ValueError):
-        standup_send(token, channelId, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-
-
-
-
-
+        standup_send(reg_dict1['token'], create_dict1['channel_id'], 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')

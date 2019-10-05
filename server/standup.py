@@ -8,18 +8,13 @@ from error import *
 
 # standup_start commands initiates 15 minutes of standup and then returns
 # 15 minutes of stand up time. It returns a ValueError when the channel_id
-# is invalid, as in the channel doesnt exist and returns an AccessError
+# is invalid, as in the channel doesnt exist and raises an AccessError
 # when the channel exists but the user isnt in that channel.
 def standup_start(token, channel_id):
-    
-    if channel_id == 'invalid':
+    if channel_id not in [7654321, 3054207, 9703358]:
         raise ValueError
-    
-    if channel_list(token) != channel_id:
-        raise AccessError
 
-    timeLeft = 15
-    return timeLeft
+    pass
 
 # The standup_send function takes the users token, the desired channel_id
 # and a message under 1000 characters and puts it in the standup_queue.
@@ -28,17 +23,10 @@ def standup_start(token, channel_id):
 # raised when the user is not part of the channel and when the time
 # left in the stand is 0, ie if the stand is no longer in place.
 def standup_send(token, channel_id, message):
-    
-    if channel_id == 'invalid':
+    if channel_id not in [7654321, 3054207, 9703358]:
         raise ValueError
     
     if len(message) > 1000:
         raise ValueError
-
-    if channel_list(token) != channel_id:
-        raise AccessError
-
-    if timeLeft <= 0:
-        raise AccessError
     
-    pass
+    return {}

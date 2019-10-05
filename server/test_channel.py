@@ -7,6 +7,7 @@ import pytest
 from auth import *
 from channels import *
 from channel import *
+from error import *
 
 ########################
 # channel_invite Tests #
