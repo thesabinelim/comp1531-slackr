@@ -18,5 +18,7 @@ Allocation of responsibilities:
     - admin tests and stubs were written by Jiacheng.
 
 Areas for improvement:
-    - Better time management: some members have commitments that prevented them
-      from contributing as much.
+    - Cohesion: we should start working after team members reach a consensus. It
+      would save time and avoid conflicts.
+    - Time management: some members have commitments that prevented them from
+      contributing as much this iteration.
