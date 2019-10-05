@@ -6,6 +6,7 @@ import pytest
 
 from auth import *
 from channel import *
+from channels import *
 from standup import *
 from error import *
 

@@ -1,7 +1,12 @@
 general:
     - Tokens passed to functions will be validated first.
-    - Ids don't get reused. e.g If a message_id of 1 gets assigned to an message, deleting that message wouldn't free up 1 for an id again, the next object would be given an id of 2.
-    - Code duplication in tests is more acceptable than in implementation code. It's easier to see what a test does when all the setup is there, and coupling together tests is a bad idea - as changing a single failing test could potentially change others if the code is too tightly factored.
+    - Ids don't get reused. e.g If a message_id of 1 gets assigned to a message, 
+      deleting that message wouldn't free up 1 for an id again, the next object
+      would be given an id of 2.
+    - Code duplication in tests is more acceptable than in implementation code.
+      It's easier to see what a test does when all the setup is there, and
+      coupling together tests is a bad idea - as changing a single failing test
+      could potentially change others if the code is too tightly factored.
     - Assuming marking messages as read will be clarified in iteration 2.
 
 auth_register:
@@ -49,7 +54,8 @@ channels_create:
       channel with the same name.
 
 user_profile:
-    - For now, the handle_str is assumed by default to be first name and last name concat'd together.
+    - For now, the handle_str is assumed by default to be first name and last
+      name concat'd together.
 
 message_remove:
     - The conditions for the AccessError are probably wrong for this iteration
@@ -83,3 +89,8 @@ standup_start:
 admin_userpermission_change:
     - The first user is an owner (as opposed to admin as the spec says).
     - Admins can't promote themselves to owners.
+      
+search:
+    - Only the channels that a user is in to are searched.
+    - The search function will not be case sensitive.
+    - Spaces at the end of a query will be included.
