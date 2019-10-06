@@ -1,10 +1,12 @@
 # User Stories
 
-Organised into the following format:
-Epic:
-    - User Story
-    - User Story
-    ...
+*Organised into the following format:*
+
+**Epic**:
+- User Story
+- User Story
+- ...
+
 
 **EPIC 1**: As a team member, I want a platform that organises collaboration so that I can have productive and structured discussions with those I'm working with
 - **US 1.1**: As a collaborator, I want a permanent place to keep ideas and discussions so that others can always refer back to it
