@@ -42,3 +42,11 @@ Epic:
 - **US 4.2**: As a new team member, I want a way to view details about my new team so that I can quickly be informed about our purpose
 
 - **US 4.3**: As a team leader, I want a way to highlight important messages and resources so that they'll be quickly viewable at all times
+
+
+**EPIC 5**: As a staff member at a large university, I want a simple and efficient way to contact specific people so that I don't need to spend ages searching for them
+- **US 5.1**: As a worker planning a move and a marriage, I want to be able to change my personal and contact details so that my team can contact me with my most up-to-date details
+
+- **US 5.2**: As a female employee, I want a way to contact my boss/HR discretely about concerns I have so that I always feel safe at work
+
+- **US 5.3**: As a system admin, I want a way to find and contact specific people so that I can effectively raise concerns about their accounts
