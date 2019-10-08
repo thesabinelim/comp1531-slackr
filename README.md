@@ -88,7 +88,7 @@ In this iteration, you are expected to:
       * How often you met, and why you met that often
       * What methods you used to ensure that meetings were successful
       * What steps you took when things did not go to plan during iteration to
-      * Details on how you 
+      * Details on how you had multiple people working on the same code 
 
     Write this in `teamwork.md`.
 
@@ -205,7 +205,7 @@ The AccessError is not one of Python's built in types. For iteration one, you ca
    2) Admins, who have special permissions that members don't (permission_id 2)
      * Admins have the same capabilities as owners, except that admins cannot change owner's permissions
    3) Members, who do not have any special permissions (permission_id 3)
- * All slackr members are by default members, except for the very first user who signs up, who is an admin
+ * All slackr members are by default members, except for the very first user who signs up, who is an owner
 
 ### Interface
 
@@ -228,8 +228,8 @@ The AccessError is not one of Python's built in types. For iteration one, you ca
 |GET|channels/list|(token)|{ channels }|N/A|Provide a list of all channels (and their associated details) that the authorised user is part of|
 |GET|channels/listall|(token)|{ channels }|N/A|Provide a list of all channels (and their associated details)|
 |POST|channels/create|(token, name, is_public)|{ channel_id }|**ValueError** when:<ul><li>Name is more than 20 characters long</li></ul>|Creates a new channel with that name that is either a public or private channel|
-|POST|message/sendlater|(token, channel_id, message, time_sent)|{ message_id }|**ValueError** when:<ul><li>Channel ID is not a valid channel</li><li>Message is more than 1000 characters</li><li>Time sent is a time in the past</li></ul>|Send a message from authorised_user to the channel specified by channel_id automatically at a specified time in the future|
-|POST|message/send|(token, channel_id, message)|{ message_id }|**ValueError** when:<ul><li>Message is more than 1000 characters</li></ul>|Send a message from authorised_user to the channel specified by channel_id|
+|POST|message/sendlater|(token, channel_id, message, time_sent)|{ message_id }|**ValueError** when:<ul><li>Channel ID is not a valid channel</li><li>Message is more than 1000 characters</li><li>Time sent is a time in the past</li></ul>**AccessError** when: <li> the authorised user has not joined the channel they are trying to post to</li></ul>|Send a message from authorised_user to the channel specified by channel_id automatically at a specified time in the future|
+|POST|message/send|(token, channel_id, message)|{ message_id }|**ValueError** when:<ul><li>Message is more than 1000 characters</li></ul>**AccessError** when: <li> the authorised user has not joined the channel they are trying to post to</li></ul>|Send a message from authorised_user to the channel specified by channel_id|
 |DELETE|message/remove|(token, message_id)|{}|**ValueError** when:<ul><li>Message (based on ID) no longer exists</li></ul>**AccessError** when all of the following are not true<ul><li>Message with message_id was not sent by the authorised user making this request</li><li>Message with message_id was not sent by an owner of this channel</li><li>Message with message_id was not sent by an admin or owner of the slack</li></ul>|Given a message_id for a message, this message is removed from the channel|
 |PUT|message/edit|(token, message_id, message)|{}|**ValueError** when all of the following are not true:<ul><li>Message with message_id was not sent by the authorised user making this request</li><li>Message with message_id was not sent by an owner of this channel</li><li>Message with message_id was not sent by an admin or owner of the slack</li></ul>|Given a message, update it's text with new text|
 |POST|message/react|(token, message_id, react_id)|{}|**ValueError** when:<ul><li>message_id is not a valid message within a channel that the authorised user has joined</li><li>react_id is not a valid React ID</li><li>Message with ID message_id already contains an active React with ID react_id</li></ul>|Given a message within a channel the authorised user is part of, add a "react" to that particular message|
