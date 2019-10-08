@@ -132,6 +132,10 @@ This will begin a very simple server. To play around with this server, in anothe
 
 More information about running this server will be provided in week 4.
 
+### Storage of data
+
+As you know, in this iteration you will have to store data to implement the backend. This will be discussed in week 5/6 lectures, but in the meantime, you can simply use a single global variable containing nested dictionaries/lists to store the data.
+
 ### Connecting to the frontend
 
 Details concerning the front-end will be released in week 5.
@@ -175,8 +179,8 @@ Details will be released in week 7
 |has suffix **_str**|string|
 |has suffix **end**|integer|
 |has suffix **start**|integer|
-|(outputs only) named exactly **messages**|List of dictionaries, where each dictionary contains types { message_id, u_id, message, time_created, is_unread, reacts, is_pinned }|
-|(outputs only) named exactly **reacts**|List of dictionaries, where each dictionary contains types { react_id, u_ids, is_this_user_reacted } where react_id is the id of a react, and u_ids is a list of user id's of people who've reacted for that react. is_this_user_reacted is whether or not  |
+|(outputs only) named exactly **messages**|List of dictionaries, where each dictionary contains types { message_id, u_id, message, time_created, is_unread, reacts, is_pinned,  }|
+|(outputs only) named exactly **reacts**|List of dictionaries, where each dictionary contains types { react_id, u_ids, is_this_user_reacted } where react_id is the id of a react, and u_ids is a list of user id's of people who've reacted for that react. is_this_user_reacted is whether or not the authorised user has been one of the reacts to this post |
 |(outputs only) named exactly **channels**|List of dictionaries, where each dictionary contains types { channel_id, name }|
 |(outputs only) named exactly **members**|List of dictionaries, where each dictionary contains types { u_id, name_first, name_last }|
 
