@@ -114,7 +114,7 @@ When you submit, the following commands will be executed in the root of your rep
 
     Generates a simple report based on the above test run.
 
-* `pylint3 server`
+* `pylint3 server/*`
 
     Runs pylint over the all files in `server`.
 
