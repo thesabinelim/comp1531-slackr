@@ -13,6 +13,9 @@ A video describing this project and the background here can be found here.
 
 ## Changelog (cleared 5th October in git hash "84cc5a9099")
 
+* 11/10/2019: Search function clarified that it searches over all channels a user is in
+
+## Overview
 
 An overview of this background and this project can be found in a short video found [HERE](https://youtu.be/Mzg3UGv3TSw).
 
