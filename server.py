@@ -1,8 +1,11 @@
 """Flask server"""
 from json import dumps
 from flask import Flask, request
+from auth import auth_api
 
 APP = Flask(__name__)
+
+app.register_blueprint(auth_api)
 
 @APP.route('/echo/get', methods=['GET'])
 def echo1():
@@ -17,14 +20,6 @@ def echo2():
     return dumps({
         'echo' : request.form.get('echo'),
     })
-
-@APP.route('/auth/login', methods=['POST'])
-def login():
-    pass
-
-@APP.route('/auth/logout', methods=['POST'])
-def logout():
-    pass
 
 if __name__ == '__main__':
     APP.run()
