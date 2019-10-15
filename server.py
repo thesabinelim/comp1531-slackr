@@ -18,5 +18,13 @@ def echo2():
         'echo' : request.form.get('echo'),
     })
 
+@APP.route('/auth/login', methods=['POST'])
+def login():
+    pass
+
+@APP.route('/auth/logout', methods=['POST'])
+def logout():
+    pass
+
 if __name__ == '__main__':
     APP.run()
