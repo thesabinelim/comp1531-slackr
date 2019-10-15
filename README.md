@@ -16,6 +16,7 @@ A video describing this project and the background here can be found here.
 * 11/10/2019: Search function clarified that it searches over all channels a user is in
 * 13/10/2019: name_first and name_last length requirement inverted to make more sense
 * 14/10/2019: standup/send errors updated to make more sense. One ValueError modified, one AccessError modified
+* 15/10/2019: standup/start has error "An active standup is currently running in this channel" added to it
 * 16/10/2019: is_unread removed from the message structure
 
 ## Overview
@@ -217,6 +218,22 @@ The AccessError is not one of Python's built in types. For iteration one, you ca
    3) Members, who do not have any special permissions (permission_id 3)
  * All slackr members are by default members, except for the very first user who signs up, who is an owner
 
+### Standups
+
+Once standups are finished, all of the messages sent to standup/send are packaged together in *one single message* posted by *the user who started the standup* and sent as a message to the channel the standup was started in, timestamped at the moment the standup finished.
+
+The structure of the packaged message is like this:
+[message_sender1_handle]: [message1]
+[message_sender2_handle]: [message2]
+[message_sender3_handle]: [message3]
+[message_sender4_handle]: [message4]
+
+For example
+hayden: I ate a catfish
+rob: I went to kmart
+michelle: I ate a toaster
+isaac: my catfish ate a toaster
+
 ### Interface
 
 |HTTP Request|Endpoint name|Parameters|Return type|Exception|Description|
@@ -251,7 +268,7 @@ The AccessError is not one of Python's built in types. For iteration one, you ca
 |PUT|user/profile/setemail|(token, email)|{}|**ValueError** when:<ul><li>Email entered is not a valid email using the method provided [here](https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/) (unless you feel you have a better method).</li><li>Email address is already being used by another user</li>|Update the authorised user's email address|
 |PUT|user/profile/sethandle|(token, handle_str)|{}|**ValueError** when:<ul><li>handle_str must be between 3 and 20 characters</li><li>handle is already used by another user</li></ul>|Update the authorised user's handle (i.e. display name)|
 |POST|user/profiles/uploadphoto|(token, img_url, x_start, y_start, x_end, y_end)|{}|**ValueError** when:<ul><li>img_url is returns an HTTP status other than 200.</li><li>any of x_start, y_start, x_end, y_end are not within the dimensions of the image at the URL.</li></ul>|Given a URL of an image on the internet, crops the image within bounds (x_start, y_start) and (x_end, y_end). Position (0,0) is the top left.|
-|POST|standup/start|(token, channel_id)|{ time_finish }|**ValueError** when:<ul><li>Channel ID is not a valid channel</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|For a given channel, start the standup period whereby for the next 15 minutes if someone calls "standup_send" with a message, it is buffered during the 15 minute window then at the end of the 15 minute window a message will be added to the message queue in the channel from the user who started the standup. |
+|POST|standup/start|(token, channel_id)|{ time_finish }|**ValueError** when:<ul><li>Channel ID is not a valid channel</li><li>An active standup is currently running in this channel</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|For a given channel, start the standup period whereby for the next 15 minutes if someone calls "standup_send" with a message, it is buffered during the 15 minute window then at the end of the 15 minute window a message will be added to the message queue in the channel from the user who started the standup. |
 |POST|standup/send|(token, channel_id, message)|{}|**ValueError** when:<ul><li>Channel ID is not a valid channel</li><li>Message is more than 1000 characters</li><li>An active standup is not currently running in this channel</li></ul>**AccessError** when<ul><li>The authorised user is not a member of the channel that the message is within</li></ul>|Sending a message to get buffered in the standup queue, assuming a standup is currently active|
 |GET|search|(token, query_str)|{ messages }|N/A|Given a query string, return a collection of messages in all of the channels that the user has joined that match the query|
 |POST|admin/userpermission/change|(token, u_id, permission_id)|{}|**ValueError** when:<ul><li>u_id does not refer to a valid user<li>permission_id does not refer to a value permission</li></ul>**AccessError** when<ul><li>The authorised user is not an admin or owner</li></ul>|Given a User by their user ID, set their permissions to new permissions described by permission_id|
