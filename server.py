@@ -1,11 +1,12 @@
 """Flask server"""
 from json import dumps
 from flask import Flask, request
-from auth import auth_api
+
+from utils import is_valid_email
 
 APP = Flask(__name__)
 
-app.register_blueprint(auth_api)
+users = None
 
 @APP.route('/echo/get', methods=['GET'])
 def echo1():
@@ -20,6 +21,19 @@ def echo2():
     return dumps({
         'echo' : request.form.get('echo'),
     })
+
+@auth_api.route('/auth/login', methods=['POST'])
+def login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    raise ValueError if !is_valid_email(email)
+
+    pass
+
+@auth_api.route('/auth/logout', methods=['POST'])
+def logout():
+    pass
 
 if __name__ == '__main__':
     APP.run()
