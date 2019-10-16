@@ -1,3 +1,7 @@
+# COMP1531 Project utils
+# Written by Sabine Lim z5242579
+# 16/10/19
+
 import re
 
 # Return True if email is valid, 0 otherwise

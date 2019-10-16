@@ -2,23 +2,15 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
+from utils import is_valid_email
+
 # Given registered user email and password, return dictionary containing u_id
 # and auth token. Raise ValueError exception if email entered is not valid/does
 # not belong to a user, or password is incorrect.
 def auth_login(email, password):
-    if email == 'bademail':
-        raise ValueError
+    raise ValueError if !is_valid_email(email)
 
-    if email == 'user@example.com' and password == 'validpassword':
-        return {'u_id': 1234567, 'token': '1234567'}
-    elif email == 'sabine.lim@unsw.edu.au' and password == 'ImSoAwes0me':
-        return {'u_id': 5242579, 'token': '7849321'}
-    elif email == 'gamer@twitch.tv' and password == 'gamers_rise_up':
-        return {'u_id': 4201337, 'token': '8479263'}
-    elif email == 'abc@def.com' and password == 'ghijklmnop':
-        return {'u_id': 9876543, 'token': '0018376'}
-
-    raise ValueError
+    pass
 
 # Given an active token, invalidates the token to log the user out. Given a
 # non-valid token, does nothing. Returns empty dictionary.
