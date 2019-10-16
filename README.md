@@ -17,6 +17,7 @@ A video describing this project and the background here can be found here.
 * 13/10/2019: name_first and name_last length requirement inverted to make more sense
 * 14/10/2019: standup/send errors updated to make more sense. One ValueError modified, one AccessError modified
 * 15/10/2019: standup/start has error "An active standup is currently running in this channel" added to it
+* 16/10/2019: is_unread removed from the message structure
 
 ## Overview
 
@@ -185,7 +186,7 @@ Details will be released in week 7
 |has suffix **_str**|string|
 |has suffix **end**|integer|
 |has suffix **start**|integer|
-|(outputs only) named exactly **messages**|List of dictionaries, where each dictionary contains types { message_id, u_id, message, time_created, is_unread, reacts, is_pinned,  }|
+|(outputs only) named exactly **messages**|List of dictionaries, where each dictionary contains types { message_id, u_id, message, time_created, reacts, is_pinned,  }|
 |(outputs only) named exactly **reacts**|List of dictionaries, where each dictionary contains types { react_id, u_ids, is_this_user_reacted } where react_id is the id of a react, and u_ids is a list of user id's of people who've reacted for that react. is_this_user_reacted is whether or not the authorised user has been one of the reacts to this post |
 |(outputs only) named exactly **channels**|List of dictionaries, where each dictionary contains types { channel_id, name }|
 |(outputs only) named exactly **members**|List of dictionaries, where each dictionary contains types { u_id, name_first, name_last }|
