@@ -2,20 +2,31 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
+from server import (
+    User, Auth, db_get_user_by_id, db_get_user_by_email, db_create_auth,
+    db_delete_auth_by_token
+)
 from utils import is_valid_email
 
 # Given registered user email and password, return dictionary containing u_id
 # and auth token. Raise ValueError exception if email entered is not valid/does
 # not belong to a user, or password is incorrect.
 def auth_login(email, password):
-    raise ValueError if !is_valid_email(email)
+    raise ValueError if not is_valid_email(email)
 
-    pass
+    user = db_get_user_by_email(email)
+    raise ValueError if not user
+
+    raise ValueError if user.get_password() != password
+
+    return db_create_auth(user.get_u_id())
 
 # Given an active token, invalidates the token to log the user out. Given a
-# non-valid token, does nothing. Returns empty dictionary.
+# non-valid token, does nothing. Return dictionary containing is_success value
+# True if valid token was successfully invalidated, False otherwise.
 def auth_logout(token):
-    return {}
+    delete_success = db_delete_auth_by_token(token)
+    return {'is_success': delete_success}
 
 # Given first and last name, email address and password, create new user account
 # and return auth token. Raise ValueError exception if email entered is not
