@@ -89,6 +89,7 @@ def db_get_user_by_email(email):
     db = get_data()
     for user in db['users']:
         return user if user.get_email() == handle
+    return None
 
 # Set User with id's details in database to provided details.
 def db_set_user_details(u_id, email, password, name_first, name_last, handle):

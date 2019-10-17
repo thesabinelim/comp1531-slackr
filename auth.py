@@ -4,7 +4,7 @@
 
 from server import (
     User, Auth, db_get_user_by_id, db_get_user_by_email, db_create_auth,
-    db_delete_auth_by_token
+    db_delete_auth_by_token, db_create_user
 )
 from utils import is_valid_email
 
@@ -46,7 +46,8 @@ def auth_register(email, password, name_first, name_last):
     if (not is_valid_email(email)):
         raise ValueError
     # Email already in use
-    # TODO - Needs to be a placeholder until users implemented
+    if (db_get_user_by_email(email)):
+        raise ValueError
     
     # Password < 6
     if (len(password) < 6):
@@ -58,17 +59,23 @@ def auth_register(email, password, name_first, name_last):
     if (len(name_last) < 1 or len(name_last) > 50):
         raise ValueError
 
-    # Create an account for the users
-    # TODO - requires more thought
-
     # Handle is lowercase first + last name
     handle = name_first.lower() + name_last.lower()
-
+    handle_number = 0
     # If handle already exists, add a number to it
-    # TODO - Requires more thought
-    
+    while (db_get_user_by_handle(handle + str(handle_number)) != None) {
+        handle_number += 1
+    }
+    if handle_number > 0:
+        handle += str(handle_number)
+    # Create an account for the users
+    u_id = db_create_user(email, password, name_first, name_last, handle)
+     
+    # Create token from this u_id
+    # TODO Update with actual tokenising system when ready 
+    token = db_create_auth(u_id)
     # Return a token for the user who registered
-    return 'placeholdertoken' # TODO - make this token actually real
+    return token # TODO - make this token actually real with a proper method
 
 # Given email, if user is registered, send them an email containing a specific
 # secret code, that when entered in auth_passwordreset_reset, shows that the
