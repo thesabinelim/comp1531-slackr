@@ -7,7 +7,6 @@ from server import (
     db_delete_auth_by_token
 )
 from utils import is_valid_email
-import re
 
 # Given registered user email and password, return dictionary containing u_id
 # and auth token. Raise ValueError exception if email entered is not valid/does
@@ -44,7 +43,7 @@ def auth_logout(token):
 # name_last is not between 1 and 50 chars
 def auth_register(email, password, name_first, name_last):
     # Email is valid
-    if (not re.search(valid_email_regex(), email)):
+    if (not is_valid_email(email)):
         raise ValueError
     # Email already in use
     # TODO - Needs to be a placeholder until users implemented
@@ -84,9 +83,3 @@ def auth_passwordreset_reset(reset_code, new_password):
         raise ValueError
 
     return {}
-
-# Helper function to prevent global variable
-# Make a regular expression 
-# for validating an Email 
-def valid_email_regex():
-    return r'^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
