@@ -2,8 +2,8 @@
 from json import dumps
 from flask import Flask, request
 
-from auth import auth_login, auth_logout
-from utils import random_string
+from backend.auth import auth_login, auth_logout
+from backend.utils import random_string
 
 APP = Flask(__name__)
 
