@@ -2,7 +2,7 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
-from server import (
+from ..server import (
     User, Auth, db_get_user_by_id, db_get_user_by_email, db_create_auth,
     db_delete_auth_by_token, db_create_user
 )
