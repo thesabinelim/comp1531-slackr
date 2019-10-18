@@ -118,16 +118,14 @@ def req_auth_register():
     name_first = request.form.get('name_first')
     name_last = request.form.get('name_last')
 
-    try:
-        token = auth_register(email, password, name_first, name_last)
-        u_id = db_get_user_by_email(email).get_user_id()
+    token = auth_register(email, password, name_first, name_last)
+    u_id = db_get_user_by_email(email).get_user_id()
 
-        return dumps({
-            'u_id': u_id,
-            'token': token
-        })
-    except:
-        
+    return dumps({
+        'u_id': u_id,
+        'token': token
+    })
+
 
 
 if __name__ == '__main__':
