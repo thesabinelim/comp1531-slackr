@@ -2,12 +2,13 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
+import time
 import hashlib
 import jwt
-import time
 
-from ..db import User, db_get_user_by_id, db_get_user_by_email
+from db import db_get_user_by_u_id, db_get_user_by_email
 from utils import is_valid_email
+from ..server import get_salt, get_secret
 
 # Return salted hash of password supplied.
 def hash_password(password):
@@ -19,9 +20,9 @@ def generate_token(u_id):
     secret = get_secret()
     return jwt.encode(
         {
-            'u_id': u_id, 
+            'u_id': u_id,
             'timestamp': time.time()
-        }, secret, algorithm = 'HS256'
+        }, secret, algorithm='HS256'
     )
 
 # Return u_id of user associated with token, Raise ValueError exception if token
@@ -29,9 +30,11 @@ def generate_token(u_id):
 def get_u_id_from_token(token):
     secret = get_secret()
     try:
-        payload = jwt.decode(token, secret, algorithms = ['HS256'])
+        payload = jwt.decode(token, secret, algorithms=['HS256'])
         return payload['u_id']
-    except:
+    except jwt.exceptions.DecodeError:
+        raise ValueError
+    except jwt.exceptions.InvalidTokenError:
         raise ValueError
 
 # Invalidate a provided token so all future authorisation attempts with token
@@ -40,10 +43,10 @@ def get_u_id_from_token(token):
 def invalidate_token(token):
     try:
         u_id = get_u_id_from_token(token)
-    except:
+    except ValueError:
         raise ValueError
 
-    user = db_get_user_by_id(u_id)
+    user = db_get_user_by_u_id(u_id)
     if user.has_token(token):
         user.remove_token(token)
         return True
@@ -65,7 +68,7 @@ def auth_login(email, password):
         raise ValueError
 
     u_id = user.get_u_id()
-    user = db_get_user_by_id(u_id)
+    user = db_get_user_by_u_id(u_id)
 
     token = generate_token(u_id)
     user.add_token(token)
@@ -78,7 +81,7 @@ def auth_login(email, password):
 def auth_logout(token):
     try:
         is_success = invalidate_token(token)
-    except:
+    except ValueError:
         is_success = False
 
     return {'is_success': is_success}
