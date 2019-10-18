@@ -1,11 +1,11 @@
 """Flask server"""
+import os
+
 from json import dumps
 from flask import Flask, request
 
 from backend.auth import auth_login, auth_logout
 from backend.utils import random_string
-
-import os
 
 APP = Flask(__name__)
 
