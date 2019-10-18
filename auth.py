@@ -69,20 +69,20 @@ def auth_logout(token):
 def auth_register(email, password, name_first, name_last):
     # Email is valid
     if (not is_valid_email(email)):
-        raise ValueError
+        raise ValueError("Invalid email")
     # Email already in use
     if (db_get_user_by_email(email)):
-        raise ValueError
+        raise ValueError("Email already in use")
     
     # Password < 6
     if (len(password) < 6):
-        raise ValueError
+        raise ValueError("Password < 6 characters")
     # name_first not in range
     if (len(name_first) < 1 or len(name_first) > 50):
-        raise ValueError
+        raise ValueError("First name not between 1 and 50 characters")
     # name_last not in range
     if (len(name_last) < 1 or len(name_last) > 50):
-        raise ValueError
+        raise ValueError("Last name not between 1 and 50 characters")
 
     # Handle is lowercase first + last name
     handle = get_new_user_handle(name_first, name_last)
