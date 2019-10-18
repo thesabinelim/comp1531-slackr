@@ -1,4 +1,6 @@
 """Flask server"""
+import sys
+from flask_cors import CORS
 from json import dumps
 from flask import Flask, request
 
@@ -6,6 +8,7 @@ from auth import auth_login, auth_logout
 from utils import random_string
 
 APP = Flask(__name__)
+CORS(APP)
 
 ############
 # Database #
@@ -182,4 +185,4 @@ def logout():
     return dumps(auth_logout(token))
 
 if __name__ == '__main__':
-    APP.run()
+    APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
