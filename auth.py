@@ -85,6 +85,19 @@ def auth_register(email, password, name_first, name_last):
         raise ValueError
 
     # Handle is lowercase first + last name
+    handle = get_new_user_handle(name_first, name_last)
+    # Create an account for the users
+    u_id = db_create_user(email, password, name_first, name_last, handle)
+     
+    # Create token from this u_id
+    token = generate_token(u_id)
+    # Return a token for the user who registered
+    return token 
+
+# Helper function to interact with the DB and get an appropriate handle.
+# Returns string of first_name + last_name + number if the user already exists.
+def get_new_user_handle(name_first, name_last):
+    # Handle is lowercase first + last name
     handle = name_first.lower() + name_last.lower()
     handle_number = 0
     # If handle already exists, add a number to it
@@ -93,14 +106,7 @@ def auth_register(email, password, name_first, name_last):
     }
     if handle_number > 0:
         handle += str(handle_number)
-    # Create an account for the users
-    u_id = db_create_user(email, password, name_first, name_last, handle)
-     
-    # Create token from this u_id
-    # TODO Update with actual tokenising system when ready 
-    token = db_create_auth(u_id)
-    # Return a token for the user who registered
-    return token # TODO - make this token actually real with a proper method
+    return handle
 
 # Given email, if user is registered, send them an email containing a specific
 # secret code, that when entered in auth_passwordreset_reset, shows that the
