@@ -3,13 +3,7 @@
 # 17/10/19
 
 from ..server import get_data, get_salt, get_secret
-
-import hashlib
-
-# Return salted hash of password supplied.
-def hash_password(password):
-    salt = get_salt()
-    return hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+from auth import hash_password
 
 ##############
 # users data #
@@ -23,6 +17,7 @@ class User:
         self.name_first = name_first
         self.name_last = name_last
         self.handle = handle
+        self.tokens = []
 
     def get_u_id(self):
         return self.id
@@ -36,10 +31,16 @@ class User:
         return self.name_last
     def get_handle(self):
         return self.handle
+    def get_tokens(self):
+        return self.tokens
+    def has_token(self, token):
+        return token in self.tokens
 
     def set_email(self, new_email):
         self.email = new_email
-    def set_hashpass(self, new_hashpass):
+    def set_password(self, new_password):
+        salt = get_salt()
+        new_hashpass = hash_password(new_password)
         self.hashpass = new_hashpass
     def set_first_name(self, new_name_first):
         self.name_first = new_name_first
@@ -47,6 +48,10 @@ class User:
         self.name_last = new_name_last
     def set_handle(self, new_handle):
         self.handle = new_handle
+    def add_token(self, token):
+        self.tokens.append(token)
+    def remove_token(self, token):
+        self.tokens.remove(token)
 
 # Create User with provided details and add to database, return u_id.
 def db_create_user(email, password, name_first, name_last, handle):
@@ -66,7 +71,8 @@ def db_get_user_by_u_id(u_id):
     db = get_data()
 
     for user in db['users']:
-        return user if user.get_u_id() == u_id
+        if user.get_u_id() == u_id:
+            return user
     return None
 
 # Return User with handle if they exist in database, None otherwise.
@@ -74,7 +80,8 @@ def db_get_user_by_handle(handle):
     db = get_data()
 
     for user in db['users']:
-        return user if user.get_handle() == handle
+        if user.get_handle() == handle:
+            return user
     return None
 
 # Return User with email if they exist in database, None otherwise.
@@ -82,17 +89,5 @@ def db_get_user_by_email(email):
     db = get_data()
 
     for user in db['users']:
-        return user if user.get_email() == handle
-
-# Set User with id's details in database to provided details.
-def db_set_user_details(u_id, email, password, name_first, name_last, handle):
-    user = db_get_user_by_id(u_id)
-    salt = get_salt()
-
-    hashpass = hash_password(password)
-    if user:
-        user.set_email(email)
-        user.set_password(hashpass)
-        user.set_first_name(name_first)
-        user.set_last_name(name_last)
-        user.set_handle(handle)
+        if user.get_email() == handle:
+            return user
