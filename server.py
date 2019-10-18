@@ -71,13 +71,13 @@ def echo2():
 # auth interface #
 ##################
 
-@auth_api.route('/auth/login', methods=['POST'])
+@APP.route('/auth/login', methods=['POST'])
 def login():
     email = request.form.get('email')
     password = request.form.get('password')
     return dumps(auth_login(email, password))
 
-@auth_api.route('/auth/logout', methods=['POST'])
+@APP.route('/auth/logout', methods=['POST'])
 def logout():
     token = request.form.get('token')
     return dumps(auth_logout(token))
