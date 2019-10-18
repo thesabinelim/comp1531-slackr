@@ -2,11 +2,33 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
-from ..server import (
+from ..db import (
     User, Auth, db_get_user_by_id, db_get_user_by_email, db_create_auth,
     db_delete_auth_by_token, db_create_user
 )
 from utils import is_valid_email
+
+import jwt
+import datetime
+
+# Return a new token given u_id.
+def generate_token(u_id):
+    secret = get_secret()
+    return jwt.encode(
+        {
+            'u_id': u_id, 
+            'time': datetime.datetime.now()
+        }, secret, algorithm = 'HS256'
+    )
+
+# Return True if a token is valid, False otherwise.
+def validate_token(token):
+    pass
+
+# Invalidate a provided token such that all future authorisation attempts with
+# the token fail. Return True on success, False otherwise.
+def invalidate_token(token):
+    pass
 
 # Given registered user email and password, return dictionary containing u_id
 # and auth token. Raise ValueError exception if email entered is not valid/does
@@ -19,7 +41,10 @@ def auth_login(email, password):
 
     raise ValueError if user.get_password() != password
 
-    return db_create_auth(user.get_u_id())
+    u_id = user.get_u_id()
+    token = generate_token(u_id)
+
+    return {'u_id': u_id, 'token': token}
 
 # Given an active token, invalidates the token to log the user out. Given a
 # non-valid token, does nothing. Return dictionary containing is_success value
