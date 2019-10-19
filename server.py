@@ -43,7 +43,7 @@ def reset_data():
     global data
     data = {
         'users': [],
-        'auths': []
+        'channels': []
     }
 
 data = None
