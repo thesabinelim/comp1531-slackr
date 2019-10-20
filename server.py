@@ -1,6 +1,8 @@
 """Flask server"""
 import sys
 from flask_cors import CORS
+import os
+
 from json import dumps
 from flask import Flask, request, jsonify
 from werkzeug.exceptions import HTTPException
@@ -10,8 +12,6 @@ from backend.auth import auth_login, auth_logout, auth_register
 from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
-
-import os
 
 APP = Flask(__name__)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
@@ -74,7 +74,7 @@ def reset_data():
     global data
     data = {
         'users': [],
-        'auths': []
+        'channels': []
     }
 
 data = None
@@ -102,13 +102,13 @@ def echo2():
 # auth interface #
 ##################
 
-@auth_api.route('/auth/login', methods=['POST'])
+@APP.route('/auth/login', methods=['POST'])
 def login():
     email = request.form.get('email')
     password = request.form.get('password')
     return dumps(auth_login(email, password))
 
-@auth_api.route('/auth/logout', methods=['POST'])
+@APP.route('/auth/logout', methods=['POST'])
 def logout():
     token = request.form.get('token')
     return dumps(auth_logout(token))
