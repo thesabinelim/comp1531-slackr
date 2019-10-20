@@ -54,8 +54,7 @@ channels_create:
       channel with the same name.
 
 user_profile:
-    - For now, the handle_str is assumed by default to be first name and last
-      name concat'd together.
+    - Any valid user can see the profile of any other valid user, the token supplied is not necessarily the same user from the u_id
 
 message_remove:
     - The conditions for the AccessError are probably wrong for this iteration
