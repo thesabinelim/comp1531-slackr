@@ -1,4 +1,6 @@
 """Flask server"""
+import sys
+from flask_cors import CORS
 from json import dumps
 from flask import Flask, request, jsonify
 from werkzeug.exceptions import HTTPException
@@ -129,4 +131,4 @@ def req_auth_register():
 
 
 if __name__ == '__main__':
-    APP.run()
+    APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
