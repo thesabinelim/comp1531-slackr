@@ -1,8 +1,7 @@
 """Flask server"""
 import sys
-from flask_cors import CORS
 import os
-
+from flask_cors import CORS
 from json import dumps
 from flask import Flask, request, jsonify
 from werkzeug.exceptions import HTTPException
