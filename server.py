@@ -136,6 +136,7 @@ def create_channel():
 ##################
 # user interface #
 ##################
+
 @APP.route('user/profile', methods=['GET'])
 def req_user_profile():
     token = request.args.get('token')
