@@ -124,6 +124,8 @@ def auth_register(email, password, name_first, name_last):
     u_id = db_create_user(email, password, name_first, name_last, handle)
      
     token = generate_token(u_id)
+    user = db_get_user_by_u_id(u_id)
+    user.add_token(token)
 
     return { 'token': token, 'u_id': u_id } 
 
