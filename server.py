@@ -17,7 +17,6 @@ from backend.db import db_get_user_by_email
 APP = Flask(__name__)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-
 ##################
 # Error Handling #
 ##################
@@ -123,7 +122,6 @@ def req_auth_register():
 
     return dumps(auth_register(email, password, name_first, name_last))
 
-
 ######################
 # channels interface #
 ######################
@@ -135,9 +133,9 @@ def create_channel():
     is_public = request.form.get('is_public')
     return dumps(channels_create(token, name, is_public))
 
-######################
-#   user interface   #
-######################
+##################
+# user interface #
+##################
 @APP.route('user/profile', methods=['GET'])
 def req_user_profile():
     token = request.args.get('token')
@@ -162,8 +160,6 @@ def req_user_profile_sethandle():
     token = request.form.get('token')
     handle_str = request.form.get('handle_str')
     return dumps(user_profile_sethandle(token, handle_str))
-
-
 
 if __name__ == '__main__':
     APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
