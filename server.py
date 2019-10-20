@@ -8,6 +8,7 @@ from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 
 from backend.auth import auth_login, auth_logout, auth_register
+from backend.channels import channels_create
 from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
@@ -112,6 +113,7 @@ def logout():
     token = request.form.get('token')
     return dumps(auth_logout(token))
 
+<<<<<<< HEAD
 @APP.route('auth/register', methods=['POST'])
 def req_auth_register():
     email = request.form.get('email')
@@ -128,6 +130,18 @@ def req_auth_register():
     })
 
 
+=======
+######################
+# channels interface #
+######################
+
+@APP.route('channels/create', methods=['POST'])
+def create_channel():
+    token = request.form.get('token')
+    name = request.form.get('name')
+    is_public = request.form.get('is_public')
+    return dumps(channels_create(token, name, is_public))
+>>>>>>> master
 
 if __name__ == '__main__':
     APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
