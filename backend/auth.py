@@ -124,14 +124,12 @@ def auth_register(email, password, name_first, name_last):
     u_id = db_create_user(email, password, name_first, name_last, handle)
      
     token = generate_token(u_id)
-    u_id = db_get_user_by_email(email).get_user_id()
 
     return { 'token': token, 'u_id': u_id } 
 
 # Helper function to interact with the DB and get an appropriate handle.
 # Returns string of first_name + last_name + number if the user already exists.
 def get_new_user_handle(name_first, name_last):
-    # Handle is lowercase first + last name
     handle = name_first.lower() + name_last.lower()
     handle_number = 0
     # If handle already exists, add a number to it
