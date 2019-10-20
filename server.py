@@ -9,6 +9,7 @@ from flask_cors import CORS
 
 from backend.auth import auth_login, auth_logout, auth_register
 from backend.channels import channels_create
+from backend.user import user_profile, user_profile_setname, user_profile_setemail, user_profile_sethandle
 from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
@@ -133,6 +134,36 @@ def create_channel():
     name = request.form.get('name')
     is_public = request.form.get('is_public')
     return dumps(channels_create(token, name, is_public))
+
+######################
+#   user interface   #
+######################
+@APP.route('user/profile', methods=['GET'])
+def req_user_profile():
+    token = request.args.get('token')
+    u_id = request.args.get('u_id')
+    return dumps(user_profile(token, u_id))
+
+@APP.route('user/profile/setname', methods=['PUT'])
+def req_user_profile_setname():
+    token = request.form.get('token')
+    name_first = request.form.get('name_first')
+    name_last = request.form.get('name_last')
+    return dumps(user_profile_setname(token, name_first, name_last))
+
+@APP.route('user/profile/setemail', methods=['PUT'])
+def req_user_profile_setemail():
+    token = request.form.get('token')
+    email = request.form.get('email')
+    return dumps(user_profile_setemail(token, email))
+
+@APP.route('user/profile/sethandle', methods=['PUT'])
+def req_user_profile_sethandle():
+    token = request.form.get('token')
+    handle_str = request.form.get('handle_str')
+    return dumps(user_profile_sethandle(token, handle_str))
+
+
 
 if __name__ == '__main__':
     APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
