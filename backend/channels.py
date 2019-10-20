@@ -4,6 +4,7 @@
 
 from db import db_create_channel, db_get_channel_by_channel_id
 from auth import validate_token
+from error import TokenError
 
 # Return list of channels (and their details) that user is in.
 def channels_list(token):
@@ -46,6 +47,7 @@ def channels_listall(token):
 # Create new channel with that name that is either a public or private channel.
 # Return dictionary containing channel_id.
 # Raise ValueError exception if name > 20 characters.
+# Raise TokenError if token invalid.
 def channels_create(token, name, is_public):
     if len(name) > 20:
         raise ValueError
@@ -56,7 +58,7 @@ def channels_create(token, name, is_public):
         raise ValueError
 
     if not token_valid:
-        return
+        raise TokenError
 
     channel_id = db_create_channel(name, is_public)
     channel = db_get_channel_by_channel_id(channel_id)

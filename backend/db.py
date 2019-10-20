@@ -2,6 +2,8 @@
 # Written by Sabine Lim z5242579
 # 17/10/19
 
+import enum
+
 from ..server import get_data, get_secret
 from auth import hash_password
 
@@ -9,14 +11,20 @@ from auth import hash_password
 # users data #
 ##############
 
+class Role(enum.Enum):
+    owner = 1
+    admin = 2
+    member = 3
+
 class User:
-    def __init__(self, u_id, email, hashpass, name_first, name_last, handle):
+    def __init__(self, u_id, email, hashpass, name_first, name_last, handle, role):
         self.u_id = u_id
         self.email = email
         self.hashpass = hashpass
         self.name_first = name_first
         self.name_last = name_last
         self.handle = handle
+        self.role = role
         self.channels = []
         self.tokens = []
 
@@ -32,6 +40,8 @@ class User:
         return self.name_last
     def get_handle(self):
         return self.handle
+    def get_role(self):
+        return self.role
     def get_channels(self):
         return self.channels
     def in_channel(self, channel_id):
@@ -51,6 +61,8 @@ class User:
         self.name_last = new_name_last
     def set_handle(self, new_handle):
         self.handle = new_handle
+    def set_role(self, new_role):
+        self.role = new_role
     def add_channel(self, channel_id):
         if channel_id in self.channels:
             return
@@ -69,13 +81,13 @@ class User:
         self.tokens.remove(token)
 
 # Create User with provided details and add to database, return u_id.
-def db_create_user(email, password, name_first, name_last, handle):
+def db_create_user(email, password, name_first, name_last, handle, role):
     db = get_data()
 
     u_id = db['users'][-1].get_u_id() + 1
     hashpass = hash_password(password)
 
-    user = User(u_id, email, hashpass, name_first, name_last, handle)
+    user = User(u_id, email, hashpass, name_first, name_last, handle, role)
     db['users'].append(user)
 
     return u_id

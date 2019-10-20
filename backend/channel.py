@@ -2,7 +2,9 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
-from error import *
+from db import Role, db_get_channel_by_channel_id, db_get_user_by_u_id
+from auth import validate_token
+from error import TokenError, AccessError
 
 # Invite user with u_id to channel with channel_id. Returns {} if successful.
 # Raises ValueError exception if channel_id is invalid/user is not in channel or
@@ -47,9 +49,25 @@ def channel_leave(token, channel_id):
 # Given id of channel that user can join, add them to that channel.
 # Raise ValueError exception if channel with id does not exist.
 # Raise AccessError if channel is private and user is not admin.
+# Raise TokenError if token invalid.
 def channel_join(token, channel_id):
-    if channel_id not in [7654321, 3054207, 9703358]:
+    try:
+        u_id, token_valid = validate_token(token)
+    except ValueError:
         raise ValueError
+
+    if not token_valid:
+        raise TokenError
+
+    channel = db_get_channel_by_channel_id(channel_id)
+    user = db_get_user_by_u_id(u_id)
+
+    if channel == None:
+        raise ValueError
+
+    if not channel.is_public():
+        if user.get_role() != Role.admin and user.get_role() != Role.owner:
+            raise AccessError
 
     return {}
 

@@ -8,6 +8,7 @@ general:
       coupling together tests is a bad idea - as changing a single failing test
       could potentially change others if the code is too tightly factored.
     - Assuming marking messages as read will be clarified in iteration 2.
+    - If a token is invalid a TokenError will be raised.
 
 auth_register:
     - First name cannot be blank and must contain only alphanumeric characters,
