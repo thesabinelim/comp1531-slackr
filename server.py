@@ -113,7 +113,6 @@ def logout():
     token = request.form.get('token')
     return dumps(auth_logout(token))
 
-<<<<<<< HEAD
 @APP.route('auth/register', methods=['POST'])
 def req_auth_register():
     email = request.form.get('email')
@@ -130,7 +129,6 @@ def req_auth_register():
     })
 
 
-=======
 ######################
 # channels interface #
 ######################
@@ -141,7 +139,6 @@ def create_channel():
     name = request.form.get('name')
     is_public = request.form.get('is_public')
     return dumps(channels_create(token, name, is_public))
->>>>>>> master
 
 if __name__ == '__main__':
     APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
