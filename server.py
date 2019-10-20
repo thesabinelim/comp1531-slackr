@@ -8,7 +8,7 @@ from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 
 from backend.auth import auth_login, auth_logout, auth_register
-from backend.channels import channels_create
+from backend.channels import channels_create, channels_list, channels_listall
 from backend.user import user_profile, user_profile_setname, user_profile_setemail, user_profile_sethandle
 from backend.utils import random_string
 
@@ -134,6 +134,16 @@ def create_channel():
     name = request.form.get('name')
     is_public = request.form.get('is_public')
     return dumps(channels_create(token, name, is_public))
+
+@APP.route('channels/list', methods='GET')
+def req_channels_list():
+    token = request.args.get('token')
+    return dumps(channels_list(token))
+
+@APP.route('channels/listall', methods='GET')
+def req_channels_listall():
+    token = request.args.get('token')
+    return dumps(channels_listall(token))
 
 ######################
 #   user interface   #

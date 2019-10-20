@@ -190,3 +190,8 @@ def db_get_channel_by_name(name):
         if channel.get_name() == name:
             return channel
     return None
+
+# Returns a list of all the channels in the database
+def db_get_all_channels():
+    db = get_data()
+    return db['channels']
