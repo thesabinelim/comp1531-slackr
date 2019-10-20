@@ -120,13 +120,7 @@ def req_auth_register():
     name_first = request.form.get('name_first')
     name_last = request.form.get('name_last')
 
-    token = auth_register(email, password, name_first, name_last)
-    u_id = db_get_user_by_email(email).get_user_id()
-
-    return dumps({
-        'u_id': u_id,
-        'token': token
-    })
+    return dumps(auth_register(email, password, name_first, name_last))
 
 
 ######################
