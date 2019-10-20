@@ -5,7 +5,7 @@
 import re
 from utils import is_valid_email
 
-from db import User, db_get_user_by_u_id
+from db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle
 from auth import validate_token
 # For a valid user, returns information about their email, first name, last 
 # name, and handle.
@@ -43,16 +43,29 @@ def user_profile_setname(token, name_first, name_last):
 # Update the authorised user's email address
 def user_profile_setemail(token, email):
     if not is_valid_email(email):
-        raise ValueError
-    # if email in use:
-    #    raise ValueError
-    if email == 'usedemail@example.com':
-        raise ValueError
+        raise ValueError("Email invalid")
+    if db_get_user_by_email(email) != None:
+        raise ValueError("Email already in use")
+    auth_info = validate_token(token)
+    # Not actually documented to throw a ValueError in spec if token's invalid
+    if auth_info['is_valid']:
+        user = db_get_user_by_u_id(auth_info['u_id'])
+        user.set_email(email)
+    return {}
 
 # Update the authorised user's handle (i.e. display name)
 def user_profile_sethandle(token, handle_str):
-    if len(handle_str) > 20:
-        raise ValueError
+    if len(handle_str) < 3 or len(handle_str) > 20:
+        raise ValueError("Handle not between 3 and 20 characters")
+    if db_get_user_by_handle(handle_str) != None:
+        raise ValueError("Handle is already in use")
+    auth_info = validate_token(token)
+    # Not actually documented to throw a ValueError in spec if token's invalid
+    if auth_info['is_valid']:
+        user = db_get_user_by_u_id(auth_info['u_id'])
+        user.set_handle(handle_str)
+    return {}
+
 
 # NOTE: Not to be implemented until iteration 3 according to spec!!!
 # Given a URL of an image on the internet, crops the image within bounds 
