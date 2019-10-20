@@ -5,11 +5,7 @@
 
 from db import db_create_channel, db_get_channel_by_channel_id, db_get_user_by_u_id, db_get_all_channels
 from auth import validate_token
-<<<<<<< HEAD
-from server import get_data
-=======
 from error import TokenError
->>>>>>> 2f594269a2c6d0feca293ac057025bcbdf83cc85
 
 # Return list of channels (and their details) that user is in.
 def channels_list(token):
