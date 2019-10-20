@@ -2,11 +2,11 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
+from db import User, db_get_user_by_u_id, db_get_user_by_email, db_create_user, db_get_user_by_handle
 import time
 import hashlib
 import jwt
 
-from db import db_get_user_by_u_id, db_get_user_by_email
 from utils import is_valid_email
 from ..server import get_salt, get_secret
 
@@ -94,33 +94,50 @@ def auth_logout(token):
 
     return {'is_success': is_success}
 
-# Given first and last name, email address and password, create new user account
-# and return auth token. Raise ValueError exception if email entered is not
-# valid/already in use, password is not valid, name_first > 50 characters or
-# name_last > 50 characters
+# Given a user's first and last name, email address, and password, create 
+# a new account for them and return a new token for authentication in 
+# their session. 
+# A handle is generated that is the concatentation of a lowercase-only 
+# first name and last name.
+# If the handle is already taken, a number is added to the end of the 
+# handle to make it unique.
+# Throws a ValueError when:
+# Email is not valid
+# Email already in use
+# Password < 6 chars long
+# name_first is not between 1 and 50 chars
+# name_last is not between 1 and 50 chars
 def auth_register(email, password, name_first, name_last):
-    if email == 'bademail':
-        raise ValueError
+    if (not is_valid_email(email)):
+        raise ValueError("Invalid email")
+    if (db_get_user_by_email(email)):
+        raise ValueError("Email already in use")
+    if (len(password) < 6):
+        raise ValueError("Password < 6 characters")
+    if (len(name_first) < 1 or len(name_first) > 50):
+        raise ValueError("First name not between 1 and 50 characters")
+    if (len(name_last) < 1 or len(name_last) > 50):
+        raise ValueError("Last name not between 1 and 50 characters")
 
-    if password == 'pwd':
-        raise ValueError
+    # Handle is lowercase first + last name
+    handle = get_new_user_handle(name_first, name_last)
+    u_id = db_create_user(email, password, name_first, name_last, handle)
+     
+    token = generate_token(u_id)
 
-    if name_first == '123456789012345678901234567890123456789012345678901':
-        raise ValueError
+    return { 'token': token, 'u_id': u_id } 
 
-    if name_last == '123456789012345678901234567890123456789012345678901':
-        raise ValueError
-
-    if email == 'user@example.com' and password == 'validpassword':
-        return {'u_id': 1234567, 'token': '1234567'}
-    elif email == 'sabine.lim@unsw.edu.au' and password == 'ImSoAwes0me':
-        return {'u_id': 5242579, 'token': '7849321'}
-    elif email == 'gamer@twitch.tv' and password == 'gamers_rise_up':
-        return {'u_id': 4201337, 'token': '8479263'}
-    elif email == 'abc@def.com' and password == 'ghijklmnop':
-        return {'u_id': 9876543, 'token': '0018376'}
-
-    raise ValueError
+# Helper function to interact with the DB and get an appropriate handle.
+# Returns string of first_name + last_name + number if the user already exists.
+def get_new_user_handle(name_first, name_last):
+    handle = name_first.lower() + name_last.lower()
+    handle_number = 0
+    # If handle already exists, add a number to it
+    while (db_get_user_by_handle(handle + str(handle_number)) != None):
+        handle_number += 1
+    if handle_number > 0:
+        handle += str(handle_number)
+    return handle
 
 # Given email, if user is registered, send them an email containing a specific
 # secret code, that when entered in auth_passwordreset_reset, shows that the
