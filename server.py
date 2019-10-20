@@ -5,6 +5,7 @@ from json import dumps
 from flask import Flask, request
 
 from backend.auth import auth_login, auth_logout
+from backend.channels import channels_create
 from backend.utils import random_string
 
 APP = Flask(__name__)
@@ -81,6 +82,17 @@ def login():
 def logout():
     token = request.form.get('token')
     return dumps(auth_logout(token))
+
+######################
+# channels interface #
+######################
+
+@APP.route('channels/create', methods=['POST'])
+def create_channel():
+    token = request.form.get('token')
+    name = request.form.get('name')
+    is_public = request.form.get('is_public')
+    return dumps(channels_create(token, name, is_public))
 
 if __name__ == '__main__':
     APP.run()
