@@ -132,8 +132,9 @@ def auth_register(email, password, name_first, name_last):
      
     # Create token from this u_id
     token = generate_token(u_id)
+    u_id = db_get_user_by_email(email).get_user_id()
     # Return a token for the user who registered
-    return { 'token': token } 
+    return { 'token': token, 'u_id': u_id } 
 
 # Helper function to interact with the DB and get an appropriate handle.
 # Returns string of first_name + last_name + number if the user already exists.
