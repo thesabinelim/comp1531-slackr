@@ -3,15 +3,14 @@
 # 02/10/19
 
 import re
-
+from utils import is_valid_email
 # For a valid user, returns information about their email, first name, last 
 # name, and handle.
 # Raises a ValueError when the u_id is not a valid user.
 # Returns a dictionary of user information.
 # As of iteration 1 this will fail, as all data is stored in the backend as per spec
 def user_profile(token, u_id):
-    if u_id < 0:
-        raise ValueError
+    if 
     return { 
         "email": f"{u_id}@example.com",
         "name_first": "test", 
@@ -52,19 +51,3 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
         raise ValueError
     if y_start < 0 or y_start > img_height or y_end < 0 or y_end > img_height:
         raise ValueError
-
-
-      
-# Validates an email by regular expression
-# # https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
-def valid_email(email):  
-    # Make a regular expression 
-    # for validating an Email 
-    regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
-    # pass the regualar expression 
-    # and the string in search() method 
-    if(re.search(regex,email)):  
-        return True
-          
-    else:  
-        return False
