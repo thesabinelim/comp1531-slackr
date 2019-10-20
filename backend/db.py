@@ -44,12 +44,7 @@ class User:
     def set_email(self, new_email):
         self.email = new_email
     def set_password(self, new_password):
-<<<<<<< HEAD
-        new_hashpass = hash_password(new_password)
-        self.hashpass = new_hashpass
-=======
         self.hashpass = hash_password(new_password)
->>>>>>> master
     def set_first_name(self, new_name_first):
         self.name_first = new_name_first
     def set_last_name(self, new_name_last):
