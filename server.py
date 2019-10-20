@@ -1,6 +1,7 @@
 """Flask server"""
+import sys
 import os
-
+from flask_cors import CORS
 from json import dumps
 from flask import Flask, request
 
@@ -9,6 +10,7 @@ from backend.channels import channels_create
 from backend.utils import random_string
 
 APP = Flask(__name__)
+CORS(APP)
 
 ############
 # Database #
@@ -95,4 +97,4 @@ def create_channel():
     return dumps(channels_create(token, name, is_public))
 
 if __name__ == '__main__':
-    APP.run()
+    APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
