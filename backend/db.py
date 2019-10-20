@@ -21,7 +21,7 @@ class User:
         self.tokens = []
 
     def get_u_id(self):
-        return self.id
+        return self.u_id
     def get_email(self):
         return self.email
     def get_hashpass(self):
