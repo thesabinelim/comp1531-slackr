@@ -2,7 +2,10 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
-from db import User, db_get_user_by_u_id, db_get_user_by_email, db_create_user, db_get_user_by_handle
+from db import (
+    User, Role, db_get_users, db_get_user_by_u_id, db_get_user_by_email,
+    db_create_user, db_get_user_by_handle
+)
 import time
 import hashlib
 import jwt
@@ -107,25 +110,33 @@ def auth_logout(token):
 # Password < 6 chars long
 # name_first is not between 1 and 50 chars
 # name_last is not between 1 and 50 chars
+# First user registered is automatically made owner.
 def auth_register(email, password, name_first, name_last):
     if (not is_valid_email(email)):
         raise ValueError("Invalid email")
     if (db_get_user_by_email(email)):
         raise ValueError("Email already in use")
+
     if (len(password) < 6):
         raise ValueError("Password < 6 characters")
+
     if (len(name_first) < 1 or len(name_first) > 50):
         raise ValueError("First name not between 1 and 50 characters")
     if (len(name_last) < 1 or len(name_last) > 50):
         raise ValueError("Last name not between 1 and 50 characters")
 
-    # Handle is lowercase first + last name
+    # First user registered is automatically made owner.
+    role = Role.member
+    if db_get_users() == []:
+        role = Role.owner
+
+    # Handle is lowercase first + last name by default.
     handle = get_new_user_handle(name_first, name_last)
-    u_id = db_create_user(email, password, name_first, name_last, handle)
-     
+
+    u_id = db_create_user(email, password, name_first, name_last, handle, role)
     token = generate_token(u_id)
 
-    return { 'token': token, 'u_id': u_id } 
+    return {'token': token, 'u_id': u_id} 
 
 # Helper function to interact with the DB and get an appropriate handle.
 # Returns string of first_name + last_name + number if the user already exists.

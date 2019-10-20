@@ -92,6 +92,11 @@ def db_create_user(email, password, name_first, name_last, handle, role):
 
     return u_id
 
+# Return list of users.
+def db_get_users():
+    db = get_data()
+    return db['users']
+
 # Return User with u_id if they exist in database, None otherwise.
 def db_get_user_by_u_id(u_id):
     db = get_data()
