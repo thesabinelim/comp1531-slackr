@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import DeveloperOutlinedIcon from '@material-ui/icons/DeveloperModeOutlined';
-import * as routecall from '../../utils/routecall';
+import * as routecall from '../utils/routecall';
 import React from 'react';
 import { url } from '../utils/constants';
 import { toast } from 'react-toastify';
@@ -53,7 +53,7 @@ function RegisterPage({ setAuth, ...props }) {
     if (!values.email || !values.password) return;
 
     // Send to backend
-    routecall.post(`${url}/auth/register`, qs.stringify({ ...values }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+    routecall.post(`${url}/auth/register`, { ...values })
       .then((response) => {
         console.log(response);
         const data = response.data;

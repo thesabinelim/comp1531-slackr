@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import * as routecall from '../../utils/routecall';
+import * as routecall from '../utils/routecall';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { url } from '../utils/constants';

@@ -1,5 +1,5 @@
 import React from 'react';
-import * as routecall from '../../utils/routecall';
+import * as routecall from '../utils/routecall';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
