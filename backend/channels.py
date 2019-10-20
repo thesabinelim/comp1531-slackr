@@ -1,6 +1,6 @@
 # COMP1531 Project channels
 # Written by Sabine Lim z5242579
-# Written by Bridget McCarthy z5255505
+# and Bridget McCarthy z5255505
 # 01/10/19
 
 from db import db_create_channel, db_get_channel_by_channel_id, db_get_user_by_u_id, db_get_all_channels
