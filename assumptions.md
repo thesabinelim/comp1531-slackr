@@ -20,9 +20,6 @@ channel_details:
     - The list of members returned is sorted in order of id.
 
 channel_leave:
-    - Owner can't leave unless they are the last person in channel or they add
-      another person as owner beforehand. We assume this is an oversight and
-      will be fixed/clarified in iteration 2.
     - An owner leaving removes them from the channel's owner list.
 
 channel_join:

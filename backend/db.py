@@ -63,11 +63,11 @@ class User:
         self.handle = new_handle
     def set_role(self, new_role):
         self.role = new_role
-    def add_channel(self, channel_id):
+    def join_channel(self, channel_id):
         if channel_id in self.channels:
             return
         self.channels.append(channel_id)
-    def remove_channel(self, channel_id):
+    def leave_channel(self, channel_id):
         if channel_id not in self.channels:
             raise ValueError
         self.channels.remove(channel_id)
@@ -145,8 +145,12 @@ class Channel:
         return self.public
     def get_owners(self):
         return self.owners
+    def has_owner(self, u_id):
+        return u_id in self.owners
     def get_members(self):
         return self.members
+    def has_member(self, u_id):
+        return u_id in self.members
     def get_messages(self):
         return self.messages
 
