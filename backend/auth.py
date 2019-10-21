@@ -3,7 +3,7 @@
 # 01/10/19
 
 from db import (
-    User, Role, db_get_users, db_get_user_by_u_id, db_get_user_by_email,
+    User, Role, db_get_all_users, db_get_user_by_u_id, db_get_user_by_email,
     db_create_user, db_get_user_by_handle
 )
 import time
@@ -127,7 +127,7 @@ def auth_register(email, password, name_first, name_last):
 
     # First user registered is automatically made owner.
     role = Role.member
-    if db_get_users() == []:
+    if db_get_all_users() == []:
         role = Role.owner
 
     # Handle is lowercase first + last name by default.
