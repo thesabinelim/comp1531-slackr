@@ -9,7 +9,7 @@ do
   port_b=$((port_b + 1))
 done
 
-port_f=6001
+port_f=8001
 while [[ `netstat -taln | egrep $port_f` != "" ]]
 do
   echo "Failed on port $port_f, trying another"
