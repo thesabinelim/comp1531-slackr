@@ -3,6 +3,7 @@
 # 17/10/19
 
 import enum
+import copy
 
 from ..server import get_data, get_secret
 from auth import hash_password
@@ -216,3 +217,58 @@ def db_get_channel_by_name(name):
 def db_get_all_channels():
     db = get_data()
     return db['channels']
+
+#################
+# messages data #
+#################
+
+class Message:
+    def __init__(self, message_id, u_id, channel_id, time_created):
+        self.message_id = message_id
+        self.u_id = u_id
+        self.channel_id = channel_id
+        self.time_created = time_created
+        self.reacts = []
+        self.pinned = False
+
+    def get_message_id(self):
+        return self.message_id
+    def get_u_id(self):
+        return self.u_id
+    def get_channel_id(self):
+        return self.channel_id
+    def get_time_created(self):
+        return self.time_created
+    def get_react_by_react_id(self, react_id):
+        for react in self.reacts:
+            if react['react_id'] == react_id:
+                return react
+        return None
+    def get_reacts(self, u_id):
+        return self.reacts
+    def is_pinned(self):
+        return self.pinned
+
+    # Ignore if user has already made that react.
+    def add_react(self, react_id, u_id):
+        react = self.get_react_by_react_id(react_id)
+        if react == None:
+            # This is the first react with this id.
+            self.reacts.append({
+                'react_id': react_id,
+                'u_ids': [u_id]
+            })
+            return
+        if u_id not in react['u_ids']:
+            react['u_ids'].append(u_id)
+    # Ignore if user has not made that react or react does not exist.
+    def remove_react(self, react_id, u_id):
+        react = self.get_react_by_react_id(react_id)
+        if react == None:
+            return
+        if u_id in react['u_ids']:
+            react['u_ids'].remove(u_id)
+    def pin(self):
+        self.pinned = True
+    def unpin(self):
+        self.pinned = False

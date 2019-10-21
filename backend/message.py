@@ -1,6 +1,8 @@
 # COMP1531 Project message
-# Written by Bridget McCarthy z5255505
+# Written by Bridget McCarthy z5255505 and Sabine Lim z5242579
 # 1/10/19
+
+from db import Message
 
 import datetime
 # Send a message from authorised_user to the channel specified by channel_id.
