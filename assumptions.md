@@ -52,7 +52,11 @@ channels_create:
       channel with the same name.
 
 user_profile:
-    - Any valid user can see the profile of any other valid user, the token supplied is not necessarily the same user from the u_id
+    - Any valid user can see the profile of any other valid user, the token
+      supplied is not necessarily the same user from the u_id.
+
+message_sendlater:
+    - time_sent is a Unix timestamp.
 
 message_remove:
     - The conditions for the AccessError are probably wrong for this iteration
