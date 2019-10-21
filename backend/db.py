@@ -93,8 +93,8 @@ def db_create_user(email, password, name_first, name_last, handle, role):
 
     return u_id
 
-# Return list of users.
-def db_get_users():
+# Return list of all Users in the database.
+def db_get_all_users():
     db = get_data()
     return db['users']
 
@@ -195,6 +195,11 @@ def db_create_channel(name, is_public):
 
     return channel_id
 
+# Returns a list of all Channels in the database.
+def db_get_all_channels():
+    db = get_data()
+    return db['channels']
+
 # Return Channel with channel_id if it exists in database, None otherwise.
 def db_get_channel_by_channel_id(channel_id):
     db = get_data()
@@ -212,11 +217,6 @@ def db_get_channel_by_name(name):
         if channel.get_name() == name:
             return channel
     return None
-
-# Returns a list of all the channels in the database
-def db_get_all_channels():
-    db = get_data()
-    return db['channels']
 
 #################
 # messages data #
@@ -272,3 +272,11 @@ class Message:
         self.pinned = True
     def unpin(self):
         self.pinned = False
+
+# Create Message with provided details and add to database, return message_id.
+def db_create_message(u_id, channel_id, time_created):
+    pass
+
+# Return Message with message_id if it exists in database, None otherwise.
+def db_get_message_by_message_id(message_id):
+    pass
