@@ -74,7 +74,6 @@ def channel_leave(token, channel_id):
 
     channel.remove_owner(user)
     channel.remove_member(user)
-
     user.leave_channel(channel)
 
     return {}
@@ -101,7 +100,6 @@ def channel_join(token, channel_id):
             raise AccessError("Channel is private and user is not admin or owner!")
 
     channel.add_member(user)
-
     user.join_channel(channel)
 
     return {}
