@@ -91,8 +91,10 @@ standup_start:
 
 admin_userpermission_change:
     - The first user is an owner (as opposed to admin as the spec says).
-    - Admins can't promote themselves to owners.
-    - The information about permission would be stored in somewhere.
+    - Admins can't promote themselves or others to owners. An AccessError will
+      be raised if this is attempted.
+    - Admins can't demote owners to admins. An AccessError will be raised if
+      this is attempted.
       
 search:
     - Only the channels that a user is in to are searched.
