@@ -8,8 +8,13 @@ from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 
 from backend.auth import auth_login, auth_logout, auth_register
+from backend.user import (
+    user_profile, user_profile_setname, user_profile_setemail,
+    user_profile_sethandle
+)
 from backend.channels import channels_create, channels_list, channels_listall
-from backend.user import user_profile, user_profile_setname, user_profile_setemail, user_profile_sethandle
+from backend.channel import channel_join, channel_leave
+from backend.message import message_send
 from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
@@ -74,7 +79,8 @@ def reset_data():
     global data
     data = {
         'users': [],
-        'channels': []
+        'channels': [],
+        'messages': []
     }
 
 data = None
@@ -85,92 +91,114 @@ reset_data()
 ##################
 
 @APP.route('/echo/get', methods=['GET'])
-def echo1():
+def int_echo_get():
     """ Description of function """
-    return dumps({
-        'echo' : request.args.get('echo'),
-    })
+    return dumps({'echo' : request.args.get('echo')})
 
 @APP.route('/echo/post', methods=['POST'])
-def echo2():
+def int_echo_post():
     """ Description of function """
-    return dumps({
-        'echo' : request.form.get('echo'),
-    })
+    return dumps({'echo' : request.form.get('echo')})
 
 ##################
 # auth interface #
 ##################
 
 @APP.route('/auth/login', methods=['POST'])
-def login():
+def int_auth_login():
     email = request.form.get('email')
     password = request.form.get('password')
     return dumps(auth_login(email, password))
 
 @APP.route('/auth/logout', methods=['POST'])
-def logout():
+def int_auth_logout():
     token = request.form.get('token')
     return dumps(auth_logout(token))
 
 @APP.route('auth/register', methods=['POST'])
-def req_auth_register():
+def int_auth_register():
     email = request.form.get('email')
     password = request.form.get('password')
     name_first = request.form.get('name_first')
     name_last = request.form.get('name_last')
-
     return dumps(auth_register(email, password, name_first, name_last))
 
-######################
-# channels interface #
-######################
-
-@APP.route('channels/create', methods=['POST'])
-def create_channel():
-    token = request.form.get('token')
-    name = request.form.get('name')
-    is_public = request.form.get('is_public')
-    return dumps(channels_create(token, name, is_public))
-
-@APP.route('channels/list', methods='GET')
-def req_channels_list():
-    token = request.args.get('token')
-    return dumps(channels_list(token))
-
-@APP.route('channels/listall', methods='GET')
-def req_channels_listall():
-    token = request.args.get('token')
-    return dumps(channels_listall(token))
-
-######################
-#   user interface   #
-######################
+##################
+# user interface #
+##################
 
 @APP.route('user/profile', methods=['GET'])
-def req_user_profile():
+def int_user_profile():
     token = request.args.get('token')
     u_id = request.args.get('u_id')
     return dumps(user_profile(token, u_id))
 
 @APP.route('user/profile/setname', methods=['PUT'])
-def req_user_profile_setname():
+def int_user_profile_setname():
     token = request.form.get('token')
     name_first = request.form.get('name_first')
     name_last = request.form.get('name_last')
     return dumps(user_profile_setname(token, name_first, name_last))
 
 @APP.route('user/profile/setemail', methods=['PUT'])
-def req_user_profile_setemail():
+def int_user_profile_setemail():
     token = request.form.get('token')
     email = request.form.get('email')
     return dumps(user_profile_setemail(token, email))
 
 @APP.route('user/profile/sethandle', methods=['PUT'])
-def req_user_profile_sethandle():
+def int_user_profile_sethandle():
     token = request.form.get('token')
     handle_str = request.form.get('handle_str')
     return dumps(user_profile_sethandle(token, handle_str))
+
+######################
+# channels interface #
+######################
+
+@APP.route('channels/create', methods=['POST'])
+def int_channels_create():
+    token = request.form.get('token')
+    name = request.form.get('name')
+    is_public = request.form.get('is_public')
+    return dumps(channels_create(token, name, is_public))
+
+@APP.route('channels/list', methods='GET')
+def int_channels_list():
+    token = request.args.get('token')
+    return dumps(channels_list(token))
+
+@APP.route('channels/listall', methods='GET')
+def int_channels_listall():
+    token = request.args.get('token')
+    return dumps(channels_listall(token))
+
+#####################
+# channel interface #
+#####################
+
+@APP.route('channel/join', methods='POST')
+def int_channel_join():
+    token = request.form.get('token')
+    channel_id = request.form.get('channel_id')
+    return dumps(channel_join(token, channel_id))
+
+@APP.route('channel/leave', methods='POST')
+def int_channel_leave():
+    token = request.form.get('token')
+    channel_id = request.form.get('channel_id')
+    return dumps(channel_leave(token, channel_id))
+
+#####################
+# message interface #
+#####################
+
+@APP.route('message/send', methods='POST')
+def int_message_send():
+    token = request.form.get('token')
+    channel_id = request.form.get('channel_id')
+    message = request.form.get('message')
+    return dumps(message_send(token, channel_id, message))
 
 if __name__ == '__main__':
     APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))

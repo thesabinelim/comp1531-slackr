@@ -2,7 +2,10 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
-from db import Role, db_get_channel_by_channel_id, db_get_user_by_u_id
+from db import (
+    Role, User, Channel, Message, db_get_channel_by_channel_id,
+    db_get_user_by_u_id
+)
 from auth import validate_token
 from error import TokenError, AccessError
 
