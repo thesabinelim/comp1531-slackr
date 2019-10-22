@@ -14,7 +14,7 @@ from backend.user import (
 )
 from backend.channels import channels_create, channels_list, channels_listall
 from backend.channel import channel_invite, channel_join, channel_leave
-from backend.message import message_send
+from backend.message import message_sendlater, message_send, message_pin, message_unpin
 from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
@@ -199,6 +199,13 @@ def req_channel_leave():
 #####################
 # message interface #
 #####################
+
+@APP.route('message/sendlater', methods='POST')
+def req_message_sendlater():
+    token = request.form.get('token')
+    channel_id = request.form.get('channel_id')
+    message = request.form.get('message')
+    return dumps(message_sendlater(token, channel_id, message))
 
 @APP.route('message/send', methods='POST')
 def req_message_send():

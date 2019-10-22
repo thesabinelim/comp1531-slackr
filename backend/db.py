@@ -173,7 +173,7 @@ class Channel:
         if message not in self.messages:
             self.messages.append(message)
     def remove_message(self, message):
-        if message_id in self.messages:
+        if message in self.messages:
             self.messages.remove(message)
 
 # Create Channel with provided details and add to database, return channel_id.
