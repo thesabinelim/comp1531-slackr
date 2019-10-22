@@ -91,12 +91,12 @@ reset_data()
 ##################
 
 @APP.route('/echo/get', methods=['GET'])
-def int_echo_get():
+def req_echo_get():
     """ Description of function """
     return dumps({'echo' : request.args.get('echo')})
 
 @APP.route('/echo/post', methods=['POST'])
-def int_echo_post():
+def req_echo_post():
     """ Description of function """
     return dumps({'echo' : request.form.get('echo')})
 
@@ -105,18 +105,18 @@ def int_echo_post():
 ##################
 
 @APP.route('/auth/login', methods=['POST'])
-def int_auth_login():
+def req_auth_login():
     email = request.form.get('email')
     password = request.form.get('password')
     return dumps(auth_login(email, password))
 
 @APP.route('/auth/logout', methods=['POST'])
-def int_auth_logout():
+def req_auth_logout():
     token = request.form.get('token')
     return dumps(auth_logout(token))
 
 @APP.route('auth/register', methods=['POST'])
-def int_auth_register():
+def req_auth_register():
     email = request.form.get('email')
     password = request.form.get('password')
     name_first = request.form.get('name_first')
@@ -128,26 +128,26 @@ def int_auth_register():
 ##################
 
 @APP.route('user/profile', methods=['GET'])
-def int_user_profile():
+def req_user_profile():
     token = request.args.get('token')
     u_id = request.args.get('u_id')
     return dumps(user_profile(token, u_id))
 
 @APP.route('user/profile/setname', methods=['PUT'])
-def int_user_profile_setname():
+def req_user_profile_setname():
     token = request.form.get('token')
     name_first = request.form.get('name_first')
     name_last = request.form.get('name_last')
     return dumps(user_profile_setname(token, name_first, name_last))
 
 @APP.route('user/profile/setemail', methods=['PUT'])
-def int_user_profile_setemail():
+def req_user_profile_setemail():
     token = request.form.get('token')
     email = request.form.get('email')
     return dumps(user_profile_setemail(token, email))
 
 @APP.route('user/profile/sethandle', methods=['PUT'])
-def int_user_profile_sethandle():
+def req_user_profile_sethandle():
     token = request.form.get('token')
     handle_str = request.form.get('handle_str')
     return dumps(user_profile_sethandle(token, handle_str))
@@ -157,19 +157,19 @@ def int_user_profile_sethandle():
 ######################
 
 @APP.route('channels/create', methods=['POST'])
-def int_channels_create():
+def req_channels_create():
     token = request.form.get('token')
     name = request.form.get('name')
     is_public = request.form.get('is_public')
     return dumps(channels_create(token, name, is_public))
 
 @APP.route('channels/list', methods='GET')
-def int_channels_list():
+def req_channels_list():
     token = request.args.get('token')
     return dumps(channels_list(token))
 
 @APP.route('channels/listall', methods='GET')
-def int_channels_listall():
+def req_channels_listall():
     token = request.args.get('token')
     return dumps(channels_listall(token))
 
@@ -177,14 +177,21 @@ def int_channels_listall():
 # channel interface #
 #####################
 
+@APP.route('channel/invite', methods='POST')
+def req_channel_invite():
+    token = request.form.get('token')
+    channel_id = request.form.get('channel_id')
+    u_id = request.form.get('u_id')
+    return dumps(channel_invite(token, channel_id, u_id))
+
 @APP.route('channel/join', methods='POST')
-def int_channel_join():
+def req_channel_join():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     return dumps(channel_join(token, channel_id))
 
 @APP.route('channel/leave', methods='POST')
-def int_channel_leave():
+def req_channel_leave():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     return dumps(channel_leave(token, channel_id))
@@ -194,7 +201,7 @@ def int_channel_leave():
 #####################
 
 @APP.route('message/send', methods='POST')
-def int_message_send():
+def req_message_send():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     message = request.form.get('message')
