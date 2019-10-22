@@ -72,7 +72,6 @@ def message_edit(token, message_id, message):
     if message_id == '420':
         raise ValueError
 
-
 # Given a message within a channel the authorised user is part of, add a "react"
 # to that particular message. 
 # Raises ValueError when message_id is not a valid message within a channel 
