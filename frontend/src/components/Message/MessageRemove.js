@@ -14,9 +14,11 @@ function MessageRemove({
   const token = React.useContext(AuthContext);
 
   const messageRemove = () => {
-    axios.post(`/message/remove`, {
-      token,
-      message_id,
+    axios.delete(`/message/remove`, {
+      data: {
+        token,
+        message_id,
+      }
     });
   };
 
