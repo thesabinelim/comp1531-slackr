@@ -17,8 +17,8 @@ from backend.channel import (
     channel_invite, channel_details, channel_join, channel_leave
 )
 from backend.message import (
-    message_sendlater, message_send, message_react, message_unreact,
-    message_pin, message_unpin
+    message_sendlater, message_send, message_edit, message_react,
+    message_unreact, message_pin, message_unpin
 )
 from backend.admin import admin_userpermission_change
 from backend.utils import random_string
@@ -226,6 +226,13 @@ def req_message_send():
     channel_id = request.form.get('channel_id')
     message = request.form.get('message')
     return dumps(message_send(token, channel_id, message))
+
+@APP.route('message/edit', methods='PUT')
+def req_message_edit():
+    token = request.form.get('token')
+    message_id = request.form.get('message_id')
+    message = request.form.get('message')
+    return dumps(message_edit(token, message_id, message))
 
 @APP.route('message/react', methods='POST')
 def req_message_react():

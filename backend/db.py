@@ -215,10 +215,11 @@ def db_get_channel_by_name(name):
 #################
 
 class Message:
-    def __init__(self, message_id, sender, channel, time_created):
+    def __init__(self, message_id, sender, channel, text, time_created):
         self.message_id = message_id
         self.sender = sender
         self.channel = channel
+        self.text = text
         self.time_created = time_created
         self.reacts = []
         self.pinned = False
@@ -229,6 +230,8 @@ class Message:
         return self.sender
     def get_channel(self):
         return self.channel
+    def get_text(self):
+        return self.text
     def get_time_created(self):
         return self.time_created
     def get_react_by_react_id(self, react_id):
@@ -241,6 +244,8 @@ class Message:
     def is_pinned(self):
         return self.pinned
 
+    def set_text(self, new_text):
+        self.text = new_text
     # Raise ValueError if user has already made that react.
     def add_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
@@ -268,12 +273,12 @@ class Message:
         self.pinned = False
 
 # Create Message with provided details and add to database, return Message.
-def db_create_message(user, channel, time_created):
+def db_create_message(user, channel, text, time_created):
     db = get_data()
 
     message_id = db['messages'][-1].get_message_id() + 1
 
-    message = Message(message_id, user, channel, time_created)
+    message = Message(message_id, user, channel, text, time_created)
     db['messages'].append(message)
 
     return message
