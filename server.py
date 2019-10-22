@@ -14,7 +14,12 @@ from backend.user import (
 )
 from backend.channels import channels_create, channels_list, channels_listall
 from backend.channel import channel_invite, channel_join, channel_leave
+<<<<<<< HEAD
 from backend.message import message_sendlater, message_send, message_pin, message_unpin
+=======
+from backend.message import message_sendlater, message_send
+from backend.admin import admin_userpermission_change
+>>>>>>> master
 from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
@@ -205,7 +210,8 @@ def req_message_sendlater():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     message = request.form.get('message')
-    return dumps(message_sendlater(token, channel_id, message))
+    time_sent = request.form.get('time_sent')
+    return dumps(message_sendlater(token, channel_id, message, time_sent))
 
 @APP.route('message/send', methods='POST')
 def req_message_send():
@@ -213,6 +219,17 @@ def req_message_send():
     channel_id = request.form.get('channel_id')
     message = request.form.get('message')
     return dumps(message_send(token, channel_id, message))
+
+###################
+# admin interface #
+###################
+
+@APP.route('admin/userpermission/change', methods='POST')
+def req_admin_userpermission_change():
+    token = request.form.get('token')
+    u_id = request.form.get('u_id')
+    permission_id = request.form.get('permission_id')
+    return dumps(admin_userpermission_change(token, u_id, permission_id))
 
 if __name__ == '__main__':
     APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
