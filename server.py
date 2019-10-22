@@ -14,12 +14,10 @@ from backend.user import (
 )
 from backend.channels import channels_create, channels_list, channels_listall
 from backend.channel import channel_invite, channel_join, channel_leave
-<<<<<<< HEAD
-from backend.message import message_sendlater, message_send, message_pin, message_unpin
-=======
-from backend.message import message_sendlater, message_send
+from backend.message import (
+    message_sendlater, message_send, message_pin, message_unpin
+)
 from backend.admin import admin_userpermission_change
->>>>>>> master
 from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
@@ -219,6 +217,18 @@ def req_message_send():
     channel_id = request.form.get('channel_id')
     message = request.form.get('message')
     return dumps(message_send(token, channel_id, message))
+
+@APP.route('message/pin', methods='POST')
+def req_message_pin():
+    token = request.form.get('token')
+    message_id = request.form.get('message_id')
+    return dumps(message_pin(token, message_id))
+
+@APP.route('message/unpin', methods='POST')
+def req_message_unpin():
+    token = request.form.get('token')
+    message_id = request.form.get('message_id')
+    return dumps(message_unpin(token, message_id))
 
 ###################
 # admin interface #
