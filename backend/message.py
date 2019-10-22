@@ -125,7 +125,7 @@ def message_pin(token, message_id):
         raise ValueError("Message with message_id does not exist!")
 
     user = db_get_user_by_u_id(u_id)
-    if user.get_role() != Role.admin or user.get_role() != Role.owner:
+    if user.get_role() != Role.admin and user.get_role() != Role.owner:
         raise ValueError("Logged in user is not admin or owner!")
 
     if message.is_pinned():
@@ -159,7 +159,7 @@ def message_unpin(token, message_id):
         raise ValueError("Message with message_id does not exist!")
 
     user = db_get_user_by_u_id(u_id)
-    if user.get_role() != Role.admin or user.get_role() != Role.owner:
+    if user.get_role() != Role.admin and user.get_role() != Role.owner:
         raise ValueError("Logged in user is not admin or owner!")
 
     if not message.is_pinned():
