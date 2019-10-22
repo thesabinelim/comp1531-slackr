@@ -241,8 +241,8 @@ class Message:
     def is_pinned(self):
         return self.pinned
 
-    # Ignore if user has already made that react.
-    def add_react(self, react_id, user):
+    # Raise ValueError if user has already made that react.
+    def add_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
         if react == None:
             # This is the first react with this id.
@@ -250,13 +250,18 @@ class Message:
                 'react_id': react_id,
                 'users': [user]
             })
-        elif user not in react['users']:
+        elif user in react['users']:
+            raise ValueError("User has already made that react!")
+        else:
             react['users'].append(user)
-    # Ignore if user has not made that react or react does not exist.
-    def remove_react(self, react_id, user):
+    # Raise ValueError if user has not made that react or react does not exist.
+    def remove_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
-        if react != None and user in react['users']:
-            react['users'].remove(user)
+        if react == None:
+            raise ValueError("React with react_id has not been made!")
+        if user not in react['users']:
+            raise ValueError("User has not made that react!")
+        react['users'].remove(user)
     def pin(self):
         self.pinned = True
     def unpin(self):

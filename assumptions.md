@@ -80,9 +80,13 @@ message_edit:
     - The new text still must be under the original send limit of 1000 chars.
     - The new text can't be empty.
 
+message_react:
+    - Valid react_ids will be clarified in Iteration 3.
+
 message_unreact:
     - Users can only unreact to messages they've already reacted to.
     - Admins can unreact all messages.
+    - Valid react_ids will be clarified in Iteration 3.
 
 standup_start:
     - time_finish is in GMT.
