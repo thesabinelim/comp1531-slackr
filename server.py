@@ -202,7 +202,7 @@ def req_channel_leave():
 #####################
 
 @APP.route('message/sendlater', methods='POST')
-def req_message_send():
+def req_message_sendlater():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     message = request.form.get('message')
