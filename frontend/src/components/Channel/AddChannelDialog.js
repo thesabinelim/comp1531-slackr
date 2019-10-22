@@ -35,7 +35,6 @@ function AddChannelDialog({ ...props }) {
     const name = event.target[0].value;
     const secret = event.target[1].checked;
     const is_public = !secret;
-    console.log(is_public);
 
     if (!name) return;
 
