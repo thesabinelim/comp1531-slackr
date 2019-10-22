@@ -13,7 +13,9 @@ from backend.user import (
     user_profile_sethandle
 )
 from backend.channels import channels_create, channels_list, channels_listall
-from backend.channel import channel_invite, channel_join, channel_leave
+from backend.channel import (
+    channel_invite, channel_details, channel_join, channel_leave
+)
 from backend.message import (
     message_sendlater, message_send, message_react, message_unreact,
     message_pin, message_unpin
@@ -187,6 +189,12 @@ def req_channel_invite():
     channel_id = request.form.get('channel_id')
     u_id = request.form.get('u_id')
     return dumps(channel_invite(token, channel_id, u_id))
+
+@APP.route('channel/details', methods='GET')
+def req_channel_details():
+    token = request.form.get('token')
+    channel_id = request.form.get('channel_id')
+    return dumps(channel_details(token, channel_id))
 
 @APP.route('channel/join', methods='POST')
 def req_channel_join():
