@@ -27,6 +27,8 @@ channel_join:
 
 channel_invite:
     - Owner of slackr is not automatically owner of channels invited to.
+    - ValueError is raised for channel not existing whereas AccessError is
+      raised when user is not in channel that exists.
 
 channels_list:
     - The list of channels returned is sorted in order of id.

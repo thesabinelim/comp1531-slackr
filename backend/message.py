@@ -35,7 +35,7 @@ def message_sendlater(token, channel_id, message, time_sent):
 
     channel = db_get_channel_by_channel_id(channel_id)
     if channel == None:
-        raise ValueError("Channel not found!")
+        raise ValueError("Channel with channel_id does not exist!")
 
     message = db_create_message(user, channel, time_sent)
     message_id = message.get_message_id()
