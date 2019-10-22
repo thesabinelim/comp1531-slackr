@@ -1,4 +1,5 @@
 import React from "react";
+import axios from 'axios';
 import {
   Dialog,
   DialogTitle,
@@ -16,8 +17,6 @@ import {
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import Add from "@material-ui/icons/Add";
-import * as routecall from "../../utils/routecall";
-import { url } from "../../utils/constants";
 import AuthContext from "../../AuthContext";
 import { toast } from "react-toastify";
 import { DEFAULT_ERROR_TEXT } from "../../utils/text";
@@ -40,8 +39,8 @@ function AddChannelDialog({ ...props }) {
 
     if (!name) return;
 
-    routecall
-      .post(`${url}/channels/create`, { token, name, is_public })
+    axios
+      .post(`/channels/create`, { token, name, is_public })
       .then(response => {
         console.log(response);
       })

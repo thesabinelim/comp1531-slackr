@@ -15,10 +15,10 @@ import EditableFields from './EditableFields';
 function Profile({ profile, ...props }) {
   const [profileDetails, setProfileDetails] = React.useState({});
   const token = React.useContext(AuthContext);
-  const currUser = extractUId(token);
+  const u_id = extractUId(token);
   React.useEffect(() => {
     axios
-      .get(`${url}/user/profile`, { params: { token, profile } })
+      .get(`${url}/user/profile`, { params: { token, u_id } })
       .then(({ data }) => {
         console.log(data);
         setProfileDetails(data);
@@ -61,7 +61,7 @@ function Profile({ profile, ...props }) {
       });
   }
 
-  const editable = currUser.toString() === profile;
+  const editable = u_id.toString() === profile;
   return (
     <>
       <Typography variant="h4">Profile</Typography>
