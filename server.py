@@ -13,7 +13,7 @@ from backend.user import (
     user_profile_sethandle
 )
 from backend.channels import channels_create, channels_list, channels_listall
-from backend.channel import channel_join, channel_leave
+from backend.channel import channel_invite, channel_join, channel_leave
 from backend.message import message_send
 from backend.utils import random_string
 
