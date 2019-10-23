@@ -4,9 +4,11 @@
 
 import enum
 import copy
+import time
 
 from ..server import get_data, get_secret
 from auth import hash_password
+from utils import random_string
 
 ##############
 # users data #
@@ -41,7 +43,7 @@ class User:
         return self.name_last
     def get_handle(self):
         return self.handle
-    def get_role(self):
+    def get_slackr_role(self):
         return self.role
     def get_channels(self):
         return self.channels
@@ -133,6 +135,7 @@ class Channel:
         self.owners = []
         self.members = []
         self.messages = []
+        self.standup = None
 
     def get_channel_id(self):
         return self.channel_id
@@ -141,9 +144,19 @@ class Channel:
     def is_public(self):
         return self.public
     def get_owners(self):
-        return self.owners
+        owners = []
+        for member in self.members:
+            if member in self.owners or member.get_slackr_role() == Role.owner \
+                or member.get_slackr_role() == Role.admin:
+                owners.append(member)
+        return owners
     def has_owner(self, user):
-        return user in self.owners
+        is_owner = user in self.owners
+        if user in self.members:
+            if user.get_slackr_role() == Role.owner \
+                or user.get_slackr_role() == Role.admin:
+                is_owner = True
+        return is_owner
     def get_members(self):
         return self.members
     def has_member(self, user):
@@ -152,6 +165,8 @@ class Channel:
         return self.messages
     def has_message(self, message):
         return message in self.messages
+    def get_standup(self):
+        return self.standup
 
     def set_name(self, new_name):
         self.name = new_name
@@ -169,12 +184,21 @@ class Channel:
     def remove_member(self, user):
         if user in self.members:
             self.members.remove(user)
+    # Insert in descending order of time_created
     def add_message(self, message):
-        if message not in self.messages:
-            self.messages.append(message)
+        if message in self.messages:
+            return
+        i = 0
+        for m in self.messages:
+            if message.get_time_created() > m.get_time_created():
+                break
+            i += 1
+        self.messages.insert(i, message)
     def remove_message(self, message):
         if message in self.messages:
             self.messages.remove(message)
+    def set_standup(self, message):
+        self.standup = message
 
 # Create Channel with provided details and add to database, return channel_id.
 def db_create_channel(name, is_public):
@@ -215,10 +239,11 @@ def db_get_channel_by_name(name):
 #################
 
 class Message:
-    def __init__(self, message_id, sender, channel, time_created):
+    def __init__(self, message_id, sender, channel, text, time_created):
         self.message_id = message_id
         self.sender = sender
         self.channel = channel
+        self.text = text
         self.time_created = time_created
         self.reacts = []
         self.pinned = False
@@ -229,6 +254,8 @@ class Message:
         return self.sender
     def get_channel(self):
         return self.channel
+    def get_text(self):
+        return self.text
     def get_time_created(self):
         return self.time_created
     def get_react_by_react_id(self, react_id):
@@ -241,6 +268,8 @@ class Message:
     def is_pinned(self):
         return self.pinned
 
+    def set_text(self, new_text):
+        self.text = new_text
     # Raise ValueError if user has already made that react.
     def add_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
@@ -268,17 +297,18 @@ class Message:
         self.pinned = False
 
 # Create Message with provided details and add to database, return Message.
-def db_create_message(user, channel, time_created):
+def db_create_message(user, channel, text, time_created):
     db = get_data()
 
     message_id = db['messages'][-1].get_message_id() + 1
 
-    message = Message(message_id, user, channel, time_created)
+    message = Message(message_id, user, channel, text, time_created)
+    channel.add_message(message)
     db['messages'].append(message)
 
     return message
 
-# Return list of all messages in database.
+# Return list of all Messages in database.
 def db_get_all_messages():
     db = get_data()
     return db['messages']
@@ -288,6 +318,63 @@ def db_get_message_by_message_id(message_id):
     db = get_data()
 
     for message in db['messages']:
-        if message['message_id'] == message_id:
+        if message.get_message_id() == message_id:
             return message
+    return None
+
+#######################
+# reset_requests data #
+#######################
+
+class Reset_Request:
+    def __init__(self, reset_code, user, time_expires):
+        self.reset_code = reset_code
+        self.user = user
+        self.time_expires = time_expires
+
+    def get_reset_code(self):
+        return self.reset_code
+    def get_user(self):
+        return self.user
+    def get_time_expires(self):
+        return self.time_expires
+    def is_expired(self):
+        return self.time_expires <= time.time()
+
+    def set_time_expires(self, new_time_expires):
+        self.time_expires = new_time_expires
+    def expire(self):
+        self.time_expires = time.time()
+
+# Create Reset_Request with provided details and add to database, return
+# Reset_Request.
+def db_create_reset_request(user, time_expires):
+    db = get_data()
+
+    # Create unique reset_code
+    unique = False
+    while not unique:
+        reset_code = random_string(6)
+        unique = True
+        for reset_request in db['reset_requests']:
+            if reset_request.get_reset_code() == reset_code:
+                unique = False
+
+    reset_request = Reset_Request(reset_code, user, time_expires)
+    db['reset_requests'].append(reset_request)
+
+    return reset_request
+
+# Return list of all Reset_Requests in database.
+def db_get_all_reset_requests():
+    db = get_data()
+    return db['reset_requests']
+
+# Return Reset_Request with reset_code if it exists in database, None otherwise.
+def db_get_reset_request_by_reset_code(reset_code):
+    db = get_data()
+
+    for reset_request in db['reset_requests']:
+        if reset_request.get_reset_code() == reset_code:
+            return reset_request
     return None

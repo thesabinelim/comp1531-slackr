@@ -12,8 +12,7 @@ def is_valid_email(email):
     return True if re.search(email_re, email) else False
 
 # Return randomly generated string with given length. String can contain
-# alphanumeric characters and special characters.
+# lowercase alphanumeric characters.
 def random_string(length):
-    characters = string.ascii_letters + string.digits + string.punctuation \
-        + string.printable
+    characters = string.ascii_lowercase + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
