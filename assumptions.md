@@ -10,6 +10,7 @@ general:
     - Assuming marking messages as read will be clarified in iteration 2.
     - If a token is invalid a TokenError will be raised.
     - Slackr owners/admins are only owners of channels they are members of.
+    - Timestamps are in Unix time.
 
 auth_register:
     - First name cannot be blank and must contain only alphanumeric characters,
@@ -95,10 +96,8 @@ message_unreact:
     - Admins can unreact all messages.
     - Valid react_ids will be clarified in Iteration 3.
 
-standup_start:
-    - time_finish is in GMT.
-    - time_finish will be stored somewhere in the backend such that it is
-      accessible to standup_send.
+standup_send:
+    - The standup buffer can contain an arbitrarily long number of characters.
 
 admin_userpermission_change:
     - The first user is an owner (as opposed to admin as the spec says).

@@ -25,6 +25,7 @@ from backend.message import (
     message_unreact, message_pin, message_unpin
 )
 from backend.admin import admin_userpermission_change
+from backend.standup import standup_start, standup_send
 from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
@@ -308,6 +309,23 @@ def req_admin_userpermission_change():
     u_id = request.form.get('u_id')
     permission_id = request.form.get('permission_id')
     return dumps(admin_userpermission_change(token, u_id, permission_id))
+
+#####################
+# standup interface #
+#####################
+
+@APP.route('standup/start', methods=['POST'])
+def req_standup_start():
+    token = request.form.get('token')
+    channel_id = request.form.get('channel_id')
+    return dumps(standup_start(token, channel_id))
+
+@APP.route('standup/send', methods=['POST'])
+def req_standup_send():
+    token = request.form.get('token')
+    channel_id = request.form.get('channel_id')
+    message = request.form.get('message')
+    return dumps(standup_send(token, channel_id, message))
 
 if __name__ == '__main__':
     APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))

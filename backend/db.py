@@ -135,6 +135,7 @@ class Channel:
         self.owners = []
         self.members = []
         self.messages = []
+        self.standup = None
 
     def get_channel_id(self):
         return self.channel_id
@@ -164,6 +165,8 @@ class Channel:
         return self.messages
     def has_message(self, message):
         return message in self.messages
+    def get_standup(self):
+        return self.standup
 
     def set_name(self, new_name):
         self.name = new_name
@@ -187,6 +190,8 @@ class Channel:
     def remove_message(self, message):
         if message in self.messages:
             self.messages.remove(message)
+    def set_standup(self, message):
+        self.standup = message
 
 # Create Channel with provided details and add to database, return channel_id.
 def db_create_channel(name, is_public):
