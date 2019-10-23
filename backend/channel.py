@@ -156,7 +156,7 @@ def channel_addowner(token, channel_id, user_id):
     if channel == None:
         raise ValueError("Channel with channel_id does not exist!")
     # user already owner of channel
-    if channel.has_owner(new_owner_user):
+    if channel.has_true_owner(new_owner_user):
         raise ValueError("User already an owner of channel")
     # Authorised u_id not owner of slackr and not owner of channel
     if not channel.has_owner(authorised_user):
@@ -185,7 +185,7 @@ def channel_removeowner(token, channel_id, user_id):
     if channel == None:
         raise ValueError("Channel with channel_id does not exist!")
     # user already owner of channel
-    if not channel.has_owner(new_owner_user):
+    if not channel.has_true_owner(new_owner_user):
         raise ValueError("User already not an owner of channel")
     # Authorised u_id not owner of slackr and not owner of channel
     if not channel.has_owner(authorised_user):
