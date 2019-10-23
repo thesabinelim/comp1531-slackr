@@ -60,10 +60,9 @@ def message_send(token, channel_id, text):
 # Raises ValueError when the message_id no longer exists.
 # Raises AccessError when these are NOT true:
 #   message_id not sent by the authorised user,
-#   AND message_id was not sent by an owner of the channel,
-#   AND message_id was not sent by an admin.
+#   AND user is not an owner of the channel.
 # or owner of the slack.
-# No return value.
+# Return empty dictionary.
 def message_remove(token, message_id):
     try:
         u_id, token_valid = validate_token(token)
@@ -75,18 +74,20 @@ def message_remove(token, message_id):
     message = db_get_message_by_message_id(message_id)
     if message == None:
         raise ValueError("Message with message_id does not exist!")
+
     sender = message.get_sender()
     user = db_get_user_by_u_id(u_id)
     channel = message.get_channel()
-    if user != sender:
-        raise AccessError("The authorised user is not the sender")
-    channel = message.get_channel()
-    if not channel.has_owner(user):
-        raise AccessError("The authorised user is not an admin or owner of this channel or the slackr")
 
-    db = get_data()
-    db['messages'].remove(message)
+    if not channel.has_message(message):
+        raise ValueError("Message with message_id has already been deleted!")
 
+    if user != sender and not channel.has_owner(user):
+        raise AccessError("The authorised user is not the sender of the message!")
+
+    channel.remove_message(message)
+
+    return {}
 
 # Given a message, update it's text with new text.
 # Raises ValueError when message with message_id does not exist.
