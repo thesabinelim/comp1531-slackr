@@ -4,10 +4,14 @@ import os
 from flask_cors import CORS
 from json import dumps
 from flask import Flask, request, jsonify
+from flask_mail import Mail, Message
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 
-from backend.auth import auth_login, auth_logout, auth_register
+from backend.auth import (
+    auth_login, auth_logout, auth_register, auth_passwordreset_request,
+    auth_passwordreset_reset
+)
 from backend.user import (
     user_profile, user_profile_setname, user_profile_setemail,
     user_profile_sethandle
@@ -51,6 +55,28 @@ class ValueError(HTTPException):
     code = 400
     message = "No message specified"
 
+########
+# Mail #
+########
+
+APP.config.update(
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=465,
+    MAIL_USE_SSL=True,
+    MAIL_USERNAME = '1531yeetbear@gmail.com',
+    MAIL_PASSWORD = "bunchofslackrs"
+)
+
+def send_mail(recipients, title, body):
+    mail = Mail(APP)
+    try:
+        msg = Message(title, sender="1531yeetbear@gmail.com", recipients=recipients)
+        msg.body = body
+        mail.send(msg)
+        return "Mail sent!"
+    except Exception as e:
+        return (str(e))
+
 ############
 # Database #
 ############
@@ -86,7 +112,8 @@ def reset_data():
     data = {
         'users': [],
         'channels': [],
-        'messages': []
+        'messages': [],
+        'reset_requests': []
     }
 
 data = None
@@ -129,6 +156,17 @@ def req_auth_register():
     name_last = request.form.get('name_last')
     return dumps(auth_register(email, password, name_first, name_last))
 
+@APP.route('auth/passwordreset/request', methods=['POST'])
+def req_auth_passwordreset_request():
+    email = request.form.get('email')
+    return dumps(auth_passwordreset_request(email))
+
+@APP.route('auth/passwordreset/reset', methods=['POST'])
+def req_auth_passwordreset_reset():
+    reset_code = request.form.get('reset_code')
+    new_password = request.form.get('new_password')
+    return dumps(auth_passwordreset_reset(reset_code, new_password))
+
 ##################
 # user interface #
 ##################
@@ -169,12 +207,12 @@ def req_channels_create():
     is_public = request.form.get('is_public')
     return dumps(channels_create(token, name, is_public))
 
-@APP.route('channels/list', methods='GET')
+@APP.route('channels/list', methods=['GET'])
 def req_channels_list():
     token = request.args.get('token')
     return dumps(channels_list(token))
 
-@APP.route('channels/listall', methods='GET')
+@APP.route('channels/listall', methods=['GET'])
 def req_channels_listall():
     token = request.args.get('token')
     return dumps(channels_listall(token))
@@ -183,26 +221,26 @@ def req_channels_listall():
 # channel interface #
 #####################
 
-@APP.route('channel/invite', methods='POST')
+@APP.route('channel/invite', methods=['POST'])
 def req_channel_invite():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     u_id = request.form.get('u_id')
     return dumps(channel_invite(token, channel_id, u_id))
 
-@APP.route('channel/details', methods='GET')
+@APP.route('channel/details', methods=['GET'])
 def req_channel_details():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     return dumps(channel_details(token, channel_id))
 
-@APP.route('channel/join', methods='POST')
+@APP.route('channel/join', methods=['POST'])
 def req_channel_join():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     return dumps(channel_join(token, channel_id))
 
-@APP.route('channel/leave', methods='POST')
+@APP.route('channel/leave', methods=['POST'])
 def req_channel_leave():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
@@ -212,7 +250,7 @@ def req_channel_leave():
 # message interface #
 #####################
 
-@APP.route('message/sendlater', methods='POST')
+@APP.route('message/sendlater', methods=['POST'])
 def req_message_sendlater():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
@@ -220,41 +258,41 @@ def req_message_sendlater():
     time_sent = request.form.get('time_sent')
     return dumps(message_sendlater(token, channel_id, message, time_sent))
 
-@APP.route('message/send', methods='POST')
+@APP.route('message/send', methods=['POST'])
 def req_message_send():
     token = request.form.get('token')
     channel_id = request.form.get('channel_id')
     message = request.form.get('message')
     return dumps(message_send(token, channel_id, message))
 
-@APP.route('message/edit', methods='PUT')
+@APP.route('message/edit', methods=['PUT'])
 def req_message_edit():
     token = request.form.get('token')
     message_id = request.form.get('message_id')
     message = request.form.get('message')
     return dumps(message_edit(token, message_id, message))
 
-@APP.route('message/react', methods='POST')
+@APP.route('message/react', methods=['POST'])
 def req_message_react():
     token = request.form.get('token')
     message_id = request.form.get('message_id')
     react_id = request.form.get('react_id')
     return dumps(message_react(token, message_id, react_id))
 
-@APP.route('message/unreact', methods='POST')
+@APP.route('message/unreact', methods=['POST'])
 def req_message_unreact():
     token = request.form.get('token')
     message_id = request.form.get('message_id')
     react_id = request.form.get('react_id')
     return dumps(message_unreact(token, message_id, react_id))
 
-@APP.route('message/pin', methods='POST')
+@APP.route('message/pin', methods=['POST'])
 def req_message_pin():
     token = request.form.get('token')
     message_id = request.form.get('message_id')
     return dumps(message_pin(token, message_id))
 
-@APP.route('message/unpin', methods='POST')
+@APP.route('message/unpin', methods=['POST'])
 def req_message_unpin():
     token = request.form.get('token')
     message_id = request.form.get('message_id')
@@ -264,7 +302,7 @@ def req_message_unpin():
 # admin interface #
 ###################
 
-@APP.route('admin/userpermission/change', methods='POST')
+@APP.route('admin/userpermission/change', methods=['POST'])
 def req_admin_userpermission_change():
     token = request.form.get('token')
     u_id = request.form.get('u_id')

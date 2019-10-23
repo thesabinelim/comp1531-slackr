@@ -4,9 +4,11 @@
 
 import enum
 import copy
+import time
 
 from ..server import get_data, get_secret
 from auth import hash_password
+from utils import random_string
 
 ##############
 # users data #
@@ -283,7 +285,7 @@ def db_create_message(user, channel, text, time_created):
 
     return message
 
-# Return list of all messages in database.
+# Return list of all Messages in database.
 def db_get_all_messages():
     db = get_data()
     return db['messages']
@@ -293,6 +295,63 @@ def db_get_message_by_message_id(message_id):
     db = get_data()
 
     for message in db['messages']:
-        if message['message_id'] == message_id:
+        if message.get_message_id() == message_id:
             return message
+    return None
+
+#######################
+# reset_requests data #
+#######################
+
+class Reset_Request:
+    def __init__(self, reset_code, user, time_expires):
+        self.reset_code = reset_code
+        self.user = user
+        self.time_expires = time_expires
+
+    def get_reset_code(self):
+        return self.reset_code
+    def get_user(self):
+        return self.user
+    def get_time_expires(self):
+        return self.time_expires
+    def is_expired(self):
+        return self.time_expires <= time.time()
+
+    def set_time_expires(self, new_time_expires):
+        self.time_expires = new_time_expires
+    def expire(self):
+        self.time_expires = time.time()
+
+# Create Reset_Request with provided details and add to database, return
+# Reset_Request.
+def db_create_reset_request(user, time_expires):
+    db = get_data()
+
+    # Create unique reset_code
+    unique = False
+    while not unique:
+        reset_code = random_string(6)
+        unique = True
+        for reset_request in db['reset_requests']:
+            if reset_request.get_reset_code() == reset_code:
+                unique = False
+
+    reset_request = Reset_Request(reset_code, user, time_expires)
+    db['reset_requests'].append(reset_request)
+
+    return reset_request
+
+# Return list of all Reset_Requests in database.
+def db_get_all_reset_requests():
+    db = get_data()
+    return db['reset_requests']
+
+# Return Reset_Request with reset_code if it exists in database, None otherwise.
+def db_get_reset_request_by_reset_code(reset_code):
+    db = get_data()
+
+    for reset_request in db['reset_requests']:
+        if reset_request.get_reset_code() == reset_code:
+            return reset_request
     return None
