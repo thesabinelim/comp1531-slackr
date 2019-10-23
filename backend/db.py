@@ -143,6 +143,10 @@ class Channel:
         return self.name
     def is_public(self):
         return self.public
+    def get_true_owners(self):
+        return self.owners
+    def has_true_owner(self, user):
+        return user in self.owners
     def get_owners(self):
         owners = []
         for member in self.members:
