@@ -27,13 +27,13 @@ def admin_userpermission_change(token, u_id, permission_id):
     if permission_id not in [Role.owner, Role.admin, Role.member]:
         raise ValueError("Invalid permission_id!")
 
-    if admin.get_role() != Role.owner and admin.get_role() != Role.admin:
+    if admin.get_slackr_role() != Role.owner and admin.get_slackr_role() != Role.admin:
         raise AccessError("Logged in user is not admin or owner!")
 
-    if admin.get_role() == Role.admin:
+    if admin.get_slackr_role() == Role.admin:
         if permission_id == Role.owner:
             raise AccessError("Admins cannot promote anyone to owner!")
-        if target.get_role() == Role.owner:
+        if target.get_slackr_role() == Role.owner:
             raise AccessError("Admins cannot modify permissions of owners!")
 
     target.set_role(permission_id)

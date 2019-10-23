@@ -15,6 +15,8 @@ from error import TokenError, AccessError
 # automatically at a specified time in the future. 
 # Raises ValueError exception when channel_id doesn't exist, message is more
 # than 1000 characters, or time_sent is a past time.
+# Raises AccessError when user attempts to send message to channel they are not
+# member of.
 # Return dictionary containing message_id.
 def message_sendlater(token, channel_id, text, time_sent):
     try:
@@ -37,6 +39,9 @@ def message_sendlater(token, channel_id, text, time_sent):
     if channel == None:
         raise ValueError("Channel with channel_id does not exist!")
 
+    if not channel.has_member(user):
+        raise AccessError("Authorised user is not member of that channel!")
+
     message = db_create_message(user, channel, text, time_sent)
     message_id = message.get_message_id()
 
@@ -44,6 +49,8 @@ def message_sendlater(token, channel_id, text, time_sent):
 
 # Send a message from authorised_user to the channel specified by channel_id.
 # Raises ValueError exception when the message is more than 1000 characters.
+# Raises AccessError when user attempts to send message to channel they are not
+# member of.
 # Return dictionary containing message_id.
 def message_send(token, channel_id, text):
     now = time.time()
@@ -65,6 +72,7 @@ def message_remove(token, message_id):
 
 # Given a message, update it's text with new text.
 # Raises ValueError when message with message_id does not exist.
+# Raises AccessError if user is not member of channel containing message.
 # Raises AccessError when message_id not sent by authorised user AND authorised
 # user is not an admin or owner of either the channel or the Slackr.
 # Return empty dictionary.
@@ -82,8 +90,11 @@ def message_edit(token, message_id, text):
 
     channel = message.get_channel()
     user = db_get_user_by_u_id(u_id)
-    if user != message.sender and not channel.has_owner(user) and \
-        user.get_role() != Role.owner and user.get_role() != Role.admin:
+
+    if not channel.has_member(user):
+        raise AccessError("Authorised user is not member of that channel!")
+
+    if user != message.get_sender() and not channel.has_owner(user):
         raise AccessError("Message was not sent by logged in user and user is \
             not admin or owner!")
 
@@ -109,18 +120,17 @@ def message_react(token, message_id, react_id):
 
     message = db_get_message_by_message_id(message_id)
     if message == None:
-        raise ValueError("Message with message_id does not exist!")
+        raise ValueError("Message with message_id is not a valid message within a channel authorised user has joined!")
 
+    channel = message.get_channel()
     user = db_get_user_by_u_id(u_id)
-    if not user.in_channel(message.get_channel()):
-        raise AccessError("Logged in user is not member of channel containing \
-            message with message_id!")
+    if not channel.has_member(user):
+        raise ValueError("Message with message_id is not a valid message within a channel authorised user has joined!")
 
     try:
         message.add_react(user, react_id)
     except ValueError:
-        raise ValueError("Message already has a reaction with react_id by \
-            logged in user!")
+        raise ValueError("Message already has a reaction with react_id by logged in user!")
 
     return {}
 
@@ -142,18 +152,17 @@ def message_unreact(token, message_id, react_id):
 
     message = db_get_message_by_message_id(message_id)
     if message == None:
-        raise ValueError("Message with message_id does not exist!")
+        raise ValueError("Message with message_id is not a valid message within a channel authorised user has joined!")
 
+    channel = message.get_channel()
     user = db_get_user_by_u_id(u_id)
-    if not user.in_channel(message.get_channel()):
-        raise AccessError("Logged in user is not member of channel containing \
-            message with message_id!")
+    if not channel.has_member(user):
+        raise ValueError("Message with message_id is not a valid message within a channel authorised user has joined!")
 
     try:
         message.remove_react(user, react_id)
     except ValueError:
-        raise ValueError("Message does not have a reaction with react_id by \
-            logged in user!")
+        raise ValueError("Message does not have a reaction with react_id by logged in user!")
 
     return {}
 
@@ -177,12 +186,12 @@ def message_pin(token, message_id):
     if message == None:
         raise ValueError("Message with message_id does not exist!")
 
+    channel = message.get_channel()
     user = db_get_user_by_u_id(u_id)
-    if user.get_role() != Role.admin and user.get_role() != Role.owner:
+    if not channel.has_owner(user):
         raise ValueError("Logged in user is not admin or owner!")
     if not user.in_channel(message.get_channel()):
-        raise AccessError("Logged in user is not member of channel containing \
-            message with message_id!")
+        raise AccessError("Logged in user is not member of channel containing message with message_id!")
 
     if message.is_pinned():
         raise ValueError("Message with message_id is already pinned!")
@@ -210,12 +219,12 @@ def message_unpin(token, message_id):
     if message == None:
         raise ValueError("Message with message_id does not exist!")
 
+    channel = message.get_channel()
     user = db_get_user_by_u_id(u_id)
-    if user.get_role() != Role.admin and user.get_role() != Role.owner:
+    if not channel.has_owner(user):
         raise ValueError("Logged in user is not admin or owner!")
     if not user.in_channel(message.get_channel()):
-        raise AccessError("Logged in user is not member of channel containing \
-            message with message_id!")
+        raise AccessError("Logged in user is not member of channel containing message with message_id!")
 
     if not message.is_pinned():
         raise ValueError("Message with message_id is not pinned!")
