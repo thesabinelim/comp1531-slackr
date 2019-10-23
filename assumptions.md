@@ -9,6 +9,7 @@ general:
       could potentially change others if the code is too tightly factored.
     - Assuming marking messages as read will be clarified in iteration 2.
     - If a token is invalid a TokenError will be raised.
+    - Slackr owners/admins are only owners of channels they are members of.
 
 auth_register:
     - First name cannot be blank and must contain only alphanumeric characters,

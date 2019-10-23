@@ -145,7 +145,11 @@ class Channel:
     def get_owners(self):
         return self.owners
     def has_owner(self, user):
-        return user in self.owners
+        is_owner = user in self.owners
+        if user in self.members:
+            if user.get_role() == Role.owner or user.get_role() == Role.admin:
+                is_owner = True
+        return is_owner
     def get_members(self):
         return self.members
     def has_member(self, user):

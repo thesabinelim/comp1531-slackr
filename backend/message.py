@@ -82,8 +82,7 @@ def message_edit(token, message_id, text):
 
     channel = message.get_channel()
     user = db_get_user_by_u_id(u_id)
-    if user != message.sender and not channel.has_owner(user) and \
-        user.get_role() != Role.owner and user.get_role() != Role.admin:
+    if user != message.get_sender() and not channel.has_owner(user):
         raise AccessError("Message was not sent by logged in user and user is \
             not admin or owner!")
 
