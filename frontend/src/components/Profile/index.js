@@ -8,7 +8,6 @@ import {
 import axios from 'axios';
 import React from 'react';
 import AuthContext from '../../AuthContext';
-import { url } from '../../utils/constants';
 import { extractUId } from '../../utils/token';
 import EditableFields from './EditableFields';
 

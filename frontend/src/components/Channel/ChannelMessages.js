@@ -2,7 +2,6 @@ import React from 'react';
 import axios from 'axios';
 
 import { List, ListSubheader } from '@material-ui/core';
-import { url } from '../../utils/constants';
 import { pollingInterval, getIsPolling, subscribeToStep, unsubscribeToStep } from '../../utils/update';
 import Message from '../Message';
 import AuthContext from '../../AuthContext';
@@ -17,7 +16,7 @@ function ChannelMessages({ channel_id = '' }) {
   const token = React.useContext(AuthContext);
 
   const fetchChannelMessages = () => axios
-  .get(`${url}/channel/messages`, {
+  .get('/channel/messages', {
     params: {
       token,
       channel_id,
