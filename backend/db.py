@@ -184,9 +184,16 @@ class Channel:
     def remove_member(self, user):
         if user in self.members:
             self.members.remove(user)
+    # Insert in descending order of time_created
     def add_message(self, message):
-        if message not in self.messages:
-            self.messages.append(message)
+        if message in self.messages:
+            return
+        i = 0
+        for m in self.messages:
+            if message.get_time_created() > m.get_time_created():
+                break
+            i += 1
+        self.messages.insert(i, message)
     def remove_message(self, message):
         if message in self.messages:
             self.messages.remove(message)
@@ -296,6 +303,7 @@ def db_create_message(user, channel, text, time_created):
     message_id = db['messages'][-1].get_message_id() + 1
 
     message = Message(message_id, user, channel, text, time_created)
+    channel.add_message(message)
     db['messages'].append(message)
 
     return message
