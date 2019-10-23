@@ -1,5 +1,6 @@
 # COMP1531 Project channel
 # Written by Sabine Lim z5242579
+# and Bridget McCarthy z5255505
 # 01/10/19
 
 from db import (
