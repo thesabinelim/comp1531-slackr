@@ -6,10 +6,11 @@ import time
 import hashlib
 import jwt
 
-from ..server import get_salt, get_secret
+from ..server import get_salt, get_secret, send_mail
 from db import (
-    User, Role, db_get_all_users, db_get_user_by_u_id, db_get_user_by_email,
-    db_create_user, db_get_user_by_handle
+    Role, User, Reset_Request, db_get_all_users, db_get_user_by_u_id,
+    db_get_user_by_email, db_create_user, db_get_user_by_handle,
+    db_create_reset_request, db_get_reset_request_by_reset_code
 )
 from utils import is_valid_email
 
@@ -97,6 +98,12 @@ def auth_logout(token):
 
     return {'is_success': is_success}
 
+# Return boolean value indicating whether a password is valid.
+def is_valid_password(password):
+    if len(password) < 6:
+        return False
+    return True
+
 # Given a user's first and last name, email address, and password, create 
 # a new account for them and return a new token for authentication in 
 # their session. 
@@ -156,13 +163,38 @@ def get_new_user_handle(name_first, name_last):
 # Given email, if user is registered, send them an email containing a specific
 # secret code, that when entered in auth_passwordreset_reset, shows that the
 # user trying to reset the password is the one who got sent this email.
+# Return empty dictionary.
 def auth_passwordreset_request(email):
+    user = db_get_user_by_email(email)
+    if user == None:
+        return
+
+    # Set to expire in 5 minutes
+    time_expires = time.time() + 5 * 60
+    reset_code = db_create_reset_request(user, time_expires)
+
+    send_mail(
+        [email],
+        "Your password reset code",
+        f"Your reset code is {reset_code} and will expire in 5 minutes."
+    )
+
     return {}
 
-# Given reset code for user, set user's new password to password provided. Raise
-# ValueError exception if reset_code or new_password is invalid.
+# Given reset code for user, set user's new password to password provided.
+# Return empty dictionary.
+# Raise ValueError exception if reset_code or new_password is invalid.
 def auth_passwordreset_reset(reset_code, new_password):
-    if new_password == 'pwd':
-        raise ValueError
+    reset_request = db_get_reset_request_by_reset_code(reset_code)
+    if reset_request == None:
+        raise ValueError("Reset code is invalid!")
+
+    if not is_valid_password(new_password):
+        raise ValueError("New password is invalid!")
+
+    user = reset_request.get_user()
+    reset_request.expire()
+
+    user.set_password(new_password)
 
     return {}
