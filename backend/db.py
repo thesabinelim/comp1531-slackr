@@ -43,7 +43,7 @@ class User:
         return self.name_last
     def get_handle(self):
         return self.handle
-    def get_role(self):
+    def get_slackr_role(self):
         return self.role
     def get_channels(self):
         return self.channels
@@ -143,11 +143,17 @@ class Channel:
     def is_public(self):
         return self.public
     def get_owners(self):
-        return self.owners
+        owners = []
+        for member in self.members:
+            if member in self.owners or member.get_slackr_role() == Role.owner \
+                or member.get_slackr_role() == Role.admin:
+                owners.append(member)
+        return owners
     def has_owner(self, user):
         is_owner = user in self.owners
         if user in self.members:
-            if user.get_role() == Role.owner or user.get_role() == Role.admin:
+            if user.get_slackr_role() == Role.owner \
+                or user.get_slackr_role() == Role.admin:
                 is_owner = True
         return is_owner
     def get_members(self):

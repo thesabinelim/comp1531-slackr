@@ -67,6 +67,8 @@ def channels_create(token, name, is_public):
     channel_id = channel.get_channel_id()
 
     channel.add_member(u_id)
+
+    # Make channel creator owner of channel
     channel.add_owner(u_id)
 
     return {'channel_id': channel_id}

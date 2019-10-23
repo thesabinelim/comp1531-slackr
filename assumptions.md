@@ -58,7 +58,13 @@ user_profile:
     - Any valid user can see the profile of any other valid user, the token
       supplied is not necessarily the same user from the u_id.
 
+message_send:
+    - Users cannot send messages to channels they are not members of. Raise
+      AccessError if this is attempted.
+
 message_sendlater:
+    - Users cannot send messages to channels they are not members of. Raise
+      AccessError if this is attempted.
     - time_sent is a Unix timestamp.
 
 message_remove:

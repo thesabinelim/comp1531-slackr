@@ -128,7 +128,7 @@ def channel_join(token, channel_id):
         raise ValueError("Channel with channel_id does not exist!")
 
     if not channel.is_public():
-        if user.get_role() != Role.admin and user.get_role() != Role.owner:
+        if user.get_slackr_role() != Role.admin and user.get_slackr_role() != Role.owner:
             raise AccessError("Channel is private and user is not admin or owner!")
 
     channel.add_member(user)
