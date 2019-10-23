@@ -21,8 +21,8 @@ from backend.channel import (
     channel_invite, channel_details, channel_join, channel_leave
 )
 from backend.message import (
-    message_sendlater, message_send, message_edit, message_react,
-    message_unreact, message_pin, message_unpin
+    message_sendlater, message_send, message_remove, message_edit,
+    message_react, message_unreact, message_pin, message_unpin
 )
 from backend.admin import admin_userpermission_change
 from backend.standup import standup_start, standup_send
@@ -265,6 +265,12 @@ def req_message_send():
     channel_id = request.form.get('channel_id')
     message = request.form.get('message')
     return dumps(message_send(token, channel_id, message))
+
+@APP.route('message/remove', methods=['DELETE'])
+def req_message_remove():
+    token = request.form.get('token')
+    message_id = request.form.get('message_id')
+    return dumps(message_remove(token, message_id))
 
 @APP.route('message/edit', methods=['PUT'])
 def req_message_edit():
