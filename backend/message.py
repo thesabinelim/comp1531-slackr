@@ -51,14 +51,14 @@ def message_send(token, channel_id, text):
     user = db_get_user_by_u_id(u_id)
 
     if len(text) > 1000:
-        raise ValueError("Message cannot be longer than 1000 characters!")
+        raise ValueError(description="Message cannot be longer than 1000 characters!")
 
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:
-        raise ValueError("Channel with channel_id does not exist!")
+        raise ValueError(description="Channel with channel_id does not exist!")
 
     if not channel.has_member(user):
-        raise AccessError("Authorised user is not member of that channel!")
+        raise AccessError(description="Authorised user is not member of that channel!")
 
     now = time.time()
     message = db_create_message(user, channel, text, now)
