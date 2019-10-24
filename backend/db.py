@@ -122,7 +122,11 @@ class User:
 def db_create_user(email, password, name_first, name_last, handle, role):
     db = get_data()
 
-    u_id = db['users'][-1].get_u_id() + 1
+    if db['users'] == []:
+        u_id = 1
+    else:
+        u_id = db['users'][-1].get_u_id() + 1
+
     hashpass = hash_password(password)
 
     user = User(u_id, email, hashpass, name_first, name_last, handle, role)
@@ -247,7 +251,10 @@ class Channel:
 def db_create_channel(name, is_public):
     db = get_data()
 
-    channel_id = db['channels'][-1].get_channel_id() + 1
+    if db['channels'] == []:
+        channel_id = 1
+    else:
+        channel_id = db['channels'][-1].get_channel_id() + 1
 
     channel = Channel(channel_id, name, is_public)
     db['channels'].append(channel)
@@ -343,7 +350,10 @@ class Message:
 def db_create_message(user, channel, text, time_created):
     db = get_data()
 
-    message_id = db['messages'][-1].get_message_id() + 1
+    if db['messages'] == []:
+        message_id = 1
+    else:
+        message_id = db['messages'][-1].get_message_id() + 1
 
     message = Message(message_id, user, channel, text, time_created)
     channel.add_message(message)
