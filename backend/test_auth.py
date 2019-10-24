@@ -22,12 +22,10 @@ def test_auth_register_simple():
 
     # Register new user Test
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    assert reg_dict1
     assert 'u_id' in reg_dict1 and 'token' in reg_dict1
 
     # Register new user Sabine
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    assert reg_dict2
     assert 'u_id' in reg_dict2 and 'token' in reg_dict2
 
     # Check that registration attempts returned different values
@@ -49,7 +47,6 @@ def test_auth_register_handle_concat_simple():
 
     # Register new user Test
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    assert reg_dict1
     assert 'u_id' in reg_dict1 and 'token' in reg_dict1
     profile_dict1 = user_profile(reg_dict1['token'], reg_dict1['u_id'])
 
@@ -62,7 +59,6 @@ def test_auth_register_handle_too_long():
 
     # Register new user Whatsup
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Whatsup', 'Mynameistoolong')
-    assert reg_dict1
     assert 'u_id' in reg_dict1 and 'token' in reg_dict1
     profile_dict1 = user_profile(reg_dict1['token'], reg_dict1['u_id'])
 
@@ -76,19 +72,16 @@ def test_auth_register_unique_handle():
 
     # Register new user Test
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    assert reg_dict1
     assert 'u_id' in reg_dict1 and 'token' in reg_dict1
     profile_dict1 = user_profile(reg_dict1['token'], reg_dict1['u_id'])
 
     # Register another user with same names as Test
     reg_dict2 = auth_register('user2@example.com', 'validpassword', 'Test', 'User')
-    assert reg_dict2
     assert 'u_id' in reg_dict2 and 'token' in reg_dict2
     profile_dict2 = user_profile(reg_dict2['token'], reg_dict2['u_id'])
 
     # Register yet another user with same names as Test
     reg_dict3 = auth_register('user3@example.com', 'validpassword', 'Test', 'User')
-    assert reg_dict3
     assert 'u_id' in reg_dict3 and 'token' in reg_dict3
     profile_dict3 = user_profile(reg_dict3['token'], reg_dict3['u_id'])
 
@@ -96,7 +89,7 @@ def test_auth_register_unique_handle():
     assert profile_dict1['handle_str'] != profile_dict2['handle_str'] \
         != profile_dict3['handle_str']
 
-def test_auth_register_bad_email():
+def test_auth_register_invalid_email():
     # SETUP BEGIN
     reset_data()
     # SETUP END
@@ -104,7 +97,7 @@ def test_auth_register_bad_email():
     with pytest.raises(ValueError):
         auth_register('bademail', 'validpassword', 'Test', 'User')
 
-def test_auth_register_badpwd():
+def test_auth_register_invalid_password():
     # SETUP BEGIN
     reset_data()
     # SETUP END
@@ -112,7 +105,7 @@ def test_auth_register_badpwd():
     with pytest.raises(ValueError):
         auth_register('user@example.com', 'pwd', 'Test', 'User')
 
-def test_auth_register_bad_names():
+def test_auth_register_invalid_names():
     # SETUP BEGIN
     reset_data()
     # SETUP END
@@ -163,22 +156,20 @@ def test_auth_login_simple():
 
     # Login as Test
     login_dict1 = auth_login('user@example.com', 'validpassword')
-    assert login_dict1
     assert 'u_id' in login_dict1 and 'token' in login_dict1
     assert login_dict1['u_id'] == reg_dict1['u_id']
 
     # Login as Sabine
     login_dict2 = auth_login('sabine.lim@unsw.edu.au', 'ImSoAwes0me')
-    assert login_dict2
     assert 'u_id' in login_dict2 and 'token' in login_dict2
     assert login_dict2['u_id'] == reg_dict2['u_id']
 
     # Login as Gabe
     login_dict3 = auth_login('gamer@twitch.tv', 'gamers_rise_up')
-    assert login_dict3 and 'u_id' in login_dict3 and 'token' in login_dict3
+    assert 'u_id' in login_dict3 and 'token' in login_dict3
     assert login_dict3['u_id'] == reg_dict3['u_id']
 
-def test_auth_login_bademail():
+def test_auth_login_invalid_email():
     # SETUP BEGIN
     reset_data()
     # SETUP END
@@ -186,7 +177,7 @@ def test_auth_login_bademail():
     with pytest.raises(ValueError):
         auth_login('bademail', 'pwd')
 
-def test_auth_login_notreg():
+def test_auth_login_email_not_registered():
     # SETUP BEGIN
     reset_data()
     # SETUP END
@@ -194,7 +185,7 @@ def test_auth_login_notreg():
     with pytest.raises(ValueError):
         auth_login('idontexist@example.com', 'validpassword')
 
-def test_auth_login_wrongpwd():
+def test_auth_login_wrong_password():
     # SETUP BEGIN
     reset_data()
 
