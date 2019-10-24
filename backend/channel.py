@@ -91,6 +91,8 @@ def channel_messages(token, channel_id, start):
         
     offset = 0
     all_messages = channel.get_messages()
+    if (len(all_messages) == 0):
+        return {'messages': [], 'start': 0, 'end': -1}
     for message in all_messages:
         if message.get_time_created() > time.time():
             offset += 1
