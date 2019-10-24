@@ -25,32 +25,23 @@ from backend.message import (
 )
 from backend.admin import admin_userpermission_change
 from backend.standup import standup_start, standup_send
+from backend.error import default_handler, ValueError, AccessError, TokenError
 
 APP = Flask(__name__)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-##################
-# Error Handling #
-##################
-
-# As recommended by the course, error handling will be handled similarly to
-# https://gitlab.cse.unsw.edu.au/COMP1531/19T3-lectures/blob/master/helper/myexcept.py
-def default_handler(err):
-    response = err.get_response()
-    response.data = dumps({
-        "code": err.code,
-        "name": "System Error",
-        "message": err.get_description()
-    })
-    response.content_type = 'application/json'
-    return response
-
 APP.register_error_handler(Exception, default_handler)
 CORS(APP)
 
-class ValueError(HTTPException):
-    code = 400
-    message = "No message specified"
+
+
+@APP.route('/valueerror')
+def login():
+    raise ValueError(description="Channel name is bad")
+@APP.route('/accesserror')
+def logout():
+    raise AccessError(description="Access name is bad")
+
 
 ########
 # Mail #
