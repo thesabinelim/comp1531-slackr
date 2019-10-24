@@ -22,10 +22,11 @@ A video describing this project and the background here can be found here.
 * 17/10/2019: Clarification added to "permissions" by providing examples to explain the difference more between general permissions and channel permissions
 * 18/10/2019: "note: this is not requried to be completed until iteration 3" added to uploadphoto
 * 24/10/2019: "exactly members" in the data types updated to say "ends in members"
-* 24/10/2019: Helpful example of how to use python datetime numerically
+* 24/10/2019: Helpful example of how to use python datetime numerically (i.e. unix timestamp)
 * 24/10/2019: Clarified that { channels } refers to a dictionary
 * 24/10/2019: "49" to "50" for the EXAMPLE for channel/messages. "or equal" to remove from the error check 
 * 24/10/2019: Clarified for iteration 2 that the only valid react ID is 1
+* 24/10/2019: Removed "working with frontend" as per notice on Oct 24th
 
 ## Overview
 
@@ -159,7 +160,7 @@ Details concerning the front-end will be released in week 5.
 
 |Section|Weighting|Criteria|
 |---|---|---|
-|Implementation|50%|<ul><li>All interface functions are implemented correctly based on the specification</li><li>Backend tested and working with frontend provided</li><li>Appropriate data structures are used to store application state.</li><li>The flask wrapper for the interface is complete and functional.</li></ul>|
+|Implementation|50%|<ul><li>All interface functions are implemented correctly based on the specification</li><li>Backend tested and working</li><li>Appropriate data structures are used to store application state.</li><li>The flask wrapper for the interface is complete and functional.</li></ul>|
 |Assurance|25%|<ul><li>Demonstration of an understanding of the need for software verification and validation</li><li>Development of appropriate acceptance criteria based on user stories and requirements.</li><li>Demonstration of appropriate tool usage for assurance (code coverage, linting, etc.)</li></ul>|
 |Teamwork|25%|<ul><li>Consistent work towards the goal of a working backend.</li><li>Task board is always up to date and reflects ongoing work</li><li>Demonstration of appropriate use of agile practices to work effectively as a team.</li></ul>|
 
@@ -188,7 +189,7 @@ Details will be released in week 7
 |contains substring **name**|string|
 |contains substring **code**|string|
 |has prefix **is_**|boolean|
-|has prefix **time_**|datetime (you'll probably want to convert it to something numerical, like a (unix timestamp)[https://www.tutorialspoint.com/How-to-convert-Python-date-to-Unix-timestamp]|
+|has prefix **time_**|datetime (expect this to be something numerical, like a (unix timestamp)[https://www.tutorialspoint.com/How-to-convert-Python-date-to-Unix-timestamp]|
 |has suffix **_id**|integer|
 |has suffix **_url**|string|
 |has suffix **_str**|string|
