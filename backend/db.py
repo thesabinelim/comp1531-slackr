@@ -3,7 +3,6 @@
 # 17/10/19
 
 import enum
-import copy
 import time
 
 from auth import get_secret
