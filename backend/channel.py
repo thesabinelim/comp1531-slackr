@@ -10,7 +10,7 @@ from .db import (
     db_get_user_by_u_id
 )
 from .auth import validate_token
-from .error import TokenError, AccessError
+from .error import AccessError
 
 # Invite user with u_id to channel with channel_id.
 # Return {} if successful.

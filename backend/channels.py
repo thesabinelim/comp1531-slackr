@@ -8,7 +8,6 @@ from .db import (
     db_get_user_by_u_id, db_get_all_channels
 )
 from .auth import validate_token
-from .error import TokenError
 
 # Return list of channels (and their details) that user is in.
 def channels_list(token):

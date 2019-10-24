@@ -9,7 +9,7 @@ from .db import (
     db_get_channel_by_channel_id, db_get_message_by_message_id
 )
 from .auth import validate_token
-from .error import TokenError, AccessError
+from .error import AccessError
 
 # Send a message from authorised_user to the channel specified by channel_id.
 # automatically at a specified time in the future. 
