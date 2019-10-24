@@ -4,13 +4,21 @@
 
 import pytest
 
-from auth import *
+from .db import reset_data
+from .auth import (
+    auth_register, auth_login, auth_logout, auth_passwordreset_request,
+    auth_passwordreset_reset
+)
 
 #######################
 # auth_register Tests #
 #######################
 
 def test_auth_register_simple():
+    # SETUP BEGIN
+    reset_data()
+    # SETUP END
+
     # Register new user Test
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     assert reg_dict1
@@ -36,14 +44,26 @@ def test_auth_register_simple():
     assert reg_dict3['token'] != reg_dict1['token']
 
 def test_auth_register_bademail():
+    # SETUP BEGIN
+    reset_data()
+    # SETUP END
+
     with pytest.raises(ValueError):
         auth_register('bademail', 'validpassword', 'Test', 'User')
 
 def test_auth_register_badpwd():
+    # SETUP BEGIN
+    reset_data()
+    # SETUP END
+
     with pytest.raises(ValueError):
         auth_register('user@example.com', 'pwd', 'Test', 'User')
 
 def test_auth_register_badnames():
+    # SETUP BEGIN
+    reset_data()
+    # SETUP END
+
     with pytest.raises(ValueError):
         auth_register('user@example.com', 'validpassword', \
         '123456789012345678901234567890123456789012345678901', 'User')
@@ -53,6 +73,8 @@ def test_auth_register_badnames():
 
 def test_auth_register_emailtaken():
     # SETUP BEGIN
+    reset_data()
+
     auth_register('user@example.com', 'validpassword', 'Test', 'User')
     auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -79,6 +101,8 @@ def test_auth_register_emailtaken():
 
 def test_auth_login_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -102,15 +126,25 @@ def test_auth_login_simple():
     assert login_dict3['u_id'] == reg_dict3['u_id']
 
 def test_auth_login_bademail():
+    # SETUP BEGIN
+    reset_data()
+    # SETUP END
+
     with pytest.raises(ValueError):
         auth_login('bademail', 'pwd')
 
 def test_auth_login_notreg():
+    # SETUP BEGIN
+    reset_data()
+    # SETUP END
+
     with pytest.raises(ValueError):
         auth_login('idontexist@example.com', 'validpassword')
 
 def test_auth_login_wrongpwd():
     # SETUP BEGIN
+    reset_data()
+
     auth_register('user@example.com', 'validpassword', 'Test', 'User')
     auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -129,6 +163,8 @@ def test_auth_login_wrongpwd():
 
 def test_auth_logout_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -139,6 +175,10 @@ def test_auth_logout_simple():
     assert auth_logout(reg_dict3['token']) == {}
 
 def test_auth_logout_badtoken():
+    # SETUP BEGIN
+    reset_data()
+    # SETUP END
+
     assert auth_logout('badtoken') == {}
 
 ####################################
@@ -150,6 +190,8 @@ def test_auth_logout_badtoken():
 
 def test_passwordreset_request_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -168,6 +210,8 @@ def test_passwordreset_request_simple():
 
 def test_passwordreset_reset_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -179,6 +223,8 @@ def test_passwordreset_reset_simple():
 
 def test_passwordreset_reset_badpwd():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -190,4 +236,3 @@ def test_passwordreset_reset_badpwd():
         auth_passwordreset_reset('cfa027', 'pwd')
     with pytest.raises(ValueError):
         auth_passwordreset_reset('bb809m', 'pwd')
-
