@@ -184,7 +184,7 @@ def get_new_user_handle(name_first, name_last):
     handle = name_first.lower() + name_last.lower()
     handle_number = 0
     # If handle already exists, add a number to it
-    while (db_get_user_by_handle(handle + str(handle_number)) != None):
+    while (db_get_user_by_handle(handle + str(handle_number)) is not None):
         handle_number += 1
     if handle_number > 0:
         handle += str(handle_number)
@@ -196,7 +196,7 @@ def get_new_user_handle(name_first, name_last):
 # Return dictionary containing email recipients, title and body.
 def auth_passwordreset_request(email):
     user = db_get_user_by_email(email)
-    if user == None:
+    if user is None:
         return
 
     # Set to expire in 5 minutes
@@ -213,7 +213,7 @@ def auth_passwordreset_request(email):
 # Raise ValueError exception if reset_code or new_password is invalid.
 def auth_passwordreset_reset(reset_code, new_password):
     reset_request = db_get_reset_request_by_reset_code(reset_code)
-    if reset_request == None:
+    if reset_request is None:
         raise ValueError("Reset code is invalid!")
 
     if not is_valid_password(new_password):

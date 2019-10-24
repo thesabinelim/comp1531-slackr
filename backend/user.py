@@ -14,7 +14,7 @@ from auth import validate_token
 # Returns a dictionary of user information.
 def user_profile(token, supplied_u_id):
     user = db_get_user_by_u_id(supplied_u_id)
-    if user == None:
+    if user is None:
         raise ValueError("User does not exist")
     try:
         token_valid = validate_token(token)['is_valid']
@@ -52,7 +52,7 @@ def user_profile_setname(token, name_first, name_last):
 def user_profile_setemail(token, email):
     if not is_valid_email(email):
         raise ValueError("Email invalid")
-    if db_get_user_by_email(email) != None:
+    if db_get_user_by_email(email) is not None:
         raise ValueError("Email already in use")
     try:
         u_id, token_valid = validate_token(token)
@@ -70,7 +70,7 @@ def user_profile_setemail(token, email):
 def user_profile_sethandle(token, handle_str):
     if len(handle_str) < 3 or len(handle_str) > 20:
         raise ValueError("Handle not between 3 and 20 characters")
-    if db_get_user_by_handle(handle_str) != None:
+    if db_get_user_by_handle(handle_str) is not None:
         raise ValueError("Handle is already in use")
     try:
         u_id, token_valid = validate_token(token)

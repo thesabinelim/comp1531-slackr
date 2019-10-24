@@ -295,7 +295,7 @@ class Message:
     # Raise ValueError if user has already made that react.
     def add_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
-        if react == None:
+        if react is None:
             # This is the first react with this id.
             self.reacts.append({
                 'react_id': react_id,
@@ -308,7 +308,7 @@ class Message:
     # Raise ValueError if user has not made that react or react does not exist.
     def remove_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
-        if react == None:
+        if react is None:
             raise ValueError("React with react_id has not been made!")
         if user not in react['users']:
             raise ValueError("User has not made that react!")

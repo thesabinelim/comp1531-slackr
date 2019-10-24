@@ -27,13 +27,13 @@ def standup_start(token, channel_id):
 
     user = db_get_user_by_u_id(u_id)
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist in database!")
 
     if not channel.has_member(user):
         raise AccessError("Authorised user is not member of that channel!")
 
-    if channel.get_standup() != None:
+    if channel.get_standup() is not None:
         if channel.get_standup().get_time_created() < time.time():
             raise ValueError("An active standup is currently running in this channel!")
 
@@ -59,14 +59,14 @@ def standup_send(token, channel_id, message):
 
     user = db_get_user_by_u_id(u_id)
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist in database!")
 
     if not channel.has_member(user):
         raise AccessError("Authorised user is not member of that channel!")
 
     standup = channel.get_standup()
-    if standup == None or standup.get_time_created() >= time.time():
+    if standup is None or standup.get_time_created() >= time.time():
         raise ValueError("No active standup is currently running in this channel!")
 
     if len(message) > 1000:

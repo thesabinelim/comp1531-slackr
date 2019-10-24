@@ -21,7 +21,7 @@ def admin_userpermission_change(token, u_id, permission_id):
 
     admin = db_get_user_by_u_id(admin_id)
     target = db_get_user_by_u_id(u_id)
-    if target == None:
+    if target is None:
         raise ValueError("User with u_id does not exist!")
     
     if permission_id not in [Role.owner, Role.admin, Role.member]:

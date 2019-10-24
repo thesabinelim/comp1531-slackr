@@ -24,10 +24,10 @@ def channel_invite(token, channel_id, u_id):
 
     sender = db_get_user_by_u_id(sender_id)
     receiver = db_get_user_by_u_id(u_id)
-    if receiver == None:
+    if receiver is None:
         raise ValueError("User with u_id does not exist!")
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist!")
 
     if not sender.in_channel(channel):
@@ -50,7 +50,7 @@ def channel_details(token, channel_id):
 
     user = db_get_user_by_u_id(u_id)
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist!")
 
     if not user.in_channel(channel):
@@ -96,7 +96,7 @@ def channel_messages(token, channel_id, start):
     
     user = db_get_user_by_u_id(u_id)
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist!")
     if not user.in_channel(channel):
         raise AccessError("User is not member of channel!")
@@ -155,7 +155,7 @@ def channel_leave(token, channel_id):
 
     user = db_get_user_by_u_id(u_id)
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist!")
 
     channel.remove_owner(user)
@@ -178,7 +178,7 @@ def channel_join(token, channel_id):
 
     user = db_get_user_by_u_id(u_id)
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist!")
 
     if not channel.is_public():
@@ -206,7 +206,7 @@ def channel_addowner(token, channel_id, user_id):
     new_owner_user = db_get_user_by_u_id(user_id)
     # Channel id does not exist
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist!")
     # user already owner of channel
     if channel.has_true_owner(new_owner_user):
@@ -235,7 +235,7 @@ def channel_removeowner(token, channel_id, user_id):
     new_owner_user = db_get_user_by_u_id(user_id)
     # Channel id does not exist
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel == None:
+    if channel is None:
         raise ValueError("Channel with channel_id does not exist!")
     # user already owner of channel
     if not channel.has_true_owner(new_owner_user):
