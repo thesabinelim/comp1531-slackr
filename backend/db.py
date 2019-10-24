@@ -2,11 +2,32 @@
 # Written by Sabine Lim z5242579
 # 17/10/19
 
+import os
+import hashlib
 import enum
 import time
 
-from .auth import hash_password
 from .utils import random_string
+
+####################
+# Password hashing #
+####################
+
+def get_salt():
+    global salt
+    return salt
+
+def reset_salt():
+    global salt
+    salt = os.urandom(32)
+
+salt = None
+reset_salt()
+
+# Return salted hash of password supplied.
+def hash_password(password):
+    salt = get_salt()
+    return hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
 
 ############
 # database #

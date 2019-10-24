@@ -2,9 +2,7 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
-import os
 import time
-import hashlib
 import jwt
 
 from .db import (
@@ -14,24 +12,9 @@ from .db import (
 )
 from .utils import is_valid_email, random_string
 
-#############################
-# Salt for password hashing #
-#############################
-
-def get_salt():
-    global salt
-    return salt
-
-def reset_salt():
-    global salt
-    salt = os.urandom(32)
-
-salt = None
-reset_salt()
-
-###########################
-# Secret for JWT encoding #
-###########################
+################
+# JWT encoding #
+################
 
 def get_secret():
     global secret
@@ -43,11 +26,6 @@ def reset_secret():
 
 secret = None
 reset_secret()
-
-# Return salted hash of password supplied.
-def hash_password(password):
-    salt = get_salt()
-    return hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
 
 # Return a new token given u_id.
 def generate_token(u_id):

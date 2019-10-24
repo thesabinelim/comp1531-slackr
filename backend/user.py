@@ -3,10 +3,10 @@
 # 02/10/19
 
 import re
-from utils import is_valid_email
 
-from db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle
-from auth import validate_token
+from .db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle
+from .auth import validate_token
+from .utils import is_valid_email
 
 # For a valid user, returns information about their email, first name, last 
 # name, and handle.
