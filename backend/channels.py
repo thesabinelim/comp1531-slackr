@@ -19,6 +19,8 @@ def channels_list(token):
     if not token_valid:
         raise ValueError("Token is invalid!")
     user = db_get_user_by_u_id(u_id)
+    if user == None:
+        return {'channels': []}
     channel_ids = user.get_channels()
     channel_detail_list = get_channel_list_details(channel_ids)
     return {'channels': channel_detail_list}
