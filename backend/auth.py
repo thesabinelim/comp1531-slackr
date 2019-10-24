@@ -6,13 +6,42 @@ import time
 import hashlib
 import jwt
 
-from ..server import get_salt, get_secret, send_mail
 from db import (
     Role, User, Reset_Request, db_get_all_users, db_get_user_by_u_id,
     db_get_user_by_email, db_create_user, db_get_user_by_handle,
     db_create_reset_request, db_get_reset_request_by_reset_code
 )
-from utils import is_valid_email
+from utils import is_valid_email, random_string
+
+#############################
+# Salt for password hashing #
+#############################
+
+def get_salt():
+    global salt
+    return salt
+
+def reset_salt():
+    global salt
+    salt = os.urandom(32)
+
+salt = None
+reset_salt()
+
+###########################
+# Secret for JWT encoding #
+###########################
+
+def get_secret():
+    global secret
+    return secret
+
+def reset_secret():
+    global secret
+    secret = random_string(128)
+
+secret = None
+reset_secret()
 
 # Return salted hash of password supplied.
 def hash_password(password):
@@ -163,7 +192,7 @@ def get_new_user_handle(name_first, name_last):
 # Given email, if user is registered, send them an email containing a specific
 # secret code, that when entered in auth_passwordreset_reset, shows that the
 # user trying to reset the password is the one who got sent this email.
-# Return empty dictionary.
+# Return dictionary containing email recipients, title and body.
 def auth_passwordreset_request(email):
     user = db_get_user_by_email(email)
     if user == None:
@@ -173,13 +202,10 @@ def auth_passwordreset_request(email):
     time_expires = time.time() + 5 * 60
     reset_code = db_create_reset_request(user, time_expires)
 
-    send_mail(
-        [email],
-        "Your password reset code",
-        f"Your reset code is {reset_code} and will expire in 5 minutes."
-    )
+    title = "Your password reset code"
+    body = f"Your reset code is {reset_code} and will expire in 5 minutes."
 
-    return {}
+    return {'recipients': [email], 'title': title, 'body': body}
 
 # Given reset code for user, set user's new password to password provided.
 # Return empty dictionary.

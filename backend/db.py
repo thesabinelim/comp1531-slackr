@@ -6,9 +6,29 @@ import enum
 import copy
 import time
 
-from ..server import get_data, get_secret
+from auth import get_secret
 from auth import hash_password
 from utils import random_string
+
+############
+# database #
+############
+
+def get_data():
+    global data
+    return data
+
+def reset_data():
+    global data
+    data = {
+        'users': [],
+        'channels': [],
+        'messages': [],
+        'reset_requests': []
+    }
+
+data = None
+reset_data()
 
 ##############
 # users data #

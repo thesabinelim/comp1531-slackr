@@ -26,7 +26,6 @@ from backend.message import (
 )
 from backend.admin import admin_userpermission_change
 from backend.standup import standup_start, standup_send
-from backend.utils import random_string
 
 from backend.db import db_get_user_by_email
 
@@ -78,48 +77,6 @@ def send_mail(recipients, title, body):
     except Exception as e:
         return (str(e))
 
-############
-# Database #
-############
-
-def get_salt():
-    global salt
-    return salt
-
-def reset_salt():
-    global salt
-    salt = os.urandom(32)
-
-salt = None
-reset_salt()
-
-def get_secret():
-    global secret
-    return secret
-
-def reset_secret():
-    global secret
-    secret = random_string(128)
-
-secret = None
-reset_secret()
-
-def get_data():
-    global data
-    return data
-
-def reset_data():
-    global data
-    data = {
-        'users': [],
-        'channels': [],
-        'messages': [],
-        'reset_requests': []
-    }
-
-data = None
-reset_data()
-
 ##################
 # echo interface #
 ##################
@@ -160,7 +117,13 @@ def req_auth_register():
 @APP.route('auth/passwordreset/request', methods=['POST'])
 def req_auth_passwordreset_request():
     email = request.form.get('email')
-    return dumps(auth_passwordreset_request(email))
+    content = auth_passwordreset_request(email)
+    send_mail(
+        content['recipients'],
+        content['title'],
+        content['body']
+    )
+    return dumps({})
 
 @APP.route('auth/passwordreset/reset', methods=['POST'])
 def req_auth_passwordreset_reset():

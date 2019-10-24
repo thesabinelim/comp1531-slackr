@@ -1,9 +1,7 @@
 # COMP1531 Project channel
-# Written by Sabine Lim z5242579
-# and Bridget McCarthy z5255505
-# And Eric Lin z5257305
+# Written by Sabine Lim z5242579, Bridget McCarthy z5255505
+# and Eric Lin z5257305
 # 23/10/19
-
 
 from db import (
     Role, User, Channel, Message, db_get_channel_by_channel_id,
@@ -110,7 +108,7 @@ def channel_messages(token, channel_id, start):
             offset += 1
         else:
             break
-    if start >= len(all_messages) - offset
+    if start >= len(all_messages) - offset:
         raise ValueError("Start index is greater than the number of messages in the channel!")
 
     counter = start
@@ -130,10 +128,10 @@ def channel_messages(token, channel_id, start):
 
             react_u_ids = []
             for react_user in react_users:
-                react_u_ids.append(user.get_u_id())
+                react_u_ids.append(react_user.get_u_id())
 
             reacted = u_id in react_u_ids
-            message_dict.append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
+            message_dict['reacts'].append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
 
         message_dict['is_pinned'] = current_message.is_pinned()
         message.append(message_dict)
