@@ -27,8 +27,6 @@ from backend.message import (
 from backend.admin import admin_userpermission_change
 from backend.standup import standup_start, standup_send
 
-from backend.db import db_get_user_by_email
-
 APP = Flask(__name__)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
