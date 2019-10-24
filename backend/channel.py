@@ -3,12 +3,12 @@
 # and Eric Lin z5257305
 # 23/10/19
 
-from db import (
+from .db import (
     Role, User, Channel, Message, db_get_channel_by_channel_id,
     db_get_user_by_u_id
 )
-from auth import validate_token
-from error import TokenError, AccessError
+from .auth import validate_token
+from .error import TokenError, AccessError
 
 # Invite user with u_id to channel with channel_id.
 # Return {} if successful.

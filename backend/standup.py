@@ -4,12 +4,12 @@
 
 import time
 
-from db import (
+from .db import (
     User, Channel, Message, db_get_user_by_u_id, db_get_channel_by_channel_id,
     db_create_message
 )
-from auth import validate_token
-from error import TokenError, AccessError
+from .auth import validate_token
+from .error import TokenError, AccessError
 
 # standup_start commands initiates 15 minutes of standup and then returns
 # 15 minutes of stand up time.

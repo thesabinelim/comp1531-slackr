@@ -7,12 +7,12 @@ import time
 import hashlib
 import jwt
 
-from db import (
+from .db import (
     Role, User, Reset_Request, db_get_all_users, db_get_user_by_u_id,
     db_get_user_by_email, db_create_user, db_get_user_by_handle,
     db_create_reset_request, db_get_reset_request_by_reset_code
 )
-from utils import is_valid_email, random_string
+from .utils import is_valid_email, random_string
 
 #############################
 # Salt for password hashing #

@@ -5,8 +5,8 @@
 import enum
 import time
 
-from auth import hash_password
-from utils import random_string
+from .auth import hash_password
+from .utils import random_string
 
 ############
 # database #

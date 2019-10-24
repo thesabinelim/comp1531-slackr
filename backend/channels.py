@@ -3,12 +3,12 @@
 # and Bridget McCarthy z5255505
 # 01/10/19
 
-from db import (
+from .db import (
     User, Channel, db_create_channel, db_get_channel_by_channel_id,
     db_get_user_by_u_id, db_get_all_channels
 )
-from auth import validate_token
-from error import TokenError
+from .auth import validate_token
+from .error import TokenError
 
 # Return list of channels (and their details) that user is in.
 def channels_list(token):

@@ -2,9 +2,9 @@
 # Written by Sabine Lim z5242579
 # 22/10/19
 
-from db import Role, User, db_get_user_by_u_id
-from auth import validate_token
-from error import TokenError, AccessError
+from .db import Role, User, db_get_user_by_u_id
+from .auth import validate_token
+from .error import TokenError, AccessError
 
 # Given user with id, set their permissions to new permissions described by
 # permission_id.

@@ -4,12 +4,12 @@
 
 import time
 
-from db import (
+from .db import (
     Role, User, Channel, Message, db_create_message, db_get_user_by_u_id, 
     db_get_channel_by_channel_id, db_get_message_by_message_id
 )
-from auth import validate_token
-from error import TokenError, AccessError
+from .auth import validate_token
+from .error import TokenError, AccessError
 
 # Send a message from authorised_user to the channel specified by channel_id.
 # automatically at a specified time in the future. 
