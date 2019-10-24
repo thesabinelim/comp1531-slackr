@@ -71,7 +71,7 @@ def invalidate_token(token):
         return False
 
     user = db_get_user_by_u_id(u_id)
-    if user == None:
+    if user is None:
         return False
     if user.has_token(token):
         user.remove_token(token)
