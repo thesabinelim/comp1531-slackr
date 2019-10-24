@@ -91,7 +91,7 @@ def channel_messages(token, channel_id, start):
         
     offset = 0
     all_messages = channel.get_messages()
-    for message in all_messages():
+    for message in all_messages:
         if message.get_time_created() > time.time():
             offset += 1
         else:
@@ -105,7 +105,7 @@ def channel_messages(token, channel_id, start):
         message_dict = {}
         current_message = all_messages[counter + offset]
         message_dict['message_id'] = current_message.get_message_id()
-        message_dict['u_id'] = current_message.get_sender()
+        message_dict['u_id'] = current_message.get_sender().get_u_id()
         message_dict['message'] = current_message.get_text()
         message_dict['time_created'] = current_message.get_time_created()
 
@@ -122,12 +122,11 @@ def channel_messages(token, channel_id, start):
             message_dict['reacts'].append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
 
         message_dict['is_pinned'] = current_message.is_pinned()
-        message.append(message_dict)
+        messages.append(message_dict)
         counter += 1
     end = counter - 1
     if end + offset >= len(all_messages):
         end = -1
-
     return {'messages': messages, 'start': start, 'end': end}
 
 # Given channel ID, remove user from channel. Returns {}.

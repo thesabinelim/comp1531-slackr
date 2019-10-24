@@ -17,7 +17,7 @@ from backend.user import (
 )
 from backend.channels import channels_create, channels_list, channels_listall
 from backend.channel import (
-    channel_invite, channel_details, channel_join, channel_leave
+    channel_invite, channel_details, channel_join, channel_leave, channel_messages
 )
 from backend.message import (
     message_sendlater, message_send, message_remove, message_edit,
@@ -197,6 +197,13 @@ def req_channel_leave():
     token = request.form.get('token')
     channel_id = int(request.form.get('channel_id'))
     return dumps(channel_leave(token, channel_id))
+
+@APP.route('/channel/messages', methods=['GET'])
+def req_channel_messages():
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
+    start = int(request.args.get('start'))
+    return dumps(channel_messages(token, channel_id, start))
 
 #####################
 # message interface #
