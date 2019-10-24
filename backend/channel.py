@@ -154,7 +154,7 @@ def channel_leave(token, channel_id):
 # Raise AccessError if channel is private and user is not admin.
 # Raise TokenError if token invalid.
 def channel_join(token, channel_id):
-    u_id, token_valid = validate_token(token)
+    u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
 
     channel = db_get_channel_by_channel_id(channel_id)
