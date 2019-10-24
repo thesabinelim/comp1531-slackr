@@ -8,6 +8,7 @@ import enum
 import time
 
 from .utils import random_string
+from .error import ValueError
 
 ####################
 # Password hashing #
@@ -331,16 +332,16 @@ class Message:
                 'users': [user]
             })
         elif user in react['users']:
-            raise ValueError("User has already made that react!")
+            raise ValueError(description="User has already made that react!")
         else:
             react['users'].append(user)
     # Raise ValueError if user has not made that react or react does not exist.
     def remove_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
         if react is None:
-            raise ValueError("React with react_id has not been made!")
+            raise ValueError(description="React with react_id has not been made!")
         if user not in react['users']:
-            raise ValueError("User has not made that react!")
+            raise ValueError(description="User has not made that react!")
         react['users'].remove(user)
     def pin(self):
         self.pinned = True

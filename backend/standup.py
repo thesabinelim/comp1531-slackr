@@ -9,7 +9,7 @@ from .db import (
     db_create_message
 )
 from .auth import validate_token
-from .error import TokenError, AccessError
+from .error import ValueError, TokenError, AccessError
 
 # standup_start commands initiates 15 minutes of standup and then returns
 # 15 minutes of stand up time.
