@@ -5,7 +5,6 @@
 import enum
 import time
 
-from auth import get_secret
 from auth import hash_password
 from utils import random_string
 
