@@ -28,12 +28,20 @@ def default_handler(err):
 
 class ValueError(HTTPException):
     code = 400
+    name = "ValueError"
     message = "No message specified"
 
 class AccessError(HTTPException):
     code = 403
+    name = "AccessError"
     message = "No message specified"
 
-class TokenError(Exception):
+class InvalidTokenError(Exception):
     code = 401
+    name = "InvalidTokenError"
+    message = "No message specified"
+
+class CounterfeitTokenError(Exception):
+    code = 401
+    name = "CounterfeitTokenError"
     message = "No message specified"

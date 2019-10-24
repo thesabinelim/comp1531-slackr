@@ -25,7 +25,7 @@ from backend.message import (
 )
 from backend.admin import admin_userpermission_change
 from backend.standup import standup_start, standup_send
-from backend.error import default_handler, ValueError, AccessError, TokenError
+from backend.error import default_handler, ValueError, AccessError
 
 APP = Flask(__name__)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
@@ -126,7 +126,7 @@ def req_auth_passwordreset_reset():
 @APP.route('/user/profile', methods=['GET'])
 def req_user_profile():
     token = request.args.get('token')
-    u_id = request.args.get('u_id')
+    u_id = int(request.args.get('u_id'))
     return dumps(user_profile(token, u_id))
 
 @APP.route('/user/profile/setname', methods=['PUT'])
@@ -176,26 +176,26 @@ def req_channels_listall():
 @APP.route('/channel/invite', methods=['POST'])
 def req_channel_invite():
     token = request.form.get('token')
-    channel_id = request.form.get('channel_id')
-    u_id = request.form.get('u_id')
+    channel_id = int(request.form.get('channel_id'))
+    u_id = int(request.form.get('u_id'))
     return dumps(channel_invite(token, channel_id, u_id))
 
 @APP.route('/channel/details', methods=['GET'])
 def req_channel_details():
-    token = request.form.get('token')
-    channel_id = request.form.get('channel_id')
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
     return dumps(channel_details(token, channel_id))
 
 @APP.route('/channel/join', methods=['POST'])
 def req_channel_join():
     token = request.form.get('token')
-    channel_id = request.form.get('channel_id')
+    channel_id = int(request.form.get('channel_id'))
     return dumps(channel_join(token, channel_id))
 
 @APP.route('/channel/leave', methods=['POST'])
 def req_channel_leave():
     token = request.form.get('token')
-    channel_id = request.form.get('channel_id')
+    channel_id = int(request.form.get('channel_id'))
     return dumps(channel_leave(token, channel_id))
 
 #####################
@@ -205,7 +205,7 @@ def req_channel_leave():
 @APP.route('/message/sendlater', methods=['POST'])
 def req_message_sendlater():
     token = request.form.get('token')
-    channel_id = request.form.get('channel_id')
+    channel_id = int(request.form.get('channel_id'))
     message = request.form.get('message')
     time_sent = request.form.get('time_sent')
     return dumps(message_sendlater(token, channel_id, message, time_sent))
@@ -213,47 +213,47 @@ def req_message_sendlater():
 @APP.route('/message/send', methods=['POST'])
 def req_message_send():
     token = request.form.get('token')
-    channel_id = request.form.get('channel_id')
+    channel_id = int(request.form.get('channel_id'))
     message = request.form.get('message')
     return dumps(message_send(token, channel_id, message))
 
 @APP.route('/message/remove', methods=['DELETE'])
 def req_message_remove():
     token = request.form.get('token')
-    message_id = request.form.get('message_id')
+    message_id = int(request.form.get('message_id'))
     return dumps(message_remove(token, message_id))
 
 @APP.route('/message/edit', methods=['PUT'])
 def req_message_edit():
     token = request.form.get('token')
-    message_id = request.form.get('message_id')
+    message_id = int(request.form.get('message_id'))
     message = request.form.get('message')
     return dumps(message_edit(token, message_id, message))
 
 @APP.route('/message/react', methods=['POST'])
 def req_message_react():
     token = request.form.get('token')
-    message_id = request.form.get('message_id')
-    react_id = request.form.get('react_id')
+    message_id = int(request.form.get('message_id'))
+    react_id = int(request.form.get('react_id'))
     return dumps(message_react(token, message_id, react_id))
 
 @APP.route('/message/unreact', methods=['POST'])
 def req_message_unreact():
     token = request.form.get('token')
-    message_id = request.form.get('message_id')
-    react_id = request.form.get('react_id')
+    message_id = int(request.form.get('message_id'))
+    react_id = int(request.form.get('react_id'))
     return dumps(message_unreact(token, message_id, react_id))
 
 @APP.route('/message/pin', methods=['POST'])
 def req_message_pin():
     token = request.form.get('token')
-    message_id = request.form.get('message_id')
+    message_id = int(request.form.get('message_id'))
     return dumps(message_pin(token, message_id))
 
 @APP.route('/message/unpin', methods=['POST'])
 def req_message_unpin():
     token = request.form.get('token')
-    message_id = request.form.get('message_id')
+    message_id = int(request.form.get('message_id'))
     return dumps(message_unpin(token, message_id))
 
 ###################
@@ -263,8 +263,8 @@ def req_message_unpin():
 @APP.route('/admin/userpermission/change', methods=['POST'])
 def req_admin_userpermission_change():
     token = request.form.get('token')
-    u_id = request.form.get('u_id')
-    permission_id = request.form.get('permission_id')
+    u_id = int(request.form.get('u_id'))
+    permission_id = int(request.form.get('permission_id'))
     return dumps(admin_userpermission_change(token, u_id, permission_id))
 
 #####################
@@ -274,13 +274,13 @@ def req_admin_userpermission_change():
 @APP.route('/standup/start', methods=['POST'])
 def req_standup_start():
     token = request.form.get('token')
-    channel_id = request.form.get('channel_id')
+    channel_id = int(request.form.get('channel_id'))
     return dumps(standup_start(token, channel_id))
 
 @APP.route('/standup/send', methods=['POST'])
 def req_standup_send():
     token = request.form.get('token')
-    channel_id = request.form.get('channel_id')
+    channel_id = int(request.form.get('channel_id'))
     message = request.form.get('message')
     return dumps(standup_send(token, channel_id, message))
 
