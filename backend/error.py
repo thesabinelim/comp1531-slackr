@@ -1,5 +1,8 @@
 class AccessError(Exception):
     pass
 
-class TokenError(Exception):
+class InvalidTokenError(Exception):
+    pass
+
+class CounterfeitTokenError(Exception):
     pass
