@@ -14,8 +14,8 @@ def channels_list(token):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
 
-    channel_ids = user.get_channels()
-    channel_detail_list = get_channel_list_details(channel_ids)
+    channels = user.get_channels()
+    channel_detail_list = get_channel_list_details(channels)
 
     return {'channels': channel_detail_list}
 
@@ -23,19 +23,18 @@ def channels_list(token):
 def channels_listall(token):
     validate_token(token)
 
-    channel_ids = db_get_all_channels()
-    channel_detail_list = get_channel_list_details(channel_ids)
+    channels = db_get_all_channels()
+    channel_detail_list = get_channel_list_details(channels)
 
     return {'channels': channel_detail_list}
 
 # Helper function to return a list of dictionaries containing the channel_id,
 # and name of each channel within the supplied 'channel_ids' list.
-def get_channel_list_details(channel_ids):
+def get_channel_list_details(channels):
     channel_detail_list = []
-    for channel_id in channel_ids:
-        channel = db_get_channel_by_channel_id(channel_id)
+    for channel in channels:
         channel_detail_list.append({
-            'channel_id': channel_id,
+            'channel_id': channel.get_channel_id(),
             'name': channel.get_name()
         })
     return channel_detail_list
