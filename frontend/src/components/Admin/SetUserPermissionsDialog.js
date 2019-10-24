@@ -34,7 +34,6 @@ function SetUserPermissionsDialog({ children, ...props }) {
 
     function handleClose() {
         setOpen(false);
-        setPermissionId(PERMISSION_IDS.MEMBER);
     }
 
     function handleSubmit(event) {
