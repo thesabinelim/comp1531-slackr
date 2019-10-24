@@ -68,6 +68,7 @@ def channel_messages(token, channel_id, start):
         raise ValueError("Channel with channel_id does not exist!")
     if not user.in_channel(channel):
         raise AccessError("User is not member of channel!")
+        
     offset = 0
     all_messages = channel.get_messages()
     for message in all_messages():
@@ -75,22 +76,40 @@ def channel_messages(token, channel_id, start):
             offset += 1
         else:
             break
-    if len(all_messages) <= (start - offset):
+    if start >= len(all_messages) - offset
         raise ValueError("Start index is greater than the number of messages in the channel!")
+
     counter = start
     messages = []
-    while (counter + offset) < len(channel.get_messages()) and counter < start + 50:
-        messages.append(all_messages[counter + offset])
+    while (counter + offset) < len(all_messages) and counter < start + 50:
+        message_dict = {}
+        current_message = all_messages[counter + offset]
+        message_dict['message_id'] = current_message.get_message_id()
+        message_dict['u_id'] = current_message.get_sender()
+        message_dict['message'] = current_message.get_text()
+        message_dict['time_created'] = current_message.get_time_created()
+
+        message_dict['reacts'] = []
+        for react in current_message.get_reacts():
+            react_id = react['react_id']
+            react_users = react['users']
+
+            react_u_ids = []
+            for react_user in react_users:
+                react_u_ids.append(user.get_u_id())
+
+            reacted = u_id in react_u_ids
+            message_dict.append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
+
+        message_dict['is_pinned'] = current_message.is_pinned()
+        message.append(message_dict)
         counter += 1
+    end = counter - 1
+    if end + offset >= len(all_messages):
+        end = -1
 
-    return {'messages': messages, 'start': start, 'end': counter}
+    return {'messages': messages, 'start': start, 'end': end}
 
-
-        
-    # count for number of messages
-    # ordered highest index for latest message
-
-    messages = []
 # Given channel ID, remove user from channel. Returns {}.
 # Raise ValueError exception if channel with id does not exist.
 # An owner leaving removes them from the channel's owner list.
