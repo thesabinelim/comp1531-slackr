@@ -87,7 +87,7 @@ def auth_login(email, password):
     if not user:
         raise ValueError("No user with that email exists!")
 
-    if user.get_password() != password:
+    if not user.password_matches(password):
         raise ValueError("Incorrect password!")
 
     u_id = user.get_u_id()

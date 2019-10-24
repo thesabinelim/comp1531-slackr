@@ -74,8 +74,9 @@ class User:
         return self.u_id
     def get_email(self):
         return self.email
-    def get_hashpass(self):
-        return self.hashpass
+    def password_matches(self, password):
+        hashpass = hash_password(password)
+        return hashpass == self.hashpass
     def get_first_name(self):
         return self.name_first
     def get_last_name(self):
