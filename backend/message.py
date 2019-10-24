@@ -47,8 +47,24 @@ def message_sendlater(token, channel_id, text, time_sent):
 # member of.
 # Return dictionary containing message_id.
 def message_send(token, channel_id, text):
+    u_id = validate_token(token)
+    user = db_get_user_by_u_id(u_id)
+
+    if len(text) > 1000:
+        raise ValueError("Message cannot be longer than 1000 characters!")
+
+    channel = db_get_channel_by_channel_id(channel_id)
+    if channel is None:
+        raise ValueError("Channel with channel_id does not exist!")
+
+    if not channel.has_member(user):
+        raise AccessError("Authorised user is not member of that channel!")
+
     now = time.time()
-    return message_sendlater(token, channel_id, text, now)
+    message = db_create_message(user, channel, text, now)
+    message_id = message.get_message_id()
+
+    return {'message_id': message_id}
 
 # Given a message_id for a message, this message is removed from the channel.
 # Raises ValueError when the message_id no longer exists.
