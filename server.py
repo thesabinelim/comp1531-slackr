@@ -294,4 +294,4 @@ def req_standup_send():
     return dumps(standup_send(token, channel_id, message))
 
 if __name__ == '__main__':
-    APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000))
+    APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000), debug=True)
