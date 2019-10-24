@@ -1,6 +1,5 @@
 """Flask server"""
 import sys
-import os
 from flask_cors import CORS
 from json import dumps
 from flask import Flask, request, jsonify

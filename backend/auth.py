@@ -2,6 +2,7 @@
 # Written by Sabine Lim z5242579
 # 01/10/19
 
+import os
 import time
 import hashlib
 import jwt
