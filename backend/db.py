@@ -118,7 +118,7 @@ class User:
         if token in self.tokens:
             self.tokens.remove(token)
 
-# Create User with provided details and add to database, return u_id.
+# Create User with provided details and add to database, return User.
 def db_create_user(email, password, name_first, name_last, handle, role):
     db = get_data()
 
@@ -132,7 +132,7 @@ def db_create_user(email, password, name_first, name_last, handle, role):
     user = User(u_id, email, hashpass, name_first, name_last, handle, role)
     db['users'].append(user)
 
-    return u_id
+    return user
 
 # Return list of all Users in database.
 def db_get_all_users():
@@ -247,7 +247,7 @@ class Channel:
     def set_standup(self, message):
         self.standup = message
 
-# Create Channel with provided details and add to database, return channel_id.
+# Create Channel with provided details and add to database, return Channel.
 def db_create_channel(name, is_public):
     db = get_data()
 
@@ -259,7 +259,7 @@ def db_create_channel(name, is_public):
     channel = Channel(channel_id, name, is_public)
     db['channels'].append(channel)
 
-    return channel_id
+    return channel
 
 # Return list of all Channels in database.
 def db_get_all_channels():
