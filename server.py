@@ -191,8 +191,8 @@ def req_channel_invite():
 
 @APP.route('/channel/details', methods=['GET'])
 def req_channel_details():
-    token = request.form.get('token')
-    channel_id = int(request.form.get('channel_id'))
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
     return dumps(channel_details(token, channel_id))
 
 @APP.route('/channel/join', methods=['POST'])
