@@ -92,7 +92,7 @@ def channel_messages(token, channel_id, start):
         
     offset = 0
     all_messages = channel.get_messages()
-    for message in all_messages():
+    for message in all_messages:
         if message.get_time_created() > time.time():
             offset += 1
         else:
