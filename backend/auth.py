@@ -107,15 +107,12 @@ def is_valid_password(password):
     return True
 
 # Helper function to interact with the DB and get an appropriate handle.
-# Returns string of first_name + last_name + number if the user already exists.
+# Returns string of first_name + last_name maxed out at 20 characters.
+# Returns random 20 character alphanumeric string if handle already taken.
 def get_new_user_handle(name_first, name_last):
-    handle = name_first.lower() + name_last.lower()
-    handle_number = 0
-    # If handle already exists, add a number to it
-    while (db_get_user_by_handle(handle + str(handle_number)) is not None):
-        handle_number += 1
-    if handle_number > 0:
-        handle += str(handle_number)
+    handle = f"{name_first.lower()}{name_last.lower()}"[0:20]
+    while (db_get_user_by_handle(handle) is not None):
+        handle = random_string(20)
     return handle
 
 # Given a user's first and last name, email address, and password, create 
