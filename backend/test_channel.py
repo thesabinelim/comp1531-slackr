@@ -447,11 +447,13 @@ def test_channel_messages_paginated():
         assert messages1['messages'][2*x+1]['message'] == 'Whats up'
 
     messages2 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 50)
-    assert messages1
-    assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
+    assert messages2
+    assert 'messages' in messages2 and 'start' in messages2 and 'end' in messages2
     assert messages2['start'] == 50 and messages2['end'] == -1
+    assert len(messages2['messages']) == 20
+    print(messages2['messages'])
     # Have to check from back to front as messages are stored with most recent first
-    for x in range(35, 25):
+    for x in range(10, 0):
         assert messages2['messages'][2*x]['u_id'] == reg_dict1['u_id']
         assert messages2['messages'][2*x]['message'] == 'Hey there'
         assert messages2['messages'][2*x+1]['u_id'] == reg_dict2['u_id']
