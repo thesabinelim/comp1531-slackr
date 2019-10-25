@@ -92,16 +92,18 @@ def channel_messages(token, channel_id, start):
         
     offset = 0
     all_messages = channel.get_messages()
-    if (len(all_messages) == 0):
-        return {'messages': [], 'start': 0, 'end': -1}
     for message in all_messages:
         if message.get_time_created() > time.time():
             offset += 1
         else:
             break
-    if start >= len(all_messages) - offset:
+    if start != 0 and start >= len(all_messages) - offset:
         raise ValueError(description="Start index is greater than the number of messages in the channel!")
 
+    if (len(all_messages) == 0):
+        return {'messages': [], 'start': 0, 'end': -1}
+    
+    
     counter = start
     messages = []
     while (counter + offset) < len(all_messages) and counter < start + 50:
@@ -127,7 +129,7 @@ def channel_messages(token, channel_id, start):
         message_dict['is_pinned'] = current_message.is_pinned()
         messages.append(message_dict)
         counter += 1
-    end = counter - 1
+    end = counter
     if end + offset >= len(all_messages):
         end = -1
     return {'messages': messages, 'start': start, 'end': end}
