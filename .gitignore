@@ -125,3 +125,6 @@ dmypy.json
 
 # Other
 *.py~
+
+# Virtual env
+frontend_testenv

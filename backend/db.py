@@ -2,13 +2,53 @@
 # Written by Sabine Lim z5242579
 # 17/10/19
 
+import os
+import hashlib
 import enum
-import copy
 import time
 
-from ..server import get_data, get_secret
-from auth import hash_password
-from utils import random_string
+from .utils import random_string
+from .error import ValueError
+
+####################
+# Password hashing #
+####################
+
+def get_salt():
+    global salt
+    return salt
+
+def reset_salt():
+    global salt
+    salt = os.urandom(32)
+
+salt = None
+reset_salt()
+
+# Return salted hash of password supplied.
+def hash_password(password):
+    salt = get_salt()
+    return hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+
+############
+# database #
+############
+
+def get_data():
+    global data
+    return data
+
+def reset_data():
+    global data
+    data = {
+        'users': [],
+        'channels': [],
+        'messages': [],
+        'reset_requests': []
+    }
+
+data = None
+reset_data()
 
 ##############
 # users data #
@@ -35,8 +75,9 @@ class User:
         return self.u_id
     def get_email(self):
         return self.email
-    def get_hashpass(self):
-        return self.hashpass
+    def password_matches(self, password):
+        hashpass = hash_password(password)
+        return hashpass == self.hashpass
     def get_first_name(self):
         return self.name_first
     def get_last_name(self):
@@ -79,17 +120,21 @@ class User:
         if token in self.tokens:
             self.tokens.remove(token)
 
-# Create User with provided details and add to database, return u_id.
+# Create User with provided details and add to database, return User.
 def db_create_user(email, password, name_first, name_last, handle, role):
     db = get_data()
 
-    u_id = db['users'][-1].get_u_id() + 1
+    if db['users'] == []:
+        u_id = 1
+    else:
+        u_id = db['users'][-1].get_u_id() + 1
+
     hashpass = hash_password(password)
 
     user = User(u_id, email, hashpass, name_first, name_last, handle, role)
     db['users'].append(user)
 
-    return u_id
+    return user
 
 # Return list of all Users in database.
 def db_get_all_users():
@@ -204,16 +249,19 @@ class Channel:
     def set_standup(self, message):
         self.standup = message
 
-# Create Channel with provided details and add to database, return channel_id.
+# Create Channel with provided details and add to database, return Channel.
 def db_create_channel(name, is_public):
     db = get_data()
 
-    channel_id = db['channels'][-1].get_channel_id() + 1
+    if db['channels'] == []:
+        channel_id = 1
+    else:
+        channel_id = db['channels'][-1].get_channel_id() + 1
 
     channel = Channel(channel_id, name, is_public)
     db['channels'].append(channel)
 
-    return channel_id
+    return channel
 
 # Return list of all Channels in database.
 def db_get_all_channels():
@@ -277,23 +325,23 @@ class Message:
     # Raise ValueError if user has already made that react.
     def add_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
-        if react == None:
+        if react is None:
             # This is the first react with this id.
             self.reacts.append({
                 'react_id': react_id,
                 'users': [user]
             })
         elif user in react['users']:
-            raise ValueError("User has already made that react!")
+            raise ValueError(description="User has already made that react!")
         else:
             react['users'].append(user)
     # Raise ValueError if user has not made that react or react does not exist.
     def remove_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
-        if react == None:
-            raise ValueError("React with react_id has not been made!")
+        if react is None:
+            raise ValueError(description="React with react_id has not been made!")
         if user not in react['users']:
-            raise ValueError("User has not made that react!")
+            raise ValueError(description="User has not made that react!")
         react['users'].remove(user)
     def pin(self):
         self.pinned = True
@@ -304,7 +352,10 @@ class Message:
 def db_create_message(user, channel, text, time_created):
     db = get_data()
 
-    message_id = db['messages'][-1].get_message_id() + 1
+    if db['messages'] == []:
+        message_id = 1
+    else:
+        message_id = db['messages'][-1].get_message_id() + 1
 
     message = Message(message_id, user, channel, text, time_created)
     channel.add_message(message)
