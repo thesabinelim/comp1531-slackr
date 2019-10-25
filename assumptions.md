@@ -18,6 +18,9 @@ auth_register:
     - Names cannot contain only punctuation.
     - Returned u_ids cannot be negative.
 
+channel_messages:
+    - If the number of messages in a channel is zero, an empty list should be returned instead of throwing a ValueError constantly.
+    
 channel_details:
     - The list of members returned is sorted in order of id.
 
