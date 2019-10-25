@@ -11,7 +11,9 @@ from .db import (
     db_create_reset_request, db_get_reset_request_by_reset_code
 )
 from .utils import is_valid_email, random_string
-from .error import  ValueError, AccessError, InvalidTokenError, CounterfeitTokenError
+from .error import (
+    ValueError, AccessError, InvalidTokenError, CounterfeitTokenError
+)
 
 ################
 # JWT encoding #

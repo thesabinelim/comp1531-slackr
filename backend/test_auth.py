@@ -10,7 +10,7 @@ from .auth import (
     auth_passwordreset_reset
 )
 from .user import user_profile
-from .error import InvalidTokenError
+from .error import ValueError, InvalidTokenError
 
 #######################
 # auth_register Tests #
@@ -250,9 +250,6 @@ def test_auth_logout_invalidated_token():
 ####################################
 # auth_passwordreset_request Tests #
 ####################################
-
-# These tests will need to be written after auth_passwordreset_request gets
-# actually implemented as right now it doesn't generate a reset token
 
 def test_passwordreset_request_simple():
     # SETUP BEGIN
