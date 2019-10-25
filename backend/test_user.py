@@ -189,6 +189,17 @@ def test_user_profile_sethandle_long_str():
     with pytest.raises(ValueError):
         user_profile_sethandle(reg_dict1['token'], "xXCool handleXx but too cool and long")
 
+def test_user_profile_sethandle_taken():
+    # SETUP BEGIN
+    reset_data()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    # SETUP END
+    user_dict = user_profile(reg_dict2['token'],  reg_dict2['u_id'])
+    assert user_dict['handle_str'] == "sabinelim"
+    with pytest.raises(ValueError):
+        user_profile_sethandle(reg_dict1['token'], "sabinelim")
+        
 def test_user_profiles_uploadphoto_valid():
     # SETUP BEGIN
     reset_data()
