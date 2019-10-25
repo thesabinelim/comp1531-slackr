@@ -38,7 +38,7 @@ def user_profile_setname(token, name_first, name_last):
         raise ValueError(description="Last name not between 1 and 50 characters")
 
     user.set_first_name(name_first)
-    user.set_first_name(name_last)
+    user.set_last_name(name_last)
 
     return {}
 
