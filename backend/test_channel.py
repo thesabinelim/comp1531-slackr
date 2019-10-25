@@ -181,6 +181,9 @@ def test_channel_reinvite():
     # Sabine reinvites Test to PCSoc
     assert channel_invite(reg_dict2['token'], create_dict2['channel_id'], \
         reg_dict1['u_id']) == {}
+    # Test is in PCSoc, and gets invited again, should not throw an error
+    assert channel_invite(reg_dict2['token'], create_dict2['channel_id'], \
+    reg_dict1['u_id']) == {}
     assert channels_list(reg_dict1['token']) == {
         'channels': [
             {'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'},
@@ -518,16 +521,30 @@ def test_channel_leave_lastuser():
     # SETUP BEGIN
     reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    # SETUP END
+    # Owner Test tries to leave but they aren't the last member
+    with pytest.raises(ValueError):
+        channel_leave(reg_dict1['token'], create_dict1['channel_id'])
+    
+    # Sabine leaves
+    channel_leave(reg_dict2['token'], create_dict1['channel_id'])
+
+    # Owner Test can now leave as they are the last owner and last member
+    channel_leave(reg_dict1['token'], create_dict1['channel_id'])
+    assert channels_list(reg_dict1['token']) == {'channels': []}
+    assert channels_list(reg_dict2['token']) == {'channels': []}
+
+def test_channel_leave_owner():
+    # SETUP BEGIN
+    reset_data()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
     # SETUP END
-
-    assert channel_leave(reg_dict1['token'], create_dict1['channel_id']) == {}
-    assert channels_list(reg_dict1['token']) == {'channels': []}
-
-# Will implement this test after interface is clarified (see assumptions.md)
-def test_channel_leave_owner():
-    pass
 
 def test_channel_leave_lastchannel():
     # SETUP BEGIN
@@ -694,7 +711,7 @@ def test_channel_join_private():
 
     # Gabe attempts to join PCSoc, but can't because it's private
     with pytest.raises(AccessError):
-        channel_join(reg_dict3['token'], create_dict1['channel_id']) == {}
+        channel_join(reg_dict3['token'], create_dict1['channel_id'])
     assert channels_list(reg_dict3['token']) == {
         'channels': []
     }
@@ -856,7 +873,6 @@ def test_channel_addowner_slackrowner_promoteother_notchannelowner():
         'name_last': 'Newell'
     } in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
-# Will need to write this test after interface is clarified
 def test_channel_addowner_target_notinchannel():
     # SETUP BEGIN
     reset_data()
@@ -1056,9 +1072,19 @@ def test_channel_removeowner_slackrowner_demoteother_notchannelowner():
         'name_last': 'Newell'
     } not in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
-# Will need to write this test after interface is clarified
 def test_channel_removeowner_target_notinchannel():
-    pass
+    # SETUP BEGIN
+    reset_data()
+    reg_dict0 = auth_register('slackr@example.com', 'validpassword', 'Owner', 'User')
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END 
+
+    # Test attempts to remove Sabine as owner of 1531 autotest
+    with pytest.raises(ValueError):
+        channel_removeowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict2['u_id'])
 
 def test_channel_removeowner_user_notinchannel():
     # SETUP BEGIN

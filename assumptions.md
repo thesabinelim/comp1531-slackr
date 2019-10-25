@@ -26,6 +26,7 @@ channel_details:
 
 channel_leave:
     - An owner leaving removes them from the channel's owner list.
+    - If an owner is the last owner (not inherited owner like with slackr admin/owner) of a channel, then they can't leave unless they are the only member left.
 
 channel_join:
     - Owner of slackr is not automatically owner of channels joined.

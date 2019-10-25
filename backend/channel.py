@@ -144,7 +144,11 @@ def channel_leave(token, channel_id):
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:
         raise ValueError(description="Channel with channel_id does not exist!")
-
+    
+    # Last owner can't leave unless they are also last member
+    if len(channel.get_true_owners()) == 1 and channel.has_true_owner(user) \
+        and len(channel.get_members()) > 1:
+        raise ValueError(description="Last owner cannot leave a channel with members still in it!")
     channel.remove_owner(user)
     channel.remove_member(user)
     user.leave_channel(channel)
