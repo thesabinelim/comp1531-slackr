@@ -254,31 +254,31 @@ def test_auth_logout_invalidated_token():
 ####################################
 
 reset_email_title = 'Your password reset code'
-reset_email_body_re = r'Your reset code is [a-z0-9]{6} and will expire in 5 minutes.'
+reset_email_body_re = re.compile(r'Your reset code is [a-z0-9]{6} and will expire in 5 minutes.')
 
 def test_passwordreset_request_simple():
     # SETUP BEGIN
     reset_data()
 
-    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
     request_dict1 = auth_passwordreset_request('user@example.com')
     assert request_dict1['recipients'] == ['user@example.com']
     assert request_dict1['title'] == reset_email_title
-    assert re.fullmatch(reset_email_body_re, request_dict1['body']) is not None
+    assert reset_email_body_re.fullmatch(request_dict1['body']) is not None
 
     request_dict2 = auth_passwordreset_request('sabine.lim@unsw.edu.au')
     assert request_dict2['recipients'] == ['sabine.lim@unsw.edu.au']
     assert request_dict2['title'] == reset_email_title
-    assert re.fullmatch(reset_email_body_re, request_dict2['body']) is not None
+    assert reset_email_body_re.fullmatch(request_dict2['body']) is not None
 
     request_dict3 = auth_passwordreset_request('gamer@twitch.tv')
     assert request_dict3['recipients'] == ['gamer@twitch.tv']
     assert request_dict3['title'] == reset_email_title
-    assert re.fullmatch(reset_email_body_re, request_dict3['body']) is not None
+    assert reset_email_body_re.fullmatch(request_dict3['body']) is not None
 
 def test_passwordreset_request_no_match():
     # SETUP BEGIN
