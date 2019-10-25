@@ -139,7 +139,7 @@ def channel_messages(token, channel_id, start):
         message.append(message_dict)
         counter += 1
     end = counter - 1
-    if end + offset >= len(all_messages):
+    if end + offset >= len(all_messages) - 1:
         end = -1
 
     return {'messages': messages, 'start': start, 'end': end}
