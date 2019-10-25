@@ -30,6 +30,7 @@ def channel_invite(token, channel_id, receiver_id):
     if not sender.in_channel(channel):
         raise AccessError(description="Invite sender is not member of channel!")
 
+    channel.add_member(receiver)
     receiver.join_channel(channel)
 
     return {}
