@@ -4,6 +4,8 @@
 
 import pytest
 import re
+import time
+import jwt
 
 from .db import reset_data
 from .auth import (
@@ -12,7 +14,34 @@ from .auth import (
 )
 from .user import user_profile
 from .utils import random_string
-from .error import ValueError, InvalidTokenError
+from .error import ValueError, InvalidTokenError, CounterfeitTokenError
+
+###########################
+# Counterfeit Token Tests #
+###########################
+
+# Return a new token given u_id.
+def generate_counterfeit_token(u_id):
+    counterfeit_secret = 'counterfeit'
+    token_bytes = jwt.encode(
+        {
+            'u_id': u_id,
+            'timestamp': time.time()
+        }, counterfeit_secret, algorithm='HS256'
+    )
+    token = token_bytes.decode('utf-8')
+    return token
+
+def test_counterfeit_token():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    # SETUP END
+
+    counterfeit_token1 = generate_counterfeit_token(reg_dict1['u_id'])
+    with pytest.raises(CounterfeitTokenError):
+        user_profile(counterfeit_token1, reg_dict1['u_id'])
 
 #######################
 # auth_register Tests #
