@@ -422,12 +422,12 @@ def test_channel_messages_paginated():
     messages1 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
     assert messages1
     assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
-    assert messages1['start'] == 0 and messages1['end'] == 49
+    assert messages1['start'] == 0 and messages1['end'] == 50
 
     messages2 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 50)
     assert messages1
     assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
-    assert messages1['start'] == 50 and messages1['end'] == -1
+    assert messages2['start'] == 50 and messages2['end'] == -1
 
 def test_channel_messages_notinchannel():
     # SETUP BEGIN
@@ -436,8 +436,6 @@ def test_channel_messages_notinchannel():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-
-    channel_join(reg_dict2['token'], create_dict1['channel_id'])
     # SETUP END
 
     # Sabine attempts to read messages from the empty 1531 autotest channel
@@ -476,10 +474,8 @@ def test_channel_messages_bad_startno():
 
     channel_join(reg_dict2['token'], create_dict1['channel_id'])
     # SETUP END
-
     with pytest.raises(ValueError):
-        channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
-
+        channel_messages(reg_dict1['token'], create_dict1['channel_id'], 1)
     for x in range(35):
         message_send(reg_dict1['token'], create_dict1['channel_id'], 'Hey there')
         message_send(reg_dict2['token'], create_dict1['channel_id'], 'Whats up')
@@ -509,13 +505,13 @@ def test_channel_leave_simple():
     # Sabine leaves 1531 autotest
     assert channel_leave(reg_dict2['token'], create_dict1['channel_id']) == {}
     assert channels_list(reg_dict2['token']) == {
-        'channels': [{3054207, 'PCSoc'}]
+        'channels': [{'channel_id': create_dict2['channel_id'], 'name': 'PCSoc'}]
     }
 
     # Gabe leaves 1531 autotest
     assert channel_leave(reg_dict3['token'], create_dict1['channel_id']) == {}
     assert channels_list(reg_dict3['token']) == {
-        'channels': [{9703358, 'Steam'}]
+        'channels': [{'channel_id': create_dict3['channel_id'], 'name': 'Steam'}]
     }
 
 def test_channel_leave_lastuser():
@@ -569,9 +565,8 @@ def test_channel_leave_notinchannel():
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
     # SETUP END
-
-    with pytest.raises(ValueError):
-        channel_leave(reg_dict2['token'], create_dict1['channel_id'])
+    # No value error in spec
+    channel_leave(reg_dict2['token'], create_dict1['channel_id'])
 
 def test_channel_leave_bad_channelid():
     # SETUP BEGIN
@@ -614,30 +609,30 @@ def test_channel_join_simple():
 
     # Check that Test's channel list was unmodified
     assert channels_list(reg_dict1['token']) == {
-        'channels': [{7654321, '1531 autotest'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'}]
     }
 
     # Check Sabine's channel list
     assert channels_list(reg_dict2['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': create_dict2['channel_id'], 'name': 'PCSoc'},
+            {'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'},
+            {'channel_id': create_dict3['channel_id'], 'name': 'Steam'}
         ]
     }
 
     # Check Gabe's channel list
     assert channels_list(reg_dict3['token']) == {
         'channels': [
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': create_dict3['channel_id'], 'name': 'Steam'},
+            {'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'}
         ]
     }
 
     # Check Qrst's channel list
     assert channels_list(reg_dict4['token']) == {
         'channels': [
-            {7654321, '1531 autotest'}
+            {'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'}
         ]
     }
 
@@ -646,17 +641,17 @@ def test_channel_join_no_autoowner():
     reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-
-    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', True)
     # SETUP END
 
-    # Test joins PCSoc, check that Test not automatically owner of PCSoc
-    assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
+    # Gabe joins PCSoc, check that Gabe not automatically owner of PCSoc
+    assert channel_join(reg_dict3['token'], create_dict1['channel_id']) == {}
     assert {
-        'u_id': reg_dict1['u_id'],
-        'name_first': 'Test',
-        'name_last': 'User'
-    } not in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
+        'u_id': reg_dict3['u_id'],
+        'name_first': 'Gabe',
+        'name_last': 'Newell'
+    } not in channel_details(reg_dict3['token'], create_dict1['channel_id'])['owner_members']
 
 def test_channel_join_bad_channelid():
     # SETUP BEGIN
@@ -687,19 +682,26 @@ def test_channel_join_private():
     reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', False)
     # SETUP END
 
-    # Test attempts to join PCSoc
+    # Test attempts to join PCSoc, successful because slackr owner
     assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
     assert channels_list(reg_dict1['token']) == {
-        'channels': [{3054207, 'PCSoc'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
+    }
+
+    # Gabe attempts to join PCSoc, but can't because it's private
+    with pytest.raises(AccessError):
+        channel_join(reg_dict3['token'], create_dict1['channel_id']) == {}
+    assert channels_list(reg_dict3['token']) == {
+        'channels': []
     }
 
     # Check that Sabine's channel list was unmodified
     assert channels_list(reg_dict2['token']) == {
-        'channels': [{3054207, 'PCSoc'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
     }
 
 def test_channel_rejoin():
@@ -714,26 +716,29 @@ def test_channel_rejoin():
     # Test joins PCSoc
     assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
     assert channels_list(reg_dict1['token']) == {
-        'channels': [{7654321, '1531 autotest'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
     }
 
     # Test leaves PCSoc
     channel_leave(reg_dict1['token'], create_dict1['channel_id'])
-
+    assert channels_list(reg_dict1['token']) == {
+        'channels': []
+    }
     # Test rejoins PCSoc
     assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
     assert channels_list(reg_dict1['token']) == {
-        'channels': [{7654321, '1531 autotest'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
     }
 
     # Check that Sabine's channel list was unmodified
     assert channels_list(reg_dict2['token']) == {
-        'channels': [{3054207, 'PCSoc'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
     }
 
 def test_channel_rejoin_private():
     # SETUP BEGIN
     reset_data()
+    # Test is an admin, so can join private channels
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -743,7 +748,7 @@ def test_channel_rejoin_private():
     # Test joins PCSoc
     assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
     assert channels_list(reg_dict1['token']) == {
-        'channels': [{7654321, '1531 autotest'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
     }
 
     # Test leaves PCSoc
@@ -752,12 +757,12 @@ def test_channel_rejoin_private():
     # Test rejoins PCSoc
     assert channel_join(reg_dict1['token'], create_dict1['channel_id']) == {}
     assert channels_list(reg_dict1['token']) == {
-        'channels': [{7654321, '1531 autotest'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
     }
 
     # Check that Sabine's channel list was unmodified
     assert channels_list(reg_dict2['token']) == {
-        'channels': [{3054207, 'PCSoc'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
     }
 
 ##########################
@@ -853,9 +858,6 @@ def test_channel_addowner_slackrowner_promoteother_notchannelowner():
 
 # Will need to write this test after interface is clarified
 def test_channel_addowner_target_notinchannel():
-    pass
-
-def test_channel_addowner_user_notinchannel():
     # SETUP BEGIN
     reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
@@ -863,7 +865,43 @@ def test_channel_addowner_user_notinchannel():
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', True)
+    # SETUP END
+
+    # Sabine attempts to add Gabe as owner of PCSoc
+    channel_addowner(reg_dict2['token'], create_dict2['channel_id'], reg_dict3['u_id'])
+    assert {
+        'u_id': reg_dict3['u_id'],
+        'name_first': 'Gabe',
+        'name_last': 'Newell'
+    } in channel_details(reg_dict3['token'], create_dict2['channel_id'])['owner_members']
+    assert {
+        'u_id': reg_dict3['u_id'],
+        'name_first': 'Gabe',
+        'name_last': 'Newell'
+    } in channel_details(reg_dict3['token'], create_dict2['channel_id'])['all_members']
+    # Test attempts to add Gabe as owner of 1531 autotest
+    channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict3['u_id'])
+    assert {
+        'u_id': reg_dict3['u_id'],
+        'name_first': 'Gabe',
+        'name_last': 'Newell'
+    } in channel_details(reg_dict3['token'], create_dict1['channel_id'])['owner_members']
+    assert {
+        'u_id': reg_dict3['u_id'],
+        'name_first': 'Gabe',
+        'name_last': 'Newell'
+    } in channel_details(reg_dict3['token'], create_dict1['channel_id'])['all_members']
+
+def test_channel_addowner_user_notinchannel():
+    # SETUP BEGIN
+    reset_data()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    reg_dict4 = auth_register('gamer2@twitch.tv', 'gamers_rise_up', 'john', 'doe')
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', True)
 
     channel_join(reg_dict3['token'], create_dict2['channel_id'])
 
@@ -872,17 +910,17 @@ def test_channel_addowner_user_notinchannel():
     channel_join(reg_dict1['token'], create_dict2['channel_id'])
     # SETUP END
 
-    # Test attempts to add Gabe as owner of PCSoc
-    with pytest.raises(AccessError):
-        channel_addowner(reg_dict1['token'], create_dict2['channel_id'], reg_dict3['u_id'])
+    # Test attempts to add Gabe as owner of PCSoc, but isn't in channel
+    # Works because owner of slack
+    channel_addowner(reg_dict1['token'], create_dict2['channel_id'], reg_dict3['u_id'])
 
     # Sabine attempts to add Gabe as owner of 1531 autotest
     with pytest.raises(AccessError):
         channel_addowner(reg_dict2['token'], create_dict1['channel_id'], reg_dict3['u_id'])
 
-    # Gabe attempts to add Test as owner of PCSoc
+    # Gabe attempts to add john as owner of 1531 autotest
     with pytest.raises(AccessError):
-        channel_addowner(reg_dict3['token'], create_dict2['channel_id'], reg_dict1['u_id'])
+        channel_addowner(reg_dict3['token'], create_dict1['channel_id'], reg_dict4['u_id'])
 
 def test_channel_addowner_bad_channelid():
     # SETUP BEGIN
@@ -935,7 +973,7 @@ def test_channel_addowner_noperms():
     channel_join(reg_dict2['token'], create_dict1['channel_id'])
 
     # Sabine attempts to add Gabe as owner of 1531 autotest
-    with pytest.raises(ValueError):
+    with pytest.raises(AccessError):
         channel_addowner(reg_dict2['token'], create_dict1['channel_id'], reg_dict3['u_id'])
 
 #############################
@@ -945,6 +983,7 @@ def test_channel_addowner_noperms():
 def test_channel_removeowner_simple():
     # SETUP BEGIN
     reset_data()
+    reg_dict0 = auth_register('slackr@example.com', 'validpassword', 'Owner', 'User')
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -981,16 +1020,16 @@ def test_channel_removeowner_simple():
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
         'name_last': 'Lim'
-    } not in channel_details(reg_dict1['token'], create_dict2['channel_id'])['owner_members']
+    } not in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
-    # Gabe removes Sabine as owner of 1531 autotest
+    # Gabe removes Sabine as owner of Steam
     assert channel_removeowner(reg_dict3['token'], create_dict3['channel_id'], \
         reg_dict2['u_id']) == {}
     assert {
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
         'name_last': 'Lim'
-    } not in channel_details(reg_dict1['token'], create_dict2['channel_id'])['owner_members']
+    } not in channel_details(reg_dict3['token'], create_dict3['channel_id'])['owner_members']
 
 def test_channel_removeowner_slackrowner_demoteother_notchannelowner():
     # SETUP BEGIN
@@ -1024,6 +1063,7 @@ def test_channel_removeowner_target_notinchannel():
 def test_channel_removeowner_user_notinchannel():
     # SETUP BEGIN
     reset_data()
+    reg_dict0 = auth_register('slackr@example.com', 'validpassword', 'Owner', 'User')
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -1031,18 +1071,15 @@ def test_channel_removeowner_user_notinchannel():
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
     create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
 
-    channel_join(reg_dict3['token'], create_dict2['channel_id'])
-    channel_addowner(reg_dict2['token'], create_dict2['channel_id'], reg_dict3['u_id'])
-
     channel_join(reg_dict3['token'], create_dict1['channel_id'])
     channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict3['u_id'])
 
-    channel_join(reg_dict1['token'], create_dict2['channel_id'])
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict1['u_id'])
     channel_addowner(reg_dict2['token'], create_dict2['channel_id'], reg_dict1['u_id'])
     # SETUP END
 
     # Test attempts to remove Gabe as owner of PCSoc
-    with pytest.raises(AccessError):
+    with pytest.raises(ValueError):
         channel_removeowner(reg_dict1['token'], create_dict2['channel_id'], reg_dict3['u_id'])
 
     # Sabine attempts to remove Gabe as owner of 1531 autotest
@@ -1093,16 +1130,17 @@ def test_channel_removeowner_noperms():
 
     channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    channel_addowner(reg_dict1['u_id'], create_dict1['channel_id'], reg_dict3['u_id'])
+    channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict3['u_id'])
     # SETUP END
 
     # Sabine attempts to remove Gabe as owner of 1531 autotest
     with pytest.raises(AccessError):
-        channel_addowner(reg_dict2['token'], create_dict1['channel_id'], reg_dict3['u_id'])
+        channel_removeowner(reg_dict2['token'], create_dict1['channel_id'], reg_dict3['u_id'])
 
     # Sabine joins 1531 autotest
     channel_join(reg_dict2['token'], create_dict1['channel_id'])
-
-    # Sabine attempts to remove Gabe as owner of 1531 autotest
+    channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict2['u_id'])
+    channel_removeowner(reg_dict2['token'], create_dict1['channel_id'], reg_dict3['u_id'])
+    # Sabine attempts to remove Gabe as owner of 1531 autotest, but they are already removed
     with pytest.raises(ValueError):
         channel_removeowner(reg_dict2['token'], create_dict1['channel_id'], reg_dict3['u_id'])
