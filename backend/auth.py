@@ -168,14 +168,14 @@ def auth_register(email, password, name_first, name_last):
 def auth_passwordreset_request(email):
     user = db_get_user_by_email(email)
     if user is None:
-        return
+        return {}
 
     # Set to expire in 5 minutes
     time_expires = time.time() + 5 * 60
-    reset_code = db_create_reset_request(user, time_expires)
+    reset_request = db_create_reset_request(user, time_expires)
 
     title = "Your password reset code"
-    body = f"Your reset code is {reset_code} and will expire in 5 minutes."
+    body = f"Your reset code is {reset_request.get_reset_code()} and will expire in 5 minutes."
 
     return {'recipients': [email], 'title': title, 'body': body}
 
