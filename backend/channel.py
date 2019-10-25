@@ -192,6 +192,9 @@ def channel_addowner(token, channel_id, target_id):
     if not channel.has_owner(authorised_user):
         raise AccessError(description="Authorised user is not an owner of the slack or channel")
     
+    if not channel.has_member(target_user):
+        channel.add_member(target_user)
+        target_user.join_channel(channel)
     channel.add_owner(target_user)
     
     return {}

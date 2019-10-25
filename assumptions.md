@@ -39,12 +39,10 @@ channels_list:
     - The list of channels returned is sorted in order of id.
 
 channel_addowner:
-    - Assuming that behaviour of attempting to add someone as owner of channel
-      they're not in will be clarified in iteration 2.
-    - The user being added as owner must already be in the channel.
     - slackr owners can promote themselves to owners of any channel they're in.
     - slackr owners can promote others to owners of channels said others are in,
       even if the slackr owner isn't an owner of the channel themself.
+    - If the target user wasn't in the channel, then they will be in addition to being an owner
 
 channel_removeowner:
     - Assuming that behaviour of attempting to remove someone as owner of
