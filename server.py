@@ -106,11 +106,8 @@ def req_auth_register():
 def req_auth_passwordreset_request():
     email = request.form.get('email')
     content = auth_passwordreset_request(email)
-    send_mail(
-        content['recipients'],
-        content['title'],
-        content['body']
-    )
+    if content != {}:
+        send_mail(content['recipients'], content['title'], content['body'])
     return dumps({})
 
 @APP.route('/auth/passwordreset/reset', methods=['POST'])

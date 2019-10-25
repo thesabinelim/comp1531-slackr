@@ -3,6 +3,9 @@
 # 29/09/19
 
 import pytest
+import re
+import time
+import jwt
 
 from .db import reset_data
 from .auth import (
@@ -10,7 +13,35 @@ from .auth import (
     auth_passwordreset_reset
 )
 from .user import user_profile
-from .error import InvalidTokenError
+from .utils import random_string
+from .error import ValueError, InvalidTokenError, CounterfeitTokenError
+
+###########################
+# Counterfeit Token Tests #
+###########################
+
+# Return a new token given u_id.
+def generate_counterfeit_token(u_id):
+    counterfeit_secret = 'counterfeit'
+    token_bytes = jwt.encode(
+        {
+            'u_id': u_id,
+            'timestamp': time.time()
+        }, counterfeit_secret, algorithm='HS256'
+    )
+    token = token_bytes.decode('utf-8')
+    return token
+
+def test_counterfeit_token():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    # SETUP END
+
+    counterfeit_token1 = generate_counterfeit_token(reg_dict1['u_id'])
+    with pytest.raises(CounterfeitTokenError):
+        user_profile(counterfeit_token1, reg_dict1['u_id'])
 
 #######################
 # auth_register Tests #
@@ -251,21 +282,39 @@ def test_auth_logout_invalidated_token():
 # auth_passwordreset_request Tests #
 ####################################
 
-# These tests will need to be written after auth_passwordreset_request gets
-# actually implemented as right now it doesn't generate a reset token
+reset_email_title = 'Your password reset code'
+reset_email_body_re = re.compile(r'Your reset code is [a-z0-9]{6} and will expire in 5 minutes.')
 
 def test_passwordreset_request_simple():
     # SETUP BEGIN
     reset_data()
 
-    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    # SETUP END
+
+    request_dict1 = auth_passwordreset_request('user@example.com')
+    assert request_dict1['recipients'] == ['user@example.com']
+    assert request_dict1['title'] == reset_email_title
+    assert reset_email_body_re.fullmatch(request_dict1['body']) is not None
+
+    request_dict2 = auth_passwordreset_request('sabine.lim@unsw.edu.au')
+    assert request_dict2['recipients'] == ['sabine.lim@unsw.edu.au']
+    assert request_dict2['title'] == reset_email_title
+    assert reset_email_body_re.fullmatch(request_dict2['body']) is not None
+
+    request_dict3 = auth_passwordreset_request('gamer@twitch.tv')
+    assert request_dict3['recipients'] == ['gamer@twitch.tv']
+    assert request_dict3['title'] == reset_email_title
+    assert reset_email_body_re.fullmatch(request_dict3['body']) is not None
+
+def test_passwordreset_request_no_match():
+    # SETUP BEGIN
+    reset_data()
     # SETUP END
 
     assert auth_passwordreset_request('user@example.com') == {}
-    assert auth_passwordreset_request('sabine.lim@unsw.edu.au') == {}
-    assert auth_passwordreset_request('gamer@twitch.tv') == {}
 
 ##################################
 # auth_passwordreset_reset Tests #
@@ -281,24 +330,80 @@ def test_passwordreset_reset_simple():
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+
+    request_dict1 = auth_passwordreset_request('user@example.com')
+    reset_code1 = request_dict1['body'][19:25]
+
+    request_dict2 = auth_passwordreset_request('sabine.lim@unsw.edu.au')
+    reset_code2 = request_dict2['body'][19:25]
+
+    request_dict3 = auth_passwordreset_request('gamer@twitch.tv')
+    reset_code3 = request_dict3['body'][19:25]
     # SETUP END
 
-    assert auth_passwordreset_reset('abcdef', 'alsovalidpwd') == {}
-    assert auth_passwordreset_reset('cfa027', 'kindaAwesomeIGuess') == {}
-    assert auth_passwordreset_reset('bb809m', 'or_sitThat5fineT00') == {}
+    # Reset passwords
+    assert auth_passwordreset_reset(reset_code1, 'alsovalidpwd') == {}
+    assert auth_passwordreset_reset(reset_code2, 'kindaAwesomeIGuess') == {}
+    assert auth_passwordreset_reset(reset_code3, 'or_sitThat5fineT00') == {}
 
-def test_passwordreset_reset_badpwd():
+    # Check that old passwords are no longer valid
+    with pytest.raises(ValueError):
+        auth_login('user@example.com', 'validpassword')
+    with pytest.raises(ValueError):
+        auth_login('sabine.lim@unsw.edu.au', 'ImSoAwes0me')
+    with pytest.raises(ValueError):
+        auth_login('gamer@twitch.tv', 'gamers_rise_up')
+
+    # Attempt login with new passwords
+    auth_login('user@example.com', 'alsovalidpwd')
+    auth_login('sabine.lim@unsw.edu.au', 'kindaAwesomeIGuess')
+    auth_login('gamer@twitch.tv', 'or_sitThat5fineT00')
+
+def test_passwordreset_reset_invalid_code():
     # SETUP BEGIN
     reset_data()
 
-    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    request_dict1 = auth_passwordreset_request('user@example.com')
+    reset_code1 = request_dict1['body'][19:25]
+    fake_code1 = random_string(6)
+    while fake_code1 == reset_code1:
+        fake_code1 = random_string(6)
     # SETUP END
 
     with pytest.raises(ValueError):
-        auth_passwordreset_reset('abcdef', 'pwd')
+        auth_passwordreset_reset(fake_code1, 'alsovalidpwd')
+
+    # Check that invalid reset code attempt didn't invalidate reset_code1
+    assert auth_passwordreset_reset(reset_code1, 'alsovalidpwd') == {}
+
+def test_passwordreset_reset_invalid_password():
+    # SETUP BEGIN
+    reset_data()
+
+    auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+
+    request_dict1 = auth_passwordreset_request('user@example.com')
+    reset_code1 = request_dict1['body'][19:25]
+
+    request_dict2 = auth_passwordreset_request('sabine.lim@unsw.edu.au')
+    reset_code2 = request_dict2['body'][19:25]
+
+    request_dict3 = auth_passwordreset_request('gamer@twitch.tv')
+    reset_code3 = request_dict3['body'][19:25]
+    # SETUP END
+
     with pytest.raises(ValueError):
-        auth_passwordreset_reset('cfa027', 'pwd')
+        auth_passwordreset_reset(reset_code1, 'pwd')
     with pytest.raises(ValueError):
-        auth_passwordreset_reset('bb809m', 'pwd')
+        auth_passwordreset_reset(reset_code2, 'pwd')
+    with pytest.raises(ValueError):
+        auth_passwordreset_reset(reset_code3, 'pwd')
+
+    # Check that invalid password attempts didn't invalidate reset codes
+    assert auth_passwordreset_reset(reset_code1, 'alsovalidpwd') == {}
+    assert auth_passwordreset_reset(reset_code2, 'kindaAwesomeIGuess') == {}
+    assert auth_passwordreset_reset(reset_code3, 'or_sitThat5fineT00') == {}
