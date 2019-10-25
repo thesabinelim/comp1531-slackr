@@ -25,7 +25,7 @@ def test_user_profile_negative_id():
     reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     # SETUP END
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         user_profile(reg_dict1['token'], -1)
 
 def test_user_profile_invalid_id():
@@ -33,7 +33,7 @@ def test_user_profile_invalid_id():
     reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     # SETUP END
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         user_profile(reg_dict1['token'], "avocado")
 
 def test_user_profile_data():
@@ -199,7 +199,7 @@ def test_user_profile_sethandle_taken():
     assert user_dict['handle_str'] == "sabinelim"
     with pytest.raises(ValueError):
         user_profile_sethandle(reg_dict1['token'], "sabinelim")
-        
+
 def test_user_profiles_uploadphoto_valid():
     # SETUP BEGIN
     reset_data()
