@@ -387,6 +387,13 @@ def test_channel_messages_lesserthan50():
     assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
     assert messages1['start'] == 0 and messages1['end'] == -1
 
+    # Have to check from back to front as messages are stored with most recent first
+    for x in range(15, 0):
+        assert messages1['messages'][2*x]['u_id'] == reg_dict1['u_id']
+        assert messages1['messages'][2*x]['message'] == 'Hey there'
+        assert messages1['messages'][2*x+1]['u_id'] == reg_dict2['u_id']
+        assert messages1['messages'][2*x+1]['message'] == 'Whats up'
+
 def test_channel_messages_exactly50():
     # SETUP BEGIN
     reset_data()
@@ -406,6 +413,12 @@ def test_channel_messages_exactly50():
     assert messages1
     assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
     assert messages1['start'] == 0 and messages1['end'] == -1
+    # Have to check from back to front as messages are stored with most recent first
+    for x in range(25, 0):
+        assert messages1['messages'][2*x]['u_id'] == reg_dict1['u_id']
+        assert messages1['messages'][2*x]['message'] == 'Hey there'
+        assert messages1['messages'][2*x+1]['u_id'] == reg_dict2['u_id']
+        assert messages1['messages'][2*x+1]['message'] == 'Whats up'
 
 def test_channel_messages_paginated():
     # SETUP BEGIN
@@ -426,11 +439,23 @@ def test_channel_messages_paginated():
     assert messages1
     assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
     assert messages1['start'] == 0 and messages1['end'] == 50
+    # Have to check from back to front as messages are stored with most recent first
+    for x in range(25, 0):
+        assert messages1['messages'][2*x]['u_id'] == reg_dict1['u_id']
+        assert messages1['messages'][2*x]['message'] == 'Hey there'
+        assert messages1['messages'][2*x+1]['u_id'] == reg_dict2['u_id']
+        assert messages1['messages'][2*x+1]['message'] == 'Whats up'
 
     messages2 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 50)
     assert messages1
     assert 'messages' in messages1 and 'start' in messages1 and 'end' in messages1
     assert messages2['start'] == 50 and messages2['end'] == -1
+    # Have to check from back to front as messages are stored with most recent first
+    for x in range(35, 25):
+        assert messages2['messages'][2*x]['u_id'] == reg_dict1['u_id']
+        assert messages2['messages'][2*x]['message'] == 'Hey there'
+        assert messages2['messages'][2*x+1]['u_id'] == reg_dict2['u_id']
+        assert messages2['messages'][2*x+1]['message'] == 'Whats up'
 
 def test_channel_messages_notinchannel():
     # SETUP BEGIN
