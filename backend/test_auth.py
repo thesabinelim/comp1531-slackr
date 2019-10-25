@@ -10,6 +10,7 @@ from .auth import (
     auth_passwordreset_reset
 )
 from .user import user_profile
+from .error import InvalidTokenError
 
 #######################
 # auth_register Tests #
@@ -39,6 +40,11 @@ def test_auth_register_simple():
     # Check that registration attempts returned different values
     assert reg_dict1['u_id'] != reg_dict2['u_id'] != reg_dict3['u_id']
     assert reg_dict1['token'] != reg_dict2['token'] != reg_dict3['token']
+
+    # Check that authorisation attempts succeed
+    user_profile(reg_dict1['token'], reg_dict1['u_id'])
+    user_profile(reg_dict2['token'], reg_dict2['u_id'])
+    user_profile(reg_dict3['token'], reg_dict3['u_id'])
 
 def test_auth_register_handle_concat_simple():
     # SETUP BEGIN
@@ -169,6 +175,11 @@ def test_auth_login_simple():
     assert 'u_id' in login_dict3 and 'token' in login_dict3
     assert login_dict3['u_id'] == reg_dict3['u_id']
 
+    # Check that authorisation attempts succeed
+    user_profile(login_dict1['token'], login_dict1['u_id'])
+    user_profile(login_dict2['token'], login_dict2['u_id'])
+    user_profile(login_dict3['token'], login_dict3['u_id'])
+
 def test_auth_login_invalid_email():
     # SETUP BEGIN
     reset_data()
@@ -214,16 +225,27 @@ def test_auth_logout_simple():
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
-    assert auth_logout(reg_dict1['token']) == {}
-    assert auth_logout(reg_dict2['token']) == {}
-    assert auth_logout(reg_dict3['token']) == {}
+    assert auth_logout(reg_dict1['token']) == {'is_success': True}
+    assert auth_logout(reg_dict2['token']) == {'is_success': True}
+    assert auth_logout(reg_dict3['token']) == {'is_success': True}
 
-def test_auth_logout_badtoken():
+    # Check that future authorisation attempts fail
+    with pytest.raises(InvalidTokenError):
+        user_profile(reg_dict1['token'], reg_dict1['u_id'])
+    with pytest.raises(InvalidTokenError):
+        user_profile(reg_dict2['token'], reg_dict2['u_id'])
+    with pytest.raises(InvalidTokenError):
+        user_profile(reg_dict3['token'], reg_dict3['u_id'])
+
+def test_auth_logout_invalidated_token():
     # SETUP BEGIN
     reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     # SETUP END
 
-    assert auth_logout('badtoken') == {}
+    assert auth_logout(reg_dict1['token']) == {'is_success': True}
+    assert auth_logout(reg_dict1['token']) == {'is_success': False}
 
 ####################################
 # auth_passwordreset_request Tests #
