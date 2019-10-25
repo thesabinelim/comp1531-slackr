@@ -4,10 +4,21 @@
 
 import pytest
 
-from auth import *
-from channels import *
-from channel import *
-from error import *
+from .auth import (
+    auth_register
+)
+from .channels import (
+    channels_create, channels_list
+)
+from .channel import (
+    channel_addowner, channel_details, channel_invite, channel_join,
+    channel_leave, channel_messages, channel_removeowner
+)
+from .message import (
+    message_send
+)
+from .error import ValueError, AccessError
+from .db import reset_data
 
 ########################
 # channel_invite Tests #
@@ -15,6 +26,7 @@ from error import *
 
 def test_channel_invite_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -29,8 +41,8 @@ def test_channel_invite_simple():
         reg_dict1['u_id']) == {}
     assert channels_list(reg_dict1['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'}
+            {'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'},
+            {'channel_id': create_dict2['channel_id'], 'name': 'PCSoc'}
         ]
     }
 
@@ -39,39 +51,23 @@ def test_channel_invite_simple():
         reg_dict1['u_id']) == {}
     assert channels_list(reg_dict1['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'},
+            {'channel_id': create_dict2['channel_id'], 'name': 'PCSoc'},
+            {'channel_id': create_dict3['channel_id'], 'name': 'Steam'}
         ]
     }
 
     # Check that Sabine and Gabe's channel lists were unmodified
     assert channels_list(reg_dict2['token']) == {
-        'channels': [{3054207, 'PCSoc'}]
+        'channels': [{'channel_id': create_dict2['channel_id'], 'name': 'PCSoc'}]
     }
     assert channels_list(reg_dict3['token']) == {
-        {9703358, 'Steam'}
+        'channels': [{'channel_id': create_dict3['channel_id'], 'name': 'Steam'}]
     }
-
-def test_channel_join_no_autoowner():
-    # SETUP BEGIN
-    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-
-    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', False)
-    # SETUP END
-
-    # Sabine invites Test to PCSoc, check that Test not automatically owner of PCSoc
-    assert channel_invite(reg_dict2['token'], create_dict1['channel_id'], \
-        reg_dict1['u_id']) == {}
-    assert {
-        'u_id': reg_dict1['u_id'],
-        'name_first': 'Test',
-        'name_last': 'User'
-    } not in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
-
 def test_channel_invite_private():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -82,11 +78,13 @@ def test_channel_invite_private():
     assert channel_invite(reg_dict2['token'], create_dict1['channel_id'], \
         reg_dict1['u_id']) == {}
     assert channels_list(reg_dict1['token']) == {
-        'channels': [{3054207, 'PCSoc'}]
+        'channels': [{'channel_id': create_dict1['channel_id'], 'name': 'PCSoc'}]
     }
 
 def test_channel_invite_bad_channelid():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -99,6 +97,7 @@ def test_channel_invite_bad_channelid():
 
 def test_channel_invite_bad_uid():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -114,6 +113,7 @@ def test_channel_invite_bad_uid():
 
 def test_channel_invite_bad_ids():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -129,16 +129,18 @@ def test_channel_invite_bad_ids():
 
 def test_channel_invite_notinchannel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     create_dict1 = channels_create(reg_dict2['token'], '1531 autotest', True)
     # SETUP END
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AccessError):
         channel_invite(reg_dict1['token'], create_dict1['channel_id'], reg_dict2['u_id'])
 
 def test_channel_invite_allerrors():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     create_dict1 = channels_create(reg_dict2['token'], '1531 autotest', True)
@@ -153,6 +155,7 @@ def test_channel_invite_allerrors():
 
 def test_channel_reinvite():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -167,27 +170,27 @@ def test_channel_reinvite():
         reg_dict1['u_id']) == {}
     assert channels_list(reg_dict1['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'}
+            {'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'},
+            {'channel_id': create_dict2['channel_id'], 'name': 'PCSoc'}
         ]
     }
 
     # Test leaves PCSoc
-    channel_leave(reg_dict1['token'], createDict2['token'])
+    channel_leave(reg_dict1['token'], create_dict2['channel_id'])
 
     # Sabine reinvites Test to PCSoc
     assert channel_invite(reg_dict2['token'], create_dict2['channel_id'], \
         reg_dict1['u_id']) == {}
     assert channels_list(reg_dict1['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'}
+            {'channel_id': create_dict1['channel_id'], 'name': '1531 autotest'},
+            {'channel_id': create_dict2['channel_id'], 'name': 'PCSoc'}
         ]
     }
 
     # Check that Sabine's channel list was unmodified
     assert channels_list(reg_dict2['token']) == {
-        'channels': [{3054207, 'PCSoc'}]
+        'channels': [{'channel_id': create_dict2['channel_id'], 'name': 'PCSoc'}]
     }
 
 #########################
@@ -196,6 +199,7 @@ def test_channel_reinvite():
 
 def test_channel_details_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -235,7 +239,13 @@ def test_channel_details_simple():
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
         'name_last': 'Lim'
-    }]
+    },
+    {
+        'u_id': reg_dict1['u_id'],
+        'name_first': 'Test',
+        'name_last': 'User'
+    }
+    ]
     assert {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
@@ -251,35 +261,49 @@ def test_channel_details_simple():
         'name_first': 'Gabe',
         'name_last': 'Newell'
     } not in detail2['all_members']
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], \
+        reg_dict3['u_id']) == {}
+    detail2 = channel_details(reg_dict1['token'], create_dict2['channel_id'])
+    assert {
+        'u_id': reg_dict3['u_id'],
+        'name_first': 'Gabe',
+        'name_last': 'Newell'
+    } in detail2['all_members']
 
     # Check Steam channel details
     detail3 = channel_details(reg_dict1['token'], create_dict3['channel_id'])
     assert detail3 and 'name' in detail3 and 'owner_members' in detail3 \
         and 'all_members' in detail3
-    assert detail3['name'] == 'PCSoc'
+    assert detail3['name'] == 'Steam'
     assert detail3['owner_members'] == [{
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
         'name_last': 'Newell'
+    },
+    {
+        'u_id': reg_dict1['u_id'],
+        'name_first': 'Test',
+        'name_last': 'User'
     }]
     assert {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
         'name_last': 'User'
-    } in detail2['all_members']
+    } in detail3['all_members']
     assert {
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
         'name_last': 'Lim'
-    } not in detail2['all_members']
+    } not in detail3['all_members']
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
         'name_last': 'Newell'
-    } in detail2['all_members']
+    } in detail3['all_members']
 
 def test_channel_details_notinchannel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -296,6 +320,7 @@ def test_channel_details_notinchannel():
 
 def test_channel_details_bad_channelid():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
@@ -310,12 +335,13 @@ def test_channel_details_bad_channelid():
 
 def test_channel_messages_nomessages():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
     # SETUP END
 
-    assert channel_messages(reg_dict1['token'], ) == {
+    assert channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0) == {
         'messages': [],
         'start': 0,
         'end': -1
@@ -323,6 +349,7 @@ def test_channel_messages_nomessages():
 
 def test_channel_messages_exactly1():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
@@ -339,6 +366,7 @@ def test_channel_messages_exactly1():
 
 def test_channel_messages_lesserthan50():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -358,6 +386,7 @@ def test_channel_messages_lesserthan50():
 
 def test_channel_messages_exactly50():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -377,6 +406,7 @@ def test_channel_messages_exactly50():
 
 def test_channel_messages_paginated():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -401,6 +431,7 @@ def test_channel_messages_paginated():
 
 def test_channel_messages_notinchannel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -423,6 +454,7 @@ def test_channel_messages_notinchannel():
 
 def test_channel_messages_bad_channelid():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
@@ -436,6 +468,7 @@ def test_channel_messages_bad_channelid():
 
 def test_channel_messages_bad_startno():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -460,6 +493,7 @@ def test_channel_messages_bad_startno():
 
 def test_channel_leave_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -486,6 +520,7 @@ def test_channel_leave_simple():
 
 def test_channel_leave_lastuser():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
@@ -500,6 +535,7 @@ def test_channel_leave_owner():
 
 def test_channel_leave_lastchannel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -513,6 +549,7 @@ def test_channel_leave_lastchannel():
 
 def test_channel_leave_private():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -526,6 +563,7 @@ def test_channel_leave_private():
 
 def test_channel_leave_notinchannel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -537,6 +575,7 @@ def test_channel_leave_notinchannel():
 
 def test_channel_leave_bad_channelid():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -552,6 +591,7 @@ def test_channel_leave_bad_channelid():
 
 def test_channel_join_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -603,6 +643,7 @@ def test_channel_join_simple():
 
 def test_channel_join_no_autoowner():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -619,6 +660,7 @@ def test_channel_join_no_autoowner():
 
 def test_channel_join_bad_channelid():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -630,6 +672,7 @@ def test_channel_join_bad_channelid():
 
 def test_channel_join_noperms():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -641,6 +684,7 @@ def test_channel_join_noperms():
 
 def test_channel_join_private():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -660,6 +704,7 @@ def test_channel_join_private():
 
 def test_channel_rejoin():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -688,6 +733,7 @@ def test_channel_rejoin():
 
 def test_channel_rejoin_private():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -720,6 +766,7 @@ def test_channel_rejoin_private():
 
 def test_channel_addowner_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -763,6 +810,7 @@ def test_channel_addowner_simple():
 
 def test_channel_addowner_slackrowner_promoteself():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -782,6 +830,7 @@ def test_channel_addowner_slackrowner_promoteself():
 
 def test_channel_addowner_slackrowner_promoteother_notchannelowner():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -808,6 +857,7 @@ def test_channel_addowner_target_notinchannel():
 
 def test_channel_addowner_user_notinchannel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -836,6 +886,7 @@ def test_channel_addowner_user_notinchannel():
 
 def test_channel_addowner_bad_channelid():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -849,6 +900,7 @@ def test_channel_addowner_bad_channelid():
 
 def test_channel_addowner_target_alreadyowner():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -865,6 +917,7 @@ def test_channel_addowner_target_alreadyowner():
 
 def test_channel_addowner_noperms():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -891,6 +944,7 @@ def test_channel_addowner_noperms():
 
 def test_channel_removeowner_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -940,6 +994,7 @@ def test_channel_removeowner_simple():
 
 def test_channel_removeowner_slackrowner_demoteother_notchannelowner():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -968,6 +1023,7 @@ def test_channel_removeowner_target_notinchannel():
 
 def test_channel_removeowner_user_notinchannel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -999,6 +1055,7 @@ def test_channel_removeowner_user_notinchannel():
 
 def test_channel_removeowner_bad_channelid():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -1013,6 +1070,7 @@ def test_channel_removeowner_bad_channelid():
 
 def test_channel_removeowner_target_notowner():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -1026,6 +1084,7 @@ def test_channel_removeowner_target_notowner():
 
 def test_channel_removeowner_noperms():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
