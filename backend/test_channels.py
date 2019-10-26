@@ -4,10 +4,11 @@
 
 import pytest
 
-from auth import *
-from channels import *
-from channel import *
-from error import *
+from .db import reset_data
+from .auth import auth_register
+from .channels import channels_create, channels_list, channels_listall
+from .channel import channel_join
+from .error import ValueError, AccessError
 
 #########################
 # channels_create Tests #
@@ -15,32 +16,42 @@ from error import *
 
 def test_channels_create_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    assert create_dict1 and 'channel_id' in create_dict1
-
     create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
-    assert create_dict2 and 'channel_id' in create_dict2
-    # Check that creation attempts returned different values
-    assert create_dict2['channel_id'] != create_dict1['channel_id']
-
     create_dict3 = channels_create(reg_dict3['token'], 'Steam', True)
-    assert create_dict3 and 'channel_id' in create_dict3
-    # Check that creation attempts returned different values
-    assert create_dict3['channel_id'] != create_dict2['channel_id']
-    assert create_dict3['channel_id'] != create_dict1['channel_id']
 
-def test_channels_create_badname():
+    # Check that creation attempts returned different values
+    assert create_dict1['channel_id'] != create_dict2['channel_id'] != create_dict3['channel_id']
+
+def test_channels_create_same_name():
     # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    # SETUP END
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    # Check that creation attempts returned different values
+    assert create_dict1['channel_id'] != create_dict2['channel_id']
+
+def test_channels_create_name_too_long():
+    # SETUP BEGIN
+    reset_data()
+
     reg_dict = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     # SETUP END
 
     with pytest.raises(ValueError):
-        channels_create(reg_dict['token'], '123456789012345678901', True)
+        channels_create(reg_dict['token'], 'longnameisover20chars', True)
 
 #######################
 # channels_list Tests #

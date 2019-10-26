@@ -277,15 +277,6 @@ def db_get_channel_by_channel_id(channel_id):
             return channel
     return None
 
-# Return Channel with name if it exists in database, None otherwise.
-def db_get_channel_by_name(name):
-    db = get_data()
-
-    for channel in db['channels']:
-        if channel.get_name() == name:
-            return channel
-    return None
-
 #################
 # messages data #
 #################
