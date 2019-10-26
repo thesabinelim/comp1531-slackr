@@ -19,9 +19,12 @@ from .message import (
 from .search import (
     search
 )
-
+from .db import (
+    reset_data
+)
 def test_search_none():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -46,6 +49,7 @@ def test_search_none():
 
 def test_search_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -87,6 +91,7 @@ def test_search_simple():
 
 def test_search_case():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -146,6 +151,7 @@ def test_search_case():
 
 def test_search_notinchannel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -160,6 +166,7 @@ def test_search_notinchannel():
                                                                                                          
 def test_search_multi_channel():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
