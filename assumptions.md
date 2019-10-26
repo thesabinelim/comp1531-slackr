@@ -62,11 +62,13 @@ user_profile:
 message_send:
     - Users cannot send messages to channels they are not members of. Raise
       AccessError if this is attempted.
+    - Message cannot be empty.
 
 message_sendlater:
     - Users cannot send messages to channels they are not members of. Raise
       AccessError if this is attempted.
     - time_sent is a Unix timestamp.
+    - Message cannot be empty.
 
 message_remove:
     - The conditions for the AccessError are probably wrong for this iteration

@@ -22,6 +22,9 @@ def message_sendlater(token, channel_id, text, time_sent):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
 
+    if len(text) == 0:
+        raise ValueError(description="Message cannot be empty!")
+
     if len(text) > 1000:
         raise ValueError(description="Message cannot be longer than 1000 characters!")
 
@@ -49,6 +52,9 @@ def message_sendlater(token, channel_id, text, time_sent):
 def message_send(token, channel_id, text):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
+
+    if len(text) == 0:
+        raise ValueError(description="Message cannot be empty!")
 
     if len(text) > 1000:
         raise ValueError(description="Message cannot be longer than 1000 characters!")

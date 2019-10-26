@@ -5,21 +5,24 @@
 import pytest
 import time
 
+from .db import reset_data, db_add_time_offset, db_reset_time_offset
 from .auth import auth_register
 from .message import (
     message_send, message_sendlater, message_edit, message_remove, message_pin,
     message_unpin, message_react, message_unreact
 )
-from .channel import channel_join
+from .channel import channel_join, channel_addowner, channel_messages
 from .channels import channels_create
 from .error import ValueError, AccessError
 
-##############################
-#  message_sendlater Tests   #
-##############################
+###########################
+# message_sendlater Tests #
+###########################
 
 def test_message_sendlater_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -46,12 +49,83 @@ def test_message_sendlater_simple():
     # Check message send attempts returned different ids
     assert message_dict1['message_id'] != message_dict2['message_id'] != message_dict3['message_id']
 
+    # Check messages at present time
+    assert channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)['messages'] == []
+
+    # Manipulate time to 10 minutes in the future and check messages
+    db_add_time_offset(10 * 60)
+    assert channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)['messages'] == [
+        {
+            'message_id': message_dict1['message_id'],
+            'u_id': create_dict1['u_id'],
+            'message': 'Oof',
+            'time_created': now_plus_mins,
+            'reacts': [],
+            'is_pinned': False
+        }
+    ]
+
+    # Manipulate time to 1 hour in the future and check messages
+    db_reset_time_offset()
+    db_add_time_offset(60 * 60)
+    assert channel_messages(reg_dict2['token'], create_dict1['channel_id'], 0)['messages'] == [
+        {
+            'message_id': message_dict2['message_id'],
+            'u_id': create_dict1['u_id'],
+            'message': 'Ouch',
+            'time_created': now_plus_hour,
+            'reacts': [],
+            'is_pinned': False
+        },
+        {
+            'message_id': message_dict1['message_id'],
+            'u_id': create_dict1['u_id'],
+            'message': 'Oof',
+            'time_created': now_plus_mins,
+            'reacts': [],
+            'is_pinned': False
+        }
+    ]
+
+    # Manipulate time to 3 days in the future and check messages
+    db_reset_time_offset()
+    db_add_time_offset(3 * 24 * 60 * 60)
+    assert channel_messages(reg_dict2['token'], create_dict1['channel_id'], 0)['messages'] == [
+        {
+            'message_id': message_dict3['message_id'],
+            'u_id': create_dict1['u_id'],
+            'message': 'Ouch',
+            'time_created': now_plus_days,
+            'reacts': [],
+            'is_pinned': False
+        },
+        {
+            'message_id': message_dict2['message_id'],
+            'u_id': create_dict1['u_id'],
+            'message': 'Ouch',
+            'time_created': now_plus_hour,
+            'reacts': [],
+            'is_pinned': False
+        },
+        {
+            'message_id': message_dict1['message_id'],
+            'u_id': create_dict1['u_id'],
+            'message': 'Oof',
+            'time_created': now_plus_mins,
+            'reacts': [],
+            'is_pinned': False
+        }
+    ]
+
 def test_message_sendlater_long_message():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', False)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
     # SETUP END
 
     now = time.time()
@@ -62,10 +136,33 @@ def test_message_sendlater_long_message():
     with pytest.raises(ValueError):
         message_sendlater(reg_dict1['token'], create_dict1['channel_id'], too_long_msg, now_plus_mins)
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], create_dict2['channel_id'], too_long_msg, now_plus_mins)
+        message_sendlater(reg_dict2['token'], create_dict2['channel_id'], too_long_msg, now_plus_mins)
+    
+def test_message_sendlater_empty_message():
+    # SETUP BEGIN
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', False)
+    # SETUP END
+
+    now = time.time()
+
+    # Test attempts to send an empty message 10 minutes in the future
+    now_plus_minutes = now + 10 * 60
+    with pytest.raises(ValueError):
+        message_sendlater(reg_dict1['token'], create_dict1['channel_id'], "", now_plus_minutes)
+
+    # Sabine attempts to send an empty message 10 hours in the future
+    now_plus_hours = now + 10 * 60 * 60
+    with pytest.raises(ValueError):
+        message_sendlater(reg_dict2['token'], create_dict2['channel_id'], "", now_plus_hours)
     
 def test_message_sendlater_invalid_channel():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
@@ -87,6 +184,8 @@ def test_message_sendlater_invalid_channel():
 
 def test_message_sendlater_past_time():
      # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')  
 
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
@@ -115,56 +214,147 @@ def test_message_sendlater_past_time():
         message_sendlater(reg_dict1['token'], create_dict1['channel_id'], "Oof", now_minus_days)
 
 def test_message_sendlater_not_in_channel():
-    pass
-    
-##############################
-#     message_send Tests     #
-##############################
-
-def test_message_send_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
-
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict1['token'], channel_2['channel_id'])
-    channel_join(reg_dict3['token'], channel_2['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
     # SETUP END
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict3['token'], channel_1['channel_id'], "Owie")
 
-    message_send(reg_dict1['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict3['token'], channel_2['channel_id'], "Owie")
+    now = time.time()
+
+    # Test attempts to send a message to PCSoc in 10 minutes
+    now_plus_mins = now + 10 * 60
+    with pytest.raises(AccessError):
+        message_sendlater(reg_dict1['token'], create_dict2['channel_id'], "Oof", now_plus_mins)
+    
+    # Sabine attempt to send a message to 1531 autotest in 1 hour
+    now_plus_hour = now + 60 * 60
+    with pytest.raises(AccessError):
+        message_sendlater(reg_dict2['token'], create_dict1['channel_id'], "Ouch", now_plus_hour)
+
+    # Gabe attempts to send a message to 1531 autotest in 3 days
+    now_plus_days = now + 3 * 24 * 60 * 60
+    with pytest.raises(AccessError):
+        message_sendlater(reg_dict3['token'], create_dict1['channel_id'], "Owie", now_plus_days)
+    
+######################
+# message_send Tests #
+######################
+
+def test_message_send_simple():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    # Test sends a message
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    channel_message1 = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)['messages'][0]
+    assert channel_message1['message_id'] == message_dict1['message_id']
+    assert channel_message1['u_id'] == reg_dict1['u_id']
+    assert channel_message1['message'] == 'Oof'
+
+    message_dict2 = message_send(reg_dict2['token'], create_dict1['channel_id'], "Ouch")
+    channel_message2 = channel_messages(reg_dict2['token'], create_dict1['channel_id'], 0)['messages'][0]
+    assert channel_message2['message_id'] == message_dict2['message_id']
+    assert channel_message2['u_id'] == reg_dict2['u_id']
+    assert channel_message2['message'] == 'Ouch'
+
+    message_dict3 = message_send(reg_dict3['token'], create_dict1['channel_id'], "Owie")
+    channel_message3 = channel_messages(reg_dict3['token'], create_dict1['channel_id'], 0)['messages'][0]
+    assert channel_message3['message_id'] == message_dict3['message_id']
+    assert channel_message3['u_id'] == reg_dict3['u_id']
+    assert channel_message3['message'] == 'Ouch'
+    
+    # Check message send attempts returned different ids
+    assert message_dict1['message_id'] != message_dict2['message_id'] != message_dict3['message_id']
 
 def test_message_send_too_long_message():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
     # SETUP END
+
     too_long_msg = "If you take the temperature of a superconductor down to absolute zero (around minus 273.1 centigrade), it ignores gravity and floats. This is a scientific fact and you are welcome to check - google or youtube it. My 9yo son asked why we couldn't freeze a car to -273C and fly in it and I told him that the car would neutralise gravity, not reverse it and the weight of the people in it would make it sink. Also, heat rises so -273C should really sink unless it was in a vacuum which means we wouldn't be able to breath or hear the stereo. You would also need to rug up well. If you take the temperature of a superconductor down to absolute zero (around minus 273.1 centigrade), it ignores gravity and floats. This is a scientific fact and you are welcome to check - google or youtube it. My 9yo son asked why we couldn't freeze a car to -273C and fly in it and I told him that the car would neutralise gravity, not reverse it and the weight of the people in it would make it sink. Also, heat rises so -273C should really sink unless it was in a vacuum which means we wouldn't be able to breath or hear the stereo. You would also need to rug up well."
     with pytest.raises(ValueError):
-        message_send(reg_dict1['token'], channel_1['channel_id'], too_long_msg)
+        message_send(reg_dict1['token'], create_dict1['channel_id'], too_long_msg)
     with pytest.raises(ValueError):
-        message_send(reg_dict1['token'], channel_2['channel_id'], too_long_msg)
+        message_send(reg_dict2['token'], create_dict2['channel_id'], too_long_msg)
     
 def test_message_send_empty_message():
     # SETUP BEGIN
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', False)
     # SETUP END
+
     with pytest.raises(ValueError):
-        message_send(reg_dict1['token'], channel_1['channel_id'], "")
+        message_send(reg_dict1['token'], create_dict1['channel_id'], "")
     with pytest.raises(ValueError):
-        message_send(reg_dict1['token'], channel_2['channel_id'], "")
+        message_send(reg_dict2['token'], create_dict2['channel_id'], "")
+    
+def test_message_send_invalid_channel():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+
+    # Attempt to send messages to invalid channel ids
+    channel_id = create_dict1['channel_id'] + 1
+    with pytest.raises(ValueError):
+        message_send(reg_dict1['token'], channel_id, "Oof")
+    channel_id += 1
+    with pytest.raises(ValueError):
+        message_send(reg_dict1['token'], channel_id, "Oof")
+    channel_id += 1
+    with pytest.raises(ValueError):
+        message_send(reg_dict1['token'], channel_id, "Oof")
+
+def test_message_send_not_in_channel():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    # SETUP END
+
+    # Test attempts to send a message to PCSoc
+    with pytest.raises(AccessError):
+        message_send(reg_dict1['token'], create_dict2['channel_id'], "Oof")
+    
+    # Sabine attempt to send a message to 1531 autotest
+    with pytest.raises(AccessError):
+        message_send(reg_dict2['token'], create_dict1['channel_id'], "Ouch")
+
+    # Gabe attempts to send a message to 1531 autotest
+    with pytest.raises(AccessError):
+        message_send(reg_dict3['token'], create_dict1['channel_id'], "Owie")
 
 ##############################
 #     message_remove Tests    #
