@@ -30,6 +30,7 @@ def channel_invite(token, channel_id, receiver_id):
     if not sender.in_channel(channel):
         raise AccessError(description="Invite sender is not member of channel!")
 
+    channel.add_member(receiver)
     receiver.join_channel(channel)
 
     return {}
@@ -91,21 +92,25 @@ def channel_messages(token, channel_id, start):
         
     offset = 0
     all_messages = channel.get_messages()
-    for message in all_messages():
+    for message in all_messages:
         if message.get_time_created() > time.time():
             offset += 1
         else:
             break
-    if start >= len(all_messages) - offset:
+    if start != 0 and start >= len(all_messages) - offset:
         raise ValueError(description="Start index is greater than the number of messages in the channel!")
 
+    if (len(all_messages) == 0):
+        return {'messages': [], 'start': 0, 'end': -1}
+    
+    
     counter = start
     messages = []
     while (counter + offset) < len(all_messages) and counter < start + 50:
         message_dict = {}
         current_message = all_messages[counter + offset]
         message_dict['message_id'] = current_message.get_message_id()
-        message_dict['u_id'] = current_message.get_sender()
+        message_dict['u_id'] = current_message.get_sender().get_u_id()
         message_dict['message'] = current_message.get_text()
         message_dict['time_created'] = current_message.get_time_created()
 
@@ -122,12 +127,11 @@ def channel_messages(token, channel_id, start):
             message_dict['reacts'].append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
 
         message_dict['is_pinned'] = current_message.is_pinned()
-        message.append(message_dict)
+        messages.append(message_dict)
         counter += 1
-    end = counter - 1
+    end = counter
     if end + offset >= len(all_messages):
         end = -1
-
     return {'messages': messages, 'start': start, 'end': end}
 
 # Given channel ID, remove user from channel. Returns {}.
@@ -140,7 +144,11 @@ def channel_leave(token, channel_id):
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:
         raise ValueError(description="Channel with channel_id does not exist!")
-
+    
+    # Last owner can't leave unless they are also last member
+    if len(channel.get_true_owners()) == 1 and channel.has_true_owner(user) \
+        and len(channel.get_members()) > 1:
+        raise ValueError(description="Last owner cannot leave a channel with members still in it!")
     channel.remove_owner(user)
     channel.remove_member(user)
     user.leave_channel(channel)
@@ -188,6 +196,9 @@ def channel_addowner(token, channel_id, target_id):
     if not channel.has_owner(authorised_user):
         raise AccessError(description="Authorised user is not an owner of the slack or channel")
     
+    if not channel.has_member(target_user):
+        channel.add_member(target_user)
+        target_user.join_channel(channel)
     channel.add_owner(target_user)
     
     return {}
