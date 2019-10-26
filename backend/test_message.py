@@ -57,7 +57,7 @@ def test_message_sendlater_simple():
     assert channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)['messages'] == [
         {
             'message_id': message_dict1['message_id'],
-            'u_id': create_dict1['u_id'],
+            'u_id': reg_dict1['u_id'],
             'message': 'Oof',
             'time_created': now_plus_mins,
             'reacts': [],
@@ -71,7 +71,7 @@ def test_message_sendlater_simple():
     assert channel_messages(reg_dict2['token'], create_dict1['channel_id'], 0)['messages'] == [
         {
             'message_id': message_dict2['message_id'],
-            'u_id': create_dict1['u_id'],
+            'u_id': reg_dict2['u_id'],
             'message': 'Ouch',
             'time_created': now_plus_hour,
             'reacts': [],
@@ -79,7 +79,7 @@ def test_message_sendlater_simple():
         },
         {
             'message_id': message_dict1['message_id'],
-            'u_id': create_dict1['u_id'],
+            'u_id': reg_dict1['u_id'],
             'message': 'Oof',
             'time_created': now_plus_mins,
             'reacts': [],
@@ -93,15 +93,15 @@ def test_message_sendlater_simple():
     assert channel_messages(reg_dict2['token'], create_dict1['channel_id'], 0)['messages'] == [
         {
             'message_id': message_dict3['message_id'],
-            'u_id': create_dict1['u_id'],
-            'message': 'Ouch',
+            'u_id': reg_dict3['u_id'],
+            'message': 'Owie',
             'time_created': now_plus_days,
             'reacts': [],
             'is_pinned': False
         },
         {
             'message_id': message_dict2['message_id'],
-            'u_id': create_dict1['u_id'],
+            'u_id': reg_dict2['u_id'],
             'message': 'Ouch',
             'time_created': now_plus_hour,
             'reacts': [],
@@ -109,7 +109,7 @@ def test_message_sendlater_simple():
         },
         {
             'message_id': message_dict1['message_id'],
-            'u_id': create_dict1['u_id'],
+            'u_id': reg_dict1['u_id'],
             'message': 'Oof',
             'time_created': now_plus_mins,
             'reacts': [],
@@ -140,6 +140,8 @@ def test_message_sendlater_long_message():
     
 def test_message_sendlater_empty_message():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
@@ -276,7 +278,7 @@ def test_message_send_simple():
     channel_message3 = channel_messages(reg_dict3['token'], create_dict1['channel_id'], 0)['messages'][0]
     assert channel_message3['message_id'] == message_dict3['message_id']
     assert channel_message3['u_id'] == reg_dict3['u_id']
-    assert channel_message3['message'] == 'Ouch'
+    assert channel_message3['message'] == 'Owie'
     
     # Check message send attempts returned different ids
     assert message_dict1['message_id'] != message_dict2['message_id'] != message_dict3['message_id']
@@ -300,6 +302,8 @@ def test_message_send_too_long_message():
     
 def test_message_send_empty_message():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
