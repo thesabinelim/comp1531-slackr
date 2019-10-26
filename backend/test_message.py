@@ -441,9 +441,9 @@ def test_message_remove_not_in_channel():
     # SETUP END
 
     with pytest.raises(AccessError):
-        message_remove(reg_dict2['token'], message_dict1['message_id'])
+        message_remove(reg_dict2['token'], message_dict2['message_id'])
     with pytest.raises(AccessError):
-        message_remove(reg_dict1['token'], message_dict2['message_id'])
+        message_remove(reg_dict1['token'], message_dict1['message_id'])
 
 def test_message_remove_message_not_sender():
     # SETUP BEGIN
@@ -491,7 +491,7 @@ def test_message_remove_message_not_sender():
         message_remove(reg_dict3['token'], message_dict4['message_id'])
 
     # Unless they're a Slackr admin/owner
-    assert message_remove(reg_dict1['token'], message_dict4) == {}
+    assert message_remove(reg_dict1['token'], message_dict4['message_id']) == {}
 
 ##############################
 #     message_edit  Tests    #
