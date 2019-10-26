@@ -503,18 +503,16 @@ def test_message_edit_simple():
 
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], create_dict1['channel_id'])
-    channel_join(reg_dict3['token'], create_dict1['channel_id'])
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', False)
 
     message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
-    message_dict2 = message_send(reg_dict2['token'], create_dict1['channel_id'], "Ouch")
-    message_dict3 = message_send(reg_dict3['token'], create_dict1['channel_id'], "Owie")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
     # SETUP END
 
-    
+    assert message_edit(reg_dict1['token'], message_dict1['message_id'], "Boom") == {}
+    assert message_edit(reg_dict2['token'], message_dict2['message_id'], "Pow") == {}
 
 def test_message_edit_wrong_user():
     # SETUP BEGIN
