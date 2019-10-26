@@ -125,7 +125,7 @@ class User:
         self.name_last = new_name_last
     def set_handle(self, new_handle):
         self.handle = new_handle
-    def set_role(self, new_role):
+    def set_slackr_role(self, new_role):
         self.role = new_role
     def join_channel(self, channel):
         if channel not in self.channels:
