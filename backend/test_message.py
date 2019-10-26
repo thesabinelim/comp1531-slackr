@@ -505,7 +505,7 @@ def test_message_edit_simple():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', False)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
 
     message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
     message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
@@ -514,94 +514,161 @@ def test_message_edit_simple():
     assert message_edit(reg_dict1['token'], message_dict1['message_id'], "Boom") == {}
     assert message_edit(reg_dict2['token'], message_dict2['message_id'], "Pow") == {}
 
-def test_message_edit_wrong_user():
+def test_message_edit_same_text():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
-    
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
 
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict3['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
     # SETUP END
-    # Regular User can edit messages they sent but not others
-    message_send(reg_dict2['token'], channel_1['channel_id'], "User2")
-    message_send(reg_dict3['token'], channel_1['channel_id'], "User3")
-    with pytest.raises(ValueError):
-        message_edit(reg_dict3['token'], 7, "i can't do this")
-    with pytest.raises(ValueError):
-        message_edit(reg_dict2['token'], 8, "i can't do this either")
-    
-    # Admins/owners of the channel can edit any other message in that channel
-    message_edit(reg_dict1['token'], 7, "overridden")
-    message_edit(reg_dict1['token'], 8, "deleted by admin")
 
-    # A user made admin can edit messages for that channel
-    channel_addowner(reg_dict1['token'], channel_1['channel_id'], reg_dict3['u_id'])
-    message_edit(reg_dict3['token'], 7, "I CAN DO THIS NOW")
-    # But still can't edit messages for channels they aren't an owner for
-    with pytest.raises(ValueError):
-        message_edit(reg_dict3['token'], 4, "i still can't do this")
+    assert message_edit(reg_dict1['token'], message_dict1['message_id'], "Oof") == {}
 
-def test_message_edit_invalid_message():
+def test_message_edit_multiple_times():
     # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    # SETUP END
+
+    assert message_edit(reg_dict1['token'], message_dict1['message_id'], "Boom") == {}
+    assert message_edit(reg_dict1['token'], message_dict1['message_id'], "Pow") == {}
+    assert message_edit(reg_dict1['token'], message_dict1['message_id'], "Splat") == {}
+
+def test_message_edit_message_too_long():
+    # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
-
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict3['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
     # SETUP END
 
     # Messages must still abide by the 1000 char limit
     too_long_msg = "If you take the temperature of a superconductor down to absolute zero (around minus 273.1 centigrade), it ignores gravity and floats. This is a scientific fact and you are welcome to check - google or youtube it. My 9yo son asked why we couldn't freeze a car to -273C and fly in it and I told him that the car would neutralise gravity, not reverse it and the weight of the people in it would make it sink. Also, heat rises so -273C should really sink unless it was in a vacuum which means we wouldn't be able to breath or hear the stereo. You would also need to rug up well. If you take the temperature of a superconductor down to absolute zero (around minus 273.1 centigrade), it ignores gravity and floats. This is a scientific fact and you are welcome to check - google or youtube it. My 9yo son asked why we couldn't freeze a car to -273C and fly in it and I told him that the car would neutralise gravity, not reverse it and the weight of the people in it would make it sink. Also, heat rises so -273C should really sink unless it was in a vacuum which means we wouldn't be able to breath or hear the stereo. You would also need to rug up well."
     with pytest.raises(ValueError):
-        message_edit(reg_dict1['token'], 0, too_long_msg)
+        message_edit(reg_dict1['token'], message_dict1['message_id'], too_long_msg)
     with pytest.raises(ValueError):
-        message_edit(reg_dict2['token'], 4, too_long_msg)
+        message_edit(reg_dict2['token'], message_dict2['message_id'], too_long_msg)
+
+def test_message_edit_message_empty():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    # SETUP END
 
     # Messages can't be empty
     with pytest.raises(ValueError):
-        message_edit(reg_dict1['token'], 0, "")
+        message_edit(reg_dict1['token'], message_dict1['message_id'], "")
     with pytest.raises(ValueError):
-        message_edit(reg_dict1['token'], 1, "")
-    with pytest.raises(ValueError):
-        message_edit(reg_dict2['token'], 4, "")
-    with pytest.raises(ValueError):
-        message_edit(reg_dict2['token'], 5, "")
+        message_edit(reg_dict2['token'], message_dict2['message_id'], "")
 
-    # Message id must also be valid
+def test_message_edit_invalid_message_id():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    # SETUP END
+
     with pytest.raises(ValueError):
-        message_edit(reg_dict1['token'], -1, "test")
-    with pytest.raises(ValueError):
-        message_edit(reg_dict1['token'], -1000, "test")
-    with pytest.raises(ValueError):
-        message_edit(reg_dict1['token'], 100000000, "test")
+        message_edit(reg_dict1['token'], message_dict1['message_id'] + 1, "Boom")
+
+def test_message_edit_not_in_channel():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict1['u_id'])
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict2['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict1['channel_id'], "Ouch")
+
+    channel_leave(reg_dict1['token'], create_dict2['channel_id'])
+    channel_leave(reg_dict2['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    with pytest.raises(AccessError):
+        message_edit(reg_dict2['token'], message_dict2['message_id'], "Pow")
+    with pytest.raises(AccessError):
+        message_edit(reg_dict1['token'], message_dict1['message_id'], "Boom")
+
+def test_message_edit_not_sender():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
+
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict1['u_id'])
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict3['u_id'])
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 1")
+    message_dict2 = message_send(reg_dict2['token'], create_dict1['channel_id'], "Message 2")
+    message_dict3 = message_send(reg_dict1['token'], create_dict2['channel_id'], "Message 3")
+    message_dict4 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Message 4")
+    # SETUP END
+
+    # Message can't be edited by regular user who didn't send the message
+    with pytest.raises(AccessError):
+        message_edit(reg_dict3['token'], message_dict2['message_id'], "Pow")
+
+    # Message sent by owner of the channel, can't be edited by regular users
+    with pytest.raises(AccessError):
+        message_edit(reg_dict2['token'], message_dict1['message_id'], "Boom")
+    with pytest.raises(AccessError):
+        message_edit(reg_dict3['token'], message_dict1['message_id'], "Boom")
+
+    # Regular user gains ability to edit others' messages when they become
+    # channel owner, including messages from other channel owners
+    channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict3['u_id'])
+    assert message_edit(reg_dict3['token'], message_dict2['message_id'], "Pow") == {}
+    assert message_edit(reg_dict3['token'], message_dict1['message_id'], "Boom") == {}
+
+    # Owners of one channel can't edit others' messages in other channels they
+    # aren't owner of
+    with pytest.raises(AccessError):
+        message_edit(reg_dict3['token'], message_dict3['message_id'], "Splat")
+    with pytest.raises(AccessError):
+        message_edit(reg_dict3['token'], message_dict4['message_id'], "Kablam")
+
+    # Unless they're a Slackr admin/owner
+    assert message_remove(reg_dict1['token'], message_dict4['message_id']) == {}
 
 ##############################
 #     message_react Tests    #

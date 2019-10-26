@@ -111,13 +111,19 @@ def message_remove(token, message_id):
 # Return empty dictionary.
 def message_edit(token, message_id, text):
     u_id = validate_token(token)
+    user = db_get_user_by_u_id(u_id)
+
+    if len(text) == 0:
+        raise ValueError(description="Message cannot be empty!")
+
+    if len(text) > 1000:
+        raise ValueError(description="Message cannot be longer than 1000 characters!")
 
     message = db_get_message_by_message_id(message_id)
     if message is None:
         raise ValueError(description="Message with message_id does not exist!")
 
     channel = message.get_channel()
-    user = db_get_user_by_u_id(u_id)
 
     if not channel.has_member(user):
         raise AccessError(description="Authorised user is not member of that channel!")
