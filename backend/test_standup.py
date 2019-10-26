@@ -47,6 +47,21 @@ def test_standup_start_simple():
     assert sup_dict1
     assert 'time_finish' in sup_dict1
 
+def test_standup_start_already_running():
+    # SETUP BEGIN
+    reset_data()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    # SETUP END
+    
+    sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
+    assert sup_dict1
+    assert 'time_finish' in sup_dict1
+
+    with pytest.raises(ValueError):
+        standup_start(reg_dict1['token'], create_dict1['channel_id'])
+    
 def test_standup_start_bad_channelid():
     # SETUP BEGIN
     reset_data()
