@@ -4,6 +4,14 @@
 
 import re
 
+from .auth import validate_token
+
+from .db import (
+    db_get_user_by_u_id
+)
+from .channel import (
+    channel_messages
+)
 # Given a query string, return a collection of messages that match the query
 def search(token, query_str):
     u_id = validate_token(token)
@@ -12,13 +20,14 @@ def search(token, query_str):
     query_re = re.compile(f'{query_str.lower()}')
     channels = user.get_channels()
 
-    match_messages = []
+    search_messages = []
     for channel in channels:
         start = 0
+        match_message = []
         while start != -1: 
-            channel_messages = channel_messages(token, channel, start)
-            for channel_message in channel_messages['messages']:
-                if query_re.match(message['message']):
+            match_message = channel_messages(token, channel, start)
+            for channel_message in match_message['messages']:
+                if query_re.match(channel_message['message']):
                     search_messages.append(channel_message)
-            start = channel_messages['end']
+            start = match_message['end']
     return {'messages': search_messages}
