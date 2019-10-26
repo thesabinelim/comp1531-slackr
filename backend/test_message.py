@@ -1,13 +1,18 @@
-# test_message.py
-# Authored by Bridget McCarthy 29/09/19
+# COMP1531 Project test_message
+# Written by Bridget McCarthy z5255505 and Sabine Lim z5242579
+# 29/09/19
 
-import datetime
 import pytest
+import time
 
-from auth import *
-from message import *
-from channel import *
-from channels import *
+from .auth import auth_register
+from .message import (
+    message_send, message_sendlater, message_edit, message_remove, message_pin,
+    message_unpin, message_react, message_unreact
+)
+from .channel import channel_join
+from .channels import channels_create
+from .error import ValueError, AccessError
 
 ##############################
 #  message_sendlater Tests   #
@@ -19,66 +24,98 @@ def test_message_sendlater_simple():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
-    now = datetime.datetime.now()
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
     # SETUP END
-    now_plus_mins = now + datetime.timedelta(minutes = 10)
-    message_sendlater(reg_dict1['token'], channel_1['channel_id'], "Oof", now_plus_mins)
-    
-    now_plus_hour = now + datetime.timedelta(hours = 1)
-    message_sendlater(reg_dict2['token'], channel_1['channel_id'], "Ouch", now_plus_hour)
 
-    now_plus_days = now + datetime.timedelta(days = 3)
-    message_sendlater(reg_dict3['token'], channel_1['channel_id'], "Owie", now_plus_days)
+    now = time.time()
+
+    # Send a message in 10 minutes
+    now_plus_mins = now + 10 * 60
+    message_dict1 = message_sendlater(reg_dict1['token'], create_dict1['channel_id'], "Oof", now_plus_mins)
+    
+    # Send a message in 1 hour
+    now_plus_hour = now + 60 * 60
+    message_dict2 = message_sendlater(reg_dict2['token'], create_dict1['channel_id'], "Ouch", now_plus_hour)
+
+    # Send a message in 3 days
+    now_plus_days = now + 3 * 24 * 60 * 60
+    message_dict3 = message_sendlater(reg_dict3['token'], create_dict1['channel_id'], "Owie", now_plus_days)
+
+    # Check message send attempts returned different ids
+    assert message_dict1['message_id'] != message_dict2['message_id'] != message_dict3['message_id']
 
 def test_message_sendlater_long_message():
     # SETUP BEGIN
-    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')  
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    now = datetime.datetime.now()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', False)
     # SETUP END
-    now_plus_mins = now + datetime.timedelta(minutes = 10)
+
+    now = time.time()
+
+    # Attempt to send a too long message in 10 minutes
+    now_plus_mins = now + 10 * 60
     too_long_msg = "If you take the temperature of a superconductor down to absolute zero (around minus 273.1 centigrade), it ignores gravity and floats. This is a scientific fact and you are welcome to check - google or youtube it. My 9yo son asked why we couldn't freeze a car to -273C and fly in it and I told him that the car would neutralise gravity, not reverse it and the weight of the people in it would make it sink. Also, heat rises so -273C should really sink unless it was in a vacuum which means we wouldn't be able to breath or hear the stereo. You would also need to rug up well. If you take the temperature of a superconductor down to absolute zero (around minus 273.1 centigrade), it ignores gravity and floats. This is a scientific fact and you are welcome to check - google or youtube it. My 9yo son asked why we couldn't freeze a car to -273C and fly in it and I told him that the car would neutralise gravity, not reverse it and the weight of the people in it would make it sink. Also, heat rises so -273C should really sink unless it was in a vacuum which means we wouldn't be able to breath or hear the stereo. You would also need to rug up well."
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], channel_1['channel_id'], too_long_msg, now_plus_mins)
+        message_sendlater(reg_dict1['token'], create_dict1['channel_id'], too_long_msg, now_plus_mins)
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], channel_2['channel_id'], too_long_msg, now_plus_mins)
+        message_sendlater(reg_dict1['token'], create_dict2['channel_id'], too_long_msg, now_plus_mins)
     
 def test_message_sendlater_invalid_channel():
     # SETUP BEGIN
-    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')  
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    now = datetime.datetime.now()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
     # SETUP END
-    now_plus_mins = now + datetime.timedelta(minutes = 10)
+
+    now = time.time()
+
+    # Attempt to send messages to invalid channel ids in 10 minutes
+    now_plus_mins = now + 10 * 60
+    channel_id = create_dict1['channel_id'] + 1
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], -1000, "Oof", now_plus_mins)
+        message_sendlater(reg_dict1['token'], channel_id, "Oof", now_plus_mins)
+    channel_id += 1
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], -1, "Oof", now_plus_mins)
+        message_sendlater(reg_dict1['token'], channel_id, "Oof", now_plus_mins)
+    channel_id += 1
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], 100000, "Oof", now_plus_mins)
+        message_sendlater(reg_dict1['token'], channel_id, "Oof", now_plus_mins)
 
 def test_message_sendlater_past_time():
      # SETUP BEGIN
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')  
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    now = datetime.datetime.now()
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    now = time.time()
     # SETUP END
-    now_minus_mins = now - datetime.timedelta(minutes = 10)
-    now_minus_seconds = now - datetime.timedelta(seconds = 10)
-    now_minus_hours = now - datetime.timedelta(hours = 10)
-    now_minus_days = now - datetime.timedelta(days = 10)
+
+    # Attempt to send a message 10 seconds in the past
+    now_minus_seconds = now - 10
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], channel_1['channel_id'], "Oof", now_minus_mins)
+        message_sendlater(reg_dict1['token'], create_dict1['channel_id'], "Oof", now_minus_seconds)
+
+    # Attempt to send a message 10 minutes in the past
+    now_minus_mins = now - 10 * 60
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], channel_1['channel_id'], "Oof", now_minus_seconds)
+        message_sendlater(reg_dict1['token'], create_dict1['channel_id'], "Oof", now_minus_mins)
+
+    # Attempt to send a message 10 hours in the past
+    now_minus_hours = now - 10 * 60 * 60
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], channel_1['channel_id'], "Oof", now_minus_hours)
+        message_sendlater(reg_dict1['token'], create_dict1['channel_id'], "Oof", now_minus_hours)
+
+    # Attempt to send a message 10 days in the past
+    now_minus_days = now - 10 * 24 * 60 * 60
     with pytest.raises(ValueError):
-        message_sendlater(reg_dict1['token'], channel_1['channel_id'], "Oof", now_minus_days)
+        message_sendlater(reg_dict1['token'], create_dict1['channel_id'], "Oof", now_minus_days)
+
+def test_message_sendlater_not_in_channel():
+    pass
     
 ##############################
 #     message_send Tests     #
