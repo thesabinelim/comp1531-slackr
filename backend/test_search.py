@@ -40,13 +40,13 @@ def test_search_none():
     # SETUP END
 
     search_dict1 = search(reg_dict1['token'], "a")
-    assert search_dict1 == []
+    assert search_dict1['messages'] == []
 
     search_dict2 = search(reg_dict2['token'], "b")
-    assert search_dict2 == []
+    assert search_dict2['messages'] == []
 
     search_dict3 = search(reg_dict3['token'], "c")
-    assert search_dict3 == []
+    assert search_dict3['messages'] == []
 
 def test_search_simple():
     # SETUP BEGIN
@@ -72,7 +72,7 @@ def test_search_simple():
     search_dict2 = search(reg_dict2['token'], "Hello")
     search_dict3 = search(reg_dict3['token'], "Hello")
 
-    for entry in search_dict1:
+    for entry in search_dict1['messages']:
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
@@ -81,7 +81,7 @@ def test_search_simple():
         u_id.append(entry['u_id'])
         msg.append(entry['message'])
 
-    assert search_dict1
+    assert search_dict1['messages']
     assert search_dict1 == search_dict2 and search_dict2 == search_dict3
     assert len(m_id) == 2
     assert m_id[0] != m_id[1]
@@ -117,7 +117,7 @@ def test_search_case():
     search_dict1 = search(reg_dict1['token'], "H")
     search_dict2 = search(reg_dict2['token'], "h")
 
-    for entry in search_dict1:
+    for entry in search_dict1['messages']:
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
@@ -126,7 +126,7 @@ def test_search_case():
         u_id1.append(entry['u_id'])
         msg1.append(entry['message'])
 
-    for entry in search_dict2:
+    for entry in search_dict2['messages']:
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
@@ -135,8 +135,8 @@ def test_search_case():
         u_id2.append(entry['u_id'])
         msg2.append(entry['message'])
 
-    assert search_dict1
-    assert search_dict2
+    assert search_dict1['messages']
+    assert search_dict2['messages']
     assert search_dict1 != search_dict2
     
     assert len(m_id1) == 2
@@ -163,7 +163,7 @@ def test_search_notinchannel():
 
     search_dict1 = search(reg_dict2['token'], "Hello")
 
-    assert search_dict1 == []
+    assert search_dict1['messages'] == []
                                                                                                          
 def test_search_multi_channel():
     # SETUP BEGIN
@@ -190,7 +190,7 @@ def test_search_multi_channel():
     search_dict1 = search(reg_dict1['token'], "Hello")
     search_dict2 = search(reg_dict2['token'], "Hello")
     
-    for entry in search_dict1:
+    for entry in search_dict1['messages']:
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
@@ -199,7 +199,7 @@ def test_search_multi_channel():
         u_id1.append(entry['u_id'])
         msg1.append(entry['message'])
      
-    for entry in search_dict2:
+    for entry in search_dict2['messages']:
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
@@ -208,8 +208,8 @@ def test_search_multi_channel():
         u_id2.append(entry['u_id'])
         msg2.append(entry['message'])
             
-    assert search_dict1
-    assert search_dict2
+    assert search_dict1['messages']
+    assert search_dict2['messages']
     assert search_dict1 != search_dict2
     
     assert len(m_id1) == 2

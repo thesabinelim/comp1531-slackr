@@ -25,7 +25,7 @@ def search(token, query_str):
         start = 0
         match_message = []
         while start != -1: 
-            match_message = channel_messages(token, channel, start)
+            match_message = channel_messages(token, channel.get_channel_id(), start)
             for channel_message in match_message['messages']:
                 if query_re.match(channel_message['message']):
                     search_messages.append(channel_message)

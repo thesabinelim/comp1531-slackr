@@ -91,7 +91,7 @@ def channel_messages(token, channel_id, start):
         
     offset = 0
     all_messages = channel.get_messages()
-    for message in all_messages():
+    for message in all_messages:
         if message.get_time_created() > time.time():
             offset += 1
         else:
@@ -122,7 +122,7 @@ def channel_messages(token, channel_id, start):
             message_dict['reacts'].append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
 
         message_dict['is_pinned'] = current_message.is_pinned()
-        message.append(message_dict)
+        messages.append(message_dict)
         counter += 1
     end = counter - 1
     if end + offset >= len(all_messages) - 1:
