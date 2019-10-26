@@ -10,7 +10,7 @@ import datetime
 from .auth import (
         auth_register, auth_login, auth_logout
 )
-from .channel import channel_join
+from .channel import channel_join, channel_messages
 from .channels import (
         channels_create
 )
@@ -106,6 +106,18 @@ def test_standup_send_simple():
     channel = db_get_channel_by_channel_id(create_dict1['channel_id'])
     assert channel.get_standup().get_text() == f"testuser: Hello World \n"
 
+    messages = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert len(messages['messages']) == 0
+    db_add_time_offset(16 * 60)
+    messages = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert {
+        'message_id': channel.get_standup().get_message_id(),
+        'u_id': channel.get_standup().get_sender().get_u_id(),
+        'message': channel.get_standup().get_text(),
+        'time_created': channel.get_standup().get_time_created(),
+        'reacts': [],
+        'is_pinned': False
+    } in messages['messages']
 def test_standup_send_notstarted():
     # SETUP BEGIN
     reset_data()
@@ -118,6 +130,9 @@ def test_standup_send_notstarted():
         standup_send(reg_dict1['token'], create_dict1['channel_id'], 'This shouldn\'t send')
     channel = db_get_channel_by_channel_id(create_dict1['channel_id'])
     assert channel.get_standup() is None
+    db_add_time_offset(16 * 60)
+    messages = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert len(messages['messages']) == 0
 
 def test_standup_send_notinchannel():
     # SETUP BEGIN
@@ -167,6 +182,19 @@ def test_standup_send_toolong():
     channel = db_get_channel_by_channel_id(create_dict1['channel_id'])
     assert channel.get_standup().get_text() == f""
 
+    messages = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert len(messages['messages']) == 0
+    db_add_time_offset(16 * 60)
+    messages = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert {
+        'message_id': channel.get_standup().get_message_id(),
+        'u_id': channel.get_standup().get_sender().get_u_id(),
+        'message': "",
+        'time_created': channel.get_standup().get_time_created(),
+        'reacts': [],
+        'is_pinned': False
+    } in messages['messages']
+
 def test_standup_send_standup_finished():
     # SETUP BEGIN
     reset_data()
@@ -185,12 +213,23 @@ def test_standup_send_standup_finished():
     standup_send(reg_dict1['token'], create_dict1['channel_id'], 'This will send!')
     assert channel.get_standup().get_text() == f"testuser: This will send! \n"
 
+    # Still within timeframe, so another user can send
     standup_send(reg_dict2['token'], create_dict1['channel_id'], 'bazinga')
     assert channel.get_standup().get_text() == f"testuser: This will send! \nsabinelim: bazinga \n"
 
-    # Still within timeframe, so another user can send
+    messages = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert len(messages['messages']) == 0
     # Artificially say that the time has expired (16 minutes later)
     db_add_time_offset(16 * 60)
     with pytest.raises(ValueError):
         standup_send(reg_dict1['token'], create_dict1['channel_id'], 'This shouldn\'t send')
-    
+
+    messages = channel_messages(reg_dict1['token'], create_dict1['channel_id'], 0)
+    assert {
+        'message_id': channel.get_standup().get_message_id(),
+        'u_id': channel.get_standup().get_sender().get_u_id(),
+        'message': f"testuser: This will send! \nsabinelim: bazinga \n",
+        'time_created': channel.get_standup().get_time_created(),
+        'reacts': [],
+        'is_pinned': False
+    } in messages['messages']
