@@ -67,7 +67,7 @@ def standup_send(token, channel_id, message):
         raise ValueError(description="Message cannot be longer than 1000 characters!")
 
     old_text = standup.get_text()
-    new_text = f"{old_text} {user.get_handle()}: {message}\n"
+    new_text = f"{old_text}{user.get_handle()}: {message} \n"
 
     standup.set_text(new_text)
 
