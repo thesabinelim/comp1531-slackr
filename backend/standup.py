@@ -1,5 +1,7 @@
 # COMP1531 Project standup stubs
 # Written by Jake Tyler z5208823
+# and Bridget McCarthy z5255505
+# and Sabine Lim z5242579
 # 3/10/19
 
 import time

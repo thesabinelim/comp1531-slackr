@@ -1,5 +1,6 @@
 # COMP1531 Project standup tests
 # Written by Jake Tyler z5208823
+# and Bridget McCarthy z5255505
 # 1/10/19
 
 import pytest
@@ -18,19 +19,6 @@ from .standup import (
 from .db import reset_data, db_add_time_offset, db_reset_time_offset
 from .error import ValueError, AccessError
 
-
-# Helper class to manipulate time for testing standup errors
-class TestDateTime:
-    # def __init__(self):
-    #     self.original_time = datetime.datetime
-    # def now_plus_minutes(self, add_minutes):
-    #     datetime.datetime = datetime.datetime + datetime.timedelta(minutes=add_minutes)
-    # def reset_time(self):
-    #     datetime.datetime = self.original_time
-    def now(self):
-        t = time.time()
-        return time.time(t.hour, t.minute+15, t.second, t.microsecond)
-
 #######################
 # standup_start Tests #
 #######################
@@ -45,7 +33,7 @@ def test_standup_start_simple():
     
     sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
     assert sup_dict1
-    assert 'time_finish' in sup_dict1
+    assert sup_dict1['time_finish'] >= time.time() + 15 * 60 - 1
 
 def test_standup_start_already_running():
     # SETUP BEGIN
@@ -57,7 +45,7 @@ def test_standup_start_already_running():
     
     sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
     assert sup_dict1
-    assert 'time_finish' in sup_dict1
+    assert sup_dict1['time_finish'] >= time.time() + 15 * 60 - 1
 
     with pytest.raises(ValueError):
         standup_start(reg_dict1['token'], create_dict1['channel_id'])
@@ -99,7 +87,7 @@ def test_standup_send_simple():
     
     sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
     assert sup_dict1
-    assert 'time_finish' in sup_dict1
+    assert sup_dict1['time_finish'] >= time.time() + 15 * 60 - 1
 
     assert standup_send(reg_dict1['token'], create_dict1['channel_id'], 'Hello World') == {}
 
@@ -136,7 +124,7 @@ def test_standup_bad_channelid():
     
     sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
     assert sup_dict1
-    assert 'time_finish' in sup_dict1
+    assert sup_dict1['time_finish'] >= time.time() + 15 * 60 - 1
     
     with pytest.raises(ValueError):
         standup_send(reg_dict1['token'], create_dict1['channel_id'] + 1, 'This shouldn\'t send')
@@ -151,7 +139,7 @@ def test_standup_send_toolong():
     
     sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
     assert sup_dict1
-    assert 'time_finish' in sup_dict1
+    assert sup_dict1['time_finish'] >= time.time() + 15 * 60 - 1
     
     with pytest.raises(ValueError):
         standup_send(reg_dict1['token'], create_dict1['channel_id'], 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
@@ -167,7 +155,7 @@ def test_standup_send_standup_finished():
     
     sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'])
     assert sup_dict1
-    assert 'time_finish' in sup_dict1
+    assert sup_dict1['time_finish'] >= time.time() + 15 * 60 - 1
     
     # Standup works
     standup_send(reg_dict1['token'], create_dict1['channel_id'], 'This will send!')
