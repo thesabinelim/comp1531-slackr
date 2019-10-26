@@ -13,7 +13,7 @@ from .message import (
 )
 from .channel import (
     channel_join, channel_invite, channel_leave, channel_addowner,
-    channel_messages
+    channel_removeowner, channel_messages
 )
 from .channels import channels_create
 from .error import ValueError, AccessError
@@ -596,6 +596,11 @@ def test_message_edit_invalid_message_id():
 
     with pytest.raises(ValueError):
         message_edit(reg_dict1['token'], message_dict1['message_id'] + 1, "Boom")
+    
+    # Invalid message if message deleted
+    message_remove(reg_dict1['token'], message_dict1['message_id'])
+    with pytest.raises(ValueError):
+        message_edit(reg_dict1['token'], message_dict1['message_id'], "Boom")
 
 def test_message_edit_not_in_channel():
     # SETUP BEGIN
@@ -680,21 +685,21 @@ def test_message_react_simple():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Oof")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Owie")
     # SETUP END
 
     # Multiple reactions on same message works
@@ -712,7 +717,7 @@ def test_message_react_simple():
     message_react(reg_dict2['token'], 2, 4)
     message_react(reg_dict2['token'], 3, 4)
 
-    # Reacts work across channels (messages from channel_2)
+    # Reacts work across channels (messages from create_dict2)
     message_react(reg_dict2['token'], 4, 1)
     message_react(reg_dict2['token'], 5, 2)
     message_react(reg_dict2['token'], 6, 3)
@@ -726,21 +731,21 @@ def test_message_react_message_invalid():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
     
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Oof")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Owie")
     # SETUP END
     # Invalid message ids are negative and not currently in the channel
     with pytest.raises(ValueError):
@@ -768,7 +773,7 @@ def test_message_react_message_invalid():
     # Currently 6 messages
     with pytest.raises(ValueError):
         message_react(reg_dict1['token'], 7, 1)
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 7")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 7")
     message_react(reg_dict1['token'], 7, 1) # Will not fail
 
     # A deleted message is an invalid id
@@ -778,7 +783,7 @@ def test_message_react_message_invalid():
         message_react(reg_dict1['token'], 7, 3)
 
     # Message id invalid when user not in the channel
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Message 8")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Message 8")
     message_react(reg_dict1['token'], 8, 1)
     message_react(reg_dict2['token'], 8, 2)
     with pytest.raises(ValueError):
@@ -790,21 +795,21 @@ def test_message_react_react_invalid():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
     
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Oof")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Owie")
     # SETUP END
 
     # React id is invalid as a negative, and doesn't change depending on user
@@ -837,14 +842,14 @@ def test_message_react_message_already_reacted():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
     
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
     # SETUP END
     # Message already reacted to, still fails with different users
     message_react(reg_dict1['token'], 1, 1)
@@ -873,21 +878,21 @@ def test_message_unreact_simple():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Oof")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Owie")
     # SETUP END
 
     # Reactions can be removed right after adding
@@ -914,7 +919,7 @@ def test_message_unreact_simple():
     message_unreact(reg_dict1['token'], 2, 4)
     message_unreact(reg_dict1['token'], 3, 4)
 
-    # Unreacts work across channels (messages from channel_2)
+    # Unreacts work across channels (messages from create_dict2)
     message_react(reg_dict2['token'], 4, 1)
     message_react(reg_dict2['token'], 5, 2)
     message_react(reg_dict2['token'], 6, 3)
@@ -934,21 +939,21 @@ def test_message_unreact_invalid_message_id():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Oof")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Owie")
     # SETUP END
 
     # Message is negative or not created yet
@@ -976,12 +981,12 @@ def test_message_unreact_invalid_message_id():
     # A deleted message is invalid
     with pytest.raises(ValueError):
         message_unreact(reg_dict1['token'], 7, 1)
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 7")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 7")
     message_react(reg_dict1['token'], 7, 1) # Will not fail
     message_unreact(reg_dict1['token'], 7, 1) # Will not fail
 
     # Message id invalid when user not in channel
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Message 8")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Message 8")
     message_react(reg_dict1['token'], 8, 1)
     message_react(reg_dict2['token'], 8, 2)
     with pytest.raises(ValueError):
@@ -994,21 +999,21 @@ def test_message_unreact_invalid_react_id():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Oof")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Owie")
     # SETUP END
     
     # React id is invalid as a negative, and doesn't change depending on user
@@ -1040,21 +1045,21 @@ def test_message_unreact_already_no_reaction():
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    create_dict2 = channels_create(reg_dict1['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Oof")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_send(reg_dict2['token'], create_dict2['channel_id'], "Owie")
     # SETUP END
     # Messages having no reactions to begin with
     with pytest.raises(ValueError):
@@ -1082,468 +1087,288 @@ def test_message_unreact_already_no_reaction():
     with pytest.raises(ValueError):
         message_unreact(reg_dict1['token'], 1, 1)
 
-    
-##############################
-#     message_pin Tests      #
-##############################
+#####################
+# message_pin Tests #
+#####################
 
 def test_message_pin_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
-    
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    create_dict3 = channels_create(reg_dict3['token'], 'Steam', True)
 
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict1['u_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_dict3 = message_send(reg_dict3['token'], create_dict3['channel_id'], "Owie")
     # SETUP END
 
-    # Can pin messages that have been created in any channel by the admin
-    message_pin(reg_dict1['token'], 1)
-    message_pin(reg_dict1['token'], 2)
-    message_pin(reg_dict1['token'], 3)
+    assert message_pin(reg_dict1['token'], message_dict1['message_id']) == {}
+    assert message_pin(reg_dict2['token'], message_dict2['message_id']) == {}
+    assert message_pin(reg_dict3['token'], message_dict3['message_id']) == {}
 
-    message_pin(reg_dict2['token'], 4)
-    message_pin(reg_dict2['token'], 5)
-    message_pin(reg_dict2['token'], 6)
-
-    
-def test_message_pin_invalid_message():
+def test_message_pin_not_admin():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_dict2 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict3 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_dict4 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
     # SETUP END
 
-    # Invalid message if id is negative or not created yet
-    with pytest.raises(ValueError): 
-        message_pin(reg_dict1['token'], -1)
+    # Can't pin if the user is not an owner of the message's channel
     with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], -2)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], -3)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], -30000)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 200000000)
-    
-    # Invalid message if message deleted
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 7)
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 7")
-    message_remove(reg_dict1['token'], 7)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 7)
-
-    # Message won't be pinned upon creation if it was previously invalid
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 8)
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 8")
-    message_pin(reg_dict1['token'], 8) # Won't fail as it shouldn't have been pinned
-
-
-def test_message_pin_user_not_admin():
-    # SETUP BEGIN
-    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
-    
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
-
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
-
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
-    # SETUP END
-
-    # Can't pin if the user is not an admin for the message's channel
-    with pytest.raises(ValueError):
-        message_pin(reg_dict2['token'], 1)
-    message_pin(reg_dict1['token'], 1) # user1 is an owner of channel1
+        message_pin(reg_dict2['token'], message_dict1['message_id'])
+    assert message_pin(reg_dict1['token'], message_dict1['message_id']) == {}
 
     with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 4)
-    message_pin(reg_dict2['token'], 4) # user2 is an owner of the channel2
+        message_pin(reg_dict3['token'], message_dict4['message_id'])
+    assert message_pin(reg_dict1['token'], message_dict4['message_id']) == {}
 
     # Adding these users as owners should now allow them to pin
     with pytest.raises(ValueError):
-        message_pin(reg_dict2['token'], 2)
-    channel_addowner(reg_dict1['token'], channel_1['channel_id'], reg_dict2['u_id'])
-    message_pin(reg_dict2['token'], 2)
+        message_pin(reg_dict2['token'], message_dict2['message_id'])
+    channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict2['u_id'])
+    assert message_pin(reg_dict2['token'], message_dict2['message_id']) == {}
 
     # And when they lose ownership, their pinned messages should stay pinned
-    channel_removeowner(reg_dict1['token'], channel_1['channel_id'], reg_dict2['u_id'])
+    channel_removeowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict2['u_id'])
     with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 2)
+        message_pin(reg_dict1['token'], message_dict2['message_id'])
+
     # But they can't pin anymore
     with pytest.raises(ValueError):
-        message_pin(reg_dict2['token'], 3)
+        message_pin(reg_dict2['token'], message_dict3['message_id'])
 
+def test_message_pin_invalid_message():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    # SETUP END
+
+    # Invalid message id
+    with pytest.raises(ValueError):
+        message_pin(reg_dict1['token'], message_dict1['message_id'] + 1)
+    
+    # Invalid message if message deleted
+    message_remove(reg_dict1['token'], message_dict1['message_id'])
+    with pytest.raises(ValueError):
+        message_pin(reg_dict1['token'], message_dict1['message_id'])
 
 def test_message_pin_already_pinned():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
-
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
     # SETUP END
 
-    # Can't pin already pinned message
-    message_pin(reg_dict1['token'], 1)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 1)
-    
-    message_pin(reg_dict2['token'], 4)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict2['token'], 4)
+    assert message_pin(reg_dict1['token'], message_dict1['message_id']) == {}
 
-    message_pin(reg_dict2['token'], 5)
     with pytest.raises(ValueError):
-        message_pin(reg_dict2['token'], 5)
-
-    # An unpinned message is repinnable
-    message_unpin(reg_dict1['token'], 1)
-    message_pin(reg_dict1['token'], 1)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 1)
-
-    # A message pinned by another owner will still be unpinnable
-    message_pin(reg_dict1['token'], 1)
-    channel_addowner(reg_dict1['token'], channel_1['channel_id'], reg_dict2['u_id'])
-    with pytest.raises(ValueError):
-        message_pin(reg_dict2['token'], 1)
-
-    
+        message_pin(reg_dict1['token'], message_dict1['message_id'])
 
 def test_message_pin_not_in_channel():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
-    
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
 
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
     # SETUP END
 
-    # Can't pin a message if the user isn't even part of the channel
-    message_pin(reg_dict1['token'], 1)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 4)
-    message_pin(reg_dict2['token'], 4)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict3['token'], 5)
-    message_pin(reg_dict2['token'], 5)
+    with pytest.raises(AccessError):
+        message_pin(reg_dict1['token'], message_dict2['message_id'])
+    with pytest.raises(AccessError):
+        message_pin(reg_dict2['token'], message_dict1['message_id'])
 
-    # A user who joins the channel still can't pin until they become an owner
-    channel_join(reg_dict1['token'], channel_2['channel_id'])
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 6)
-    channel_addowner(reg_dict2['token'], channel_2['channel_id'], reg_dict1['u_id'])
-    message_pin(reg_dict1['token'], 6)
-
-##############################
-#     message_unpin Tests    #
-##############################
+#######################
+# message_unpin Tests #
+#######################
 
 def test_message_unpin_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
-    
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    create_dict3 = channels_create(reg_dict3['token'], 'Steam', True)
 
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict1['u_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_dict3 = message_send(reg_dict3['token'], create_dict3['channel_id'], "Owie")
+
+    message_pin(reg_dict1['token'], message_dict1['message_id'])
+    message_pin(reg_dict2['token'], message_dict2['message_id'])
+    message_pin(reg_dict3['token'], message_dict3['message_id'])
     # SETUP END
 
-    # Messages can be unpinned by the owners of the channel
-    message_pin(reg_dict1['token'], 1)
-    message_pin(reg_dict1['token'], 2)
-    message_pin(reg_dict1['token'], 3)
-    message_unpin(reg_dict1['token'], 1)
-    message_unpin(reg_dict1['token'], 2)
-    message_unpin(reg_dict1['token'], 3)
-
-    message_pin(reg_dict2['token'], 4)
-    message_pin(reg_dict2['token'], 5)
-    message_pin(reg_dict2['token'], 6)
-    message_unpin(reg_dict2['token'], 4)
-    message_unpin(reg_dict2['token'], 5)
-    message_unpin(reg_dict2['token'], 6)
-
+    assert message_unpin(reg_dict1['token'], message_dict1['message_id']) == {}
+    assert message_unpin(reg_dict2['token'], message_dict2['message_id']) == {}
+    assert message_unpin(reg_dict3['token'], message_dict3['message_id']) == {}
 
 def test_message_unpin_invalid_message():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
 
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_pin(reg_dict1['token'], message_dict1['message_id'])
     # SETUP END
 
-    # Invalid message if the id is negative or not created yet
+    # Invalid message id
     with pytest.raises(ValueError): 
-        message_unpin(reg_dict1['token'], -1)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], -2)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], -3)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], -30000)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 200000000)
-    
-    # Invalid message if message deleted
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 7)
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 7")
-    message_pin(reg_dict1['token'], 7)
-    message_unpin(reg_dict1['token'], 7)
-    message_pin(reg_dict1['token'], 7)
-    message_remove(reg_dict1['token'], 7)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 7)
+        message_unpin(reg_dict1['token'], message_dict1['message_id'] + 1)
 
-def test_message_unpin_user_not_admin():
+    # Invalid message if message deleted
+    message_remove(reg_dict1['token'], message_dict1['message_id'])
+    with pytest.raises(ValueError):
+        message_unpin(reg_dict1['token'], message_dict1['message_id'])
+
+def test_message_unpin_not_admin():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 0")
+    message_dict2 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict3 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
+    message_dict4 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Owie")
 
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', True)
+    channel_join(reg_dict2['token'], create_dict2['channel_id'])
     # SETUP END
-    message_pin(reg_dict1['token'], 1)
+
+    message_pin(reg_dict1['token'], message_dict1['message_id'])
     # Can't unpin if the user is not an admin for the message's channel
     with pytest.raises(ValueError):
-        message_unpin(reg_dict2['token'], 1)
-    message_unpin(reg_dict1['token'], 1) # user1 is an owner of channel1
+        message_unpin(reg_dict2['token'], message_dict1['message_id'])
+    assert message_unpin(reg_dict1['token'], message_dict1['message_id']) == {}
 
-    message_pin(reg_dict2['token'], 4)
+    message_pin(reg_dict1['token'], message_dict4['message_id'])
     with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 4)
-    message_unpin(reg_dict2['token'], 4) # user2 is an owner of channel2
+        message_unpin(reg_dict2['token'], message_dict4['message_id'])
+    assert message_unpin(reg_dict1['token'], message_dict4['message_id']) == {}
 
     # Adding users as owners/admins should allow them to unpin
-    message_pin(reg_dict1['token'], 2)
+    message_pin(reg_dict1['token'], message_dict2['message_id'])
     with pytest.raises(ValueError):
-        message_unpin(reg_dict2['token'], 2)
-    channel_addowner(reg_dict1['token'], channel_1['channel_id'], reg_dict2['u_id'])
-    message_unpin(reg_dict2['token'], 2)
+        message_unpin(reg_dict2['token'], message_dict2['message_id'])
+    channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict2['u_id'])
+    assert message_unpin(reg_dict2['token'], message_dict2['message_id']) == {}
 
     # After losing ownership their unpinned messages stay unpinned
-    channel_removeowner(reg_dict1['token'], channel_1['channel_id'], reg_dict2['u_id'])
+    channel_removeowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict2['u_id'])
     with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 2)
+        message_unpin(reg_dict1['token'], message_dict2['message_id'])
+
     # But they also can't unpin anymore messages
-    message_pin(reg_dict1['token'], 3)
+    message_pin(reg_dict1['token'], message_dict3['message_id'])
     with pytest.raises(ValueError):
-        message_unpin(reg_dict2['token'], 3)
+        message_unpin(reg_dict2['token'], message_dict3['message_id'])
 
 def test_message_unpin_already_unpinned():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
-    
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    create_dict1 = channels_create(reg_dict2['token'], 'PCSoc', False)
 
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    channel_invite(reg_dict2['token'], create_dict1['channel_id'], reg_dict1['u_id'])
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict1['channel_id'], "Ouch")
+
+    message_pin(reg_dict1['token'], message_dict1['message_id'])
+    message_pin(reg_dict2['token'], message_dict2['message_id'])
     # SETUP END
 
-    # Can't unpin a messaged that's unpinned
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 1)
-    message_pin(reg_dict1['token'], 1)
-    message_unpin(reg_dict1['token'], 1)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 1)
-    
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict2['token'], 4)
-    message_pin(reg_dict2['token'], 4)
-    message_unpin(reg_dict2['token'], 4)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict2['token'], 4)
+    assert message_unpin(reg_dict1['token'], message_dict1['message_id']) == {}
+    assert message_unpin(reg_dict2['token'], message_dict2['message_id']) == {}
 
     with pytest.raises(ValueError):
-        message_unpin(reg_dict2['token'], 5)
-    message_pin(reg_dict2['token'], 5)
-    message_unpin(reg_dict2['token'], 5)
+        message_unpin(reg_dict1['token'], message_dict1['message_id'])
     with pytest.raises(ValueError):
-        message_unpin(reg_dict2['token'], 5)
+        message_unpin(reg_dict2['token'], message_dict2['message_id'])
+    with pytest.raises(ValueError):
+        message_unpin(reg_dict2['token'], message_dict1['message_id'])
+    with pytest.raises(ValueError):
+        message_unpin(reg_dict1['token'], message_dict2['message_id'])
 
-    # An unpinned message is repinnable
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 3)
-    message_pin(reg_dict1['token'], 3)
-    with pytest.raises(ValueError):
-        message_pin(reg_dict1['token'], 1)
-    message_unpin(reg_dict1['token'], 3)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 3)
-
-    # A message unpinned by another owner can't be unpinned again
-    message_pin(reg_dict1['token'], 1)
-    channel_addowner(reg_dict1['token'], channel_1['channel_id'], reg_dict2['u_id'])
-    message_unpin(reg_dict2['token'], 1)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 1)
+    # Unpinned message are repinnable
+    assert message_pin(reg_dict1['token'], message_dict1['message_id']) == {}
+    assert message_pin(reg_dict2['token'], message_dict2['message_id']) == {}
 
 def test_message_unpin_not_in_channel():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
-    
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
 
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
 
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_pin(reg_dict1['token'], message_dict1['message_id'])
+    message_pin(reg_dict2['token'], message_dict2['message_id'])
     # SETUP END
 
-    # Can't unpin a message if the user isn't in the channel
-    message_pin(reg_dict1['token'], 1)
-    message_unpin(reg_dict1['token'], 1)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 4)
-    message_pin(reg_dict2['token'], 4)
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict3['token'], 4)
-    message_unpin(reg_dict2['token'], 4)
-
-    # A user who joins the channel still can't unpin until they become an owner
-    message_pin(reg_dict2['token'], 6)
-    channel_join(reg_dict1['token'], channel_2['channel_id'])
-    with pytest.raises(ValueError):
-        message_unpin(reg_dict1['token'], 6)
-    channel_addowner(reg_dict2['token'], channel_2['channel_id'], reg_dict1['u_id'])
-    message_unpin(reg_dict2['token'], 6)
+    with pytest.raises(AccessError):
+        message_unpin(reg_dict1['token'], message_dict2['message_id'])
+    with pytest.raises(AccessError):
+        message_unpin(reg_dict2['token'], message_dict1['message_id'])
     
