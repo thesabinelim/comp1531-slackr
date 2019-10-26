@@ -11,7 +11,10 @@ from .message import (
     message_send, message_sendlater, message_edit, message_remove, message_pin,
     message_unpin, message_react, message_unreact
 )
-from .channel import channel_join, channel_addowner, channel_messages
+from .channel import (
+    channel_join, channel_invite, channel_leave, channel_addowner,
+    channel_messages
+)
 from .channels import channels_create
 from .error import ValueError, AccessError
 
@@ -356,82 +359,135 @@ def test_message_send_not_in_channel():
     with pytest.raises(AccessError):
         message_send(reg_dict3['token'], create_dict1['channel_id'], "Owie")
 
-##############################
-#     message_remove Tests    #
-##############################
+########################
+# message_remove Tests #
+########################
 
 def test_message_remove_simple():
     # SETUP BEGIN
-    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    # SETUP END
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
-    message_remove(reg_dict1['token'], 1)
-    message_remove(reg_dict1['token'], 2)
-    message_remove(reg_dict1['token'], 3)
+    reset_data()
 
-def test_message_remove_removed_message():
-    # SETUP BEGIN
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    # SETUP END
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
-    message_remove(reg_dict1['token'], 1)
-    message_remove(reg_dict1['token'], 2)
-    message_remove(reg_dict1['token'], 3)
-    with pytest.raises(ValueError):
-        message_remove(reg_dict1['token'], 1)
-    with pytest.raises(ValueError):
-        message_remove(reg_dict1['token'], 2)
-    with pytest.raises(ValueError):
-        message_remove(reg_dict1['token'], 3)
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
 
-def test_message_remove_message_access_error():
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    # SETUP END
+
+    assert message_remove(reg_dict1['token'], message_dict1['message_id']) == {}
+    assert message_remove(reg_dict2['token'], message_dict2['message_id']) == {}
+
+def test_message_remove_already_removed():
     # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    # SETUP END
+
+    assert message_remove(reg_dict1['token'], message_dict1['message_id']) == {}
+    assert message_remove(reg_dict2['token'], message_dict2['message_id']) == {}
+
+    with pytest.raises(ValueError):
+        message_remove(reg_dict1['token'], message_dict1['message_id'])
+    with pytest.raises(ValueError):
+        message_remove(reg_dict2['token'], message_dict2['message_id'])
+
+def test_message_remove_invalid_message_id():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    # SETUP END
+
+    with pytest.raises(ValueError):
+        message_remove(reg_dict1['token'], message_dict1['message_id'] + 1)
+
+def test_message_remove_not_in_channel():
+    # SETUP BEGIN
+    reset_data()
+
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict1['u_id'])
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict2['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict1['channel_id'], "Ouch")
+
+    channel_leave(reg_dict1['token'], create_dict2['channel_id'])
+    channel_leave(reg_dict2['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    with pytest.raises(AccessError):
+        message_remove(reg_dict2['token'], message_dict1['message_id'])
+    with pytest.raises(AccessError):
+        message_remove(reg_dict1['token'], message_dict2['message_id'])
+
+def test_message_remove_message_not_sender():
+    # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
+
+    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict1['u_id'])
+    channel_invite(reg_dict2['token'], create_dict2['channel_id'], reg_dict3['u_id'])
+
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Message 1")
+    message_dict2 = message_send(reg_dict2['token'], create_dict1['channel_id'], "Message 2")
+    message_dict3 = message_send(reg_dict1['token'], create_dict2['channel_id'], "Message 3")
+    message_dict4 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Message 4")
     # SETUP END
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict3['token'], channel_1['channel_id'], "Owie")
 
     # Message can't be deleted by regular user who didn't send the message
     with pytest.raises(AccessError):
-        message_remove(reg_dict3['token'], 2)
+        message_remove(reg_dict3['token'], message_dict2['message_id'])
+
+    # Message sent by owner of the channel, can't be deleted by regular users
     with pytest.raises(AccessError):
-        message_remove(reg_dict2['token'], 3)
-
-    # Message can be deleted by regular user who owns the message
-    message_remove(reg_dict2['token'], 2)
-    message_remove(reg_dict3['token'], 3)
-
-    # Message sent by owner of the channel, can't be deleted by regular user
+        message_remove(reg_dict2['token'], message_dict1['message_id'])
     with pytest.raises(AccessError):
-        message_remove(reg_dict2['token'], 1)
+        message_remove(reg_dict3['token'], message_dict1['message_id'])
+
+    # Regular user gains ability to remove others' messages when they become
+    # channel owner, including messages from other channel owners
+    channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict3['u_id'])
+    assert message_remove(reg_dict3['token'], message_dict2['message_id']) == {}
+    assert message_remove(reg_dict3['token'], message_dict1['message_id']) == {}
+
+    # Owners of one channel can't delete others' messages from other channels
+    # they aren't owner of
     with pytest.raises(AccessError):
-        message_remove(reg_dict3['token'], 1)
-
-    # Regular user gains ability to remove others messages when they become admin
-    channel_addowner(reg_dict1['token'], channel_1['channel_id'], reg_dict2['u_id'])
-    message_remove(reg_dict2['token'], 1)
-
-    # Admins in one channel can't delete messages from other channels they aren't admin of
-    channel_2 = channels_create(reg_dict2['token'], 'PCSoc', True)
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Message 4")
+        message_remove(reg_dict3['token'], message_dict3['message_id'])
     with pytest.raises(AccessError):
-        message_remove(reg_dict1['token'], 4)
-    message_remove(reg_dict2['token'], 4)
+        message_remove(reg_dict3['token'], message_dict4['message_id'])
 
+    # Unless they're a Slackr admin/owner
+    assert message_remove(reg_dict1['token'], message_dict4) == {}
 
 ##############################
 #     message_edit  Tests    #
