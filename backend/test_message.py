@@ -493,53 +493,28 @@ def test_message_remove_message_not_sender():
     # Unless they're a Slackr admin/owner
     assert message_remove(reg_dict1['token'], message_dict4['message_id']) == {}
 
-##############################
-#     message_edit  Tests    #
-##############################
-# Probably subject to change as it seems the error conditions are completely
-# wrong.
-# i.e. Anybody can edit anybodies message
+######################
+# message_edit Tests #
+######################
+
 def test_message_edit_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     
-    channel_1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    channel_join(reg_dict2['token'], channel_1['channel_id'])
-    channel_join(reg_dict3['token'], channel_1['channel_id'])
+    create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    channel_join(reg_dict3['token'], create_dict1['channel_id'])
 
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Message 0")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Oof")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Ouch")
-    message_send(reg_dict1['token'], channel_1['channel_id'], "Owie")
-
-    channel_2 = channels_create(reg_dict1['token'], 'PCSoc', True)
-    channel_join(reg_dict2['token'], channel_2['channel_id'])
-
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Oof")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Ouch")
-    message_send(reg_dict2['token'], channel_2['channel_id'], "Owie")
+    message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
+    message_dict2 = message_send(reg_dict2['token'], create_dict1['channel_id'], "Ouch")
+    message_dict3 = message_send(reg_dict3['token'], create_dict1['channel_id'], "Owie")
     # SETUP END
 
-    # Users that made their own posts can edit them just fine
-    # The text can still be the exact same as the original
-    message_edit(reg_dict1['token'], 1, "Oof")
-    message_edit(reg_dict1['token'], 2, "Ouch")
-    message_edit(reg_dict1['token'], 3, "Owie")
-
-    message_edit(reg_dict1['token'], 1, "OOF")
-    message_edit(reg_dict1['token'], 2, "OUCH")
-    message_edit(reg_dict1['token'], 3, "OWIE")
-
-    message_edit(reg_dict2['token'], 4, "OOF")
-    message_edit(reg_dict2['token'], 5, "OUCH")
-    message_edit(reg_dict2['token'], 6, "OWIE")
-
-    # Newly made messages can be immediately edited as well
-    message_send(reg_dict3['token'], channel_2['channel_id'], "help")
-    message_edit(reg_dict3['token'], 7, "Message 7")
-
+    
 
 def test_message_edit_wrong_user():
     # SETUP BEGIN
