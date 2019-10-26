@@ -22,6 +22,7 @@ from .search import (
 from .db import (
     reset_data
 )
+from .error import ValueError, AccessError
 def test_search_none():
     # SETUP BEGIN
     reset_data()
