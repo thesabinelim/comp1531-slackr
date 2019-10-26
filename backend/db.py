@@ -44,11 +44,31 @@ def reset_data():
         'users': [],
         'channels': [],
         'messages': [],
-        'reset_requests': []
+        'reset_requests': [],
+        'time_offset': 0
     }
 
 data = None
 reset_data()
+
+#####################
+# Time manipulation #
+#####################
+# Used for functions that depend on time to test.
+# Their calculations for time.time() will add get_db_time_offset() on the end.
+# Outside of testing, this will always be zero, but when testing this allows us
+# to modify the time to test more easily.
+def db_add_time_offset(seconds):
+    db = get_data()
+    db['time_offset'] += seconds
+
+def db_reset_time_offset():
+    db = get_data()
+    db['time_offset'] = 0
+
+def db_get_time_offset():
+    db = get_data()
+    return db['time_offset']
 
 ##############
 # users data #

@@ -7,7 +7,7 @@ import time
 
 from .db import (
     Role, User, Channel, Message, db_get_channel_by_channel_id,
-    db_get_user_by_u_id
+    db_get_user_by_u_id, db_get_time_offset
 )
 from .auth import validate_token
 from .error import ValueError, AccessError
@@ -93,7 +93,7 @@ def channel_messages(token, channel_id, start):
     offset = 0
     all_messages = channel.get_messages()
     for message in all_messages:
-        if message.get_time_created() > time.time():
+        if message.get_time_created() > time.time() + db_get_time_offset():
             offset += 1
         else:
             break
