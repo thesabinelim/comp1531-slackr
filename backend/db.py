@@ -354,6 +354,8 @@ class Message:
         if user not in react['users']:
             raise ValueError(description="User has not made that react!")
         react['users'].remove(user)
+        if len(react['users']) == 0:
+            self.reacts.remove(react)
     def pin(self):
         self.pinned = True
     def unpin(self):
