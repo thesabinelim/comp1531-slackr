@@ -10,8 +10,6 @@ import SendIcon from '@material-ui/icons/Send';
 import TimerIcon from '@material-ui/icons/Timer';
 import { makeStyles } from '@material-ui/styles';
 import AuthContext from '../../AuthContext';
-import { toast } from 'react-toastify';
-import { DEFAULT_ERROR_TEXT } from '../../utils/text';
 import AddMessageTimerDialog from './AddMessageTimerDialog';
 
 const useStyles = makeStyles((theme) => ({
@@ -36,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TIMER_INACTIVE_VALUE = -1;
 
-function AddMessage({ channel_id = '' }) {
+function AddMessage({ channel_id = '', onAdd = () => {} }) {
   const classes = useStyles();
   const [currentMessage, setCurrentMessage] = React.useState('');
   const [currentTimer, setCurrentTimer] = React.useState(TIMER_INACTIVE_VALUE);
@@ -56,17 +54,17 @@ function AddMessage({ channel_id = '' }) {
         token,
         channel_id,
         message,
-        time_sent: currentTimer.toISOString(),
+        time_sent: currentTimer.getTime(),
       })
         .then(({ data }) => {
           console.log(data);
         })
-        .catch((err) => {
-          console.error(err);
-          toast.error(DEFAULT_ERROR_TEXT);
-        });
+        .catch((err) => {});
       setCurrentTimer(TIMER_INACTIVE_VALUE);
     } else {
+      if (message == '/standup') {
+        alert('Hello. This feature isn\'t finished yet. We won\'t be expecting you to demonstrate this on the frontend in iteration 2'); // TODO
+      }
       axios.post(`/message/send`, {
         token,
         channel_id,
@@ -74,11 +72,9 @@ function AddMessage({ channel_id = '' }) {
       })
         .then(({ data }) => {
           console.log(data);
+          onAdd();
         })
-        .catch((err) => {
-          console.error(err);
-          toast.error(DEFAULT_ERROR_TEXT);
-        });
+        .catch((err) => {});
     }
   };
 
