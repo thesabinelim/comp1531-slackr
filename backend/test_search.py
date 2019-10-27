@@ -77,7 +77,7 @@ def test_search_simple():
         assert 'u_id' in entry
         assert 'time_created' in entry
         m_id.append(entry['message_id'])
-        u_id.append(entry['u_id'].get_u_id())
+        u_id.append(entry['u_id'])
         msg.append(entry['message'])
 
     assert search_dict1['messages']
@@ -121,7 +121,7 @@ def test_search_case():
         assert 'u_id' in entry
         assert 'time_created' in entry
         m_id1.append(entry['message_id'])
-        u_id1.append(entry['u_id'].get_u_id())
+        u_id1.append(entry['u_id'])
         msg1.append(entry['message'])
 
     for entry in search_dict2['messages']:
@@ -129,7 +129,7 @@ def test_search_case():
         assert 'u_id' in entry
         assert 'time_created' in entry
         m_id2.append(entry['message_id'])
-        u_id2.append(entry['u_id'].get_u_id())
+        u_id2.append(entry['u_id'])
         msg2.append(entry['message'])
 
     assert search_dict1['messages']
@@ -191,7 +191,7 @@ def test_search_multi_channel():
         assert 'u_id' in entry
         assert 'time_created' in entry
         m_id1.append(entry['message_id'])
-        u_id1.append(entry['u_id'].get_u_id())
+        u_id1.append(entry['u_id'])
         msg1.append(entry['message'])
      
     for entry in search_dict2['messages']:
@@ -199,7 +199,7 @@ def test_search_multi_channel():
         assert 'u_id' in entry
         assert 'time_created' in entry
         m_id2.append(entry['message_id'])
-        u_id2.append(entry['u_id'].get_u_id())
+        u_id2.append(entry['u_id'])
         msg2.append(entry['message'])
             
     assert search_dict1['messages']
