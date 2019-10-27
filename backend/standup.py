@@ -1,12 +1,14 @@
 # COMP1531 Project standup stubs
 # Written by Jake Tyler z5208823
+# and Bridget McCarthy z5255505
+# and Sabine Lim z5242579
 # 3/10/19
 
 import time
 
 from .db import (
     User, Channel, Message, db_get_user_by_u_id, db_get_channel_by_channel_id,
-    db_create_message
+    db_create_message, db_get_time_offset
 )
 from .auth import validate_token
 from .error import ValueError, AccessError
@@ -27,15 +29,16 @@ def standup_start(token, channel_id):
 
     if not channel.has_member(user):
         raise AccessError(description="Authorised user is not member of that channel!")
-
-    if channel.get_standup() is not None:
-        if channel.get_standup().get_time_created() < time.time():
-            raise ValueError(description="An active standup is currently running in this channel!")
+    adjusted_time = time.time() + db_get_time_offset()
+    if channel.get_standup() is not None \
+        and adjusted_time < channel.get_standup().get_time_created():
+        raise ValueError(description="An active standup is currently running in this channel!")
 
     # Set standup to expire in 15 minutes.
     time_finish = time.time() + 15 * 60
 
-    db_create_message(user, channel, "", time_finish)
+    message = db_create_message(user, channel, "", time_finish)
+    channel.set_standup(message)
 
     return {'time_finish': time_finish}
 
@@ -56,14 +59,15 @@ def standup_send(token, channel_id, message):
         raise AccessError(description="Authorised user is not member of that channel!")
 
     standup = channel.get_standup()
-    if standup is None or standup.get_time_created() >= time.time():
+    adjusted_time = time.time() + db_get_time_offset()
+    if standup is None or adjusted_time >= (standup.get_time_created()):
         raise ValueError(description="No active standup is currently running in this channel!")
 
     if len(message) > 1000:
         raise ValueError(description="Message cannot be longer than 1000 characters!")
 
     old_text = standup.get_text()
-    new_text = f"{old_text} {user.get_handle()}: {message}"
+    new_text = f"{old_text}{user.get_handle()}: {message} \n"
 
     standup.set_text(new_text)
 

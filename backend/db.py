@@ -44,11 +44,31 @@ def reset_data():
         'users': [],
         'channels': [],
         'messages': [],
-        'reset_requests': []
+        'reset_requests': [],
+        'time_offset': 0
     }
 
 data = None
 reset_data()
+
+#####################
+# Time manipulation #
+#####################
+# Used for functions that depend on time to test.
+# Their calculations for time.time() will add get_db_time_offset() on the end.
+# Outside of testing, this will always be zero, but when testing this allows us
+# to modify the time to test more easily.
+def db_add_time_offset(seconds):
+    db = get_data()
+    db['time_offset'] += seconds
+
+def db_reset_time_offset():
+    db = get_data()
+    db['time_offset'] = 0
+
+def db_get_time_offset():
+    db = get_data()
+    return db['time_offset']
 
 ##############
 # users data #
@@ -105,7 +125,7 @@ class User:
         self.name_last = new_name_last
     def set_handle(self, new_handle):
         self.handle = new_handle
-    def set_role(self, new_role):
+    def set_slackr_role(self, new_role):
         self.role = new_role
     def join_channel(self, channel):
         if channel not in self.channels:
@@ -277,15 +297,6 @@ def db_get_channel_by_channel_id(channel_id):
             return channel
     return None
 
-# Return Channel with name if it exists in database, None otherwise.
-def db_get_channel_by_name(name):
-    db = get_data()
-
-    for channel in db['channels']:
-        if channel.get_name() == name:
-            return channel
-    return None
-
 #################
 # messages data #
 #################
@@ -343,6 +354,8 @@ class Message:
         if user not in react['users']:
             raise ValueError(description="User has not made that react!")
         react['users'].remove(user)
+        if len(react['users']) == 0:
+            self.reacts.remove(react)
     def pin(self):
         self.pinned = True
     def unpin(self):

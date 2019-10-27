@@ -19,19 +19,19 @@ def admin_userpermission_change(token, target_id, permission_id):
     if target is None:
         raise ValueError(description="User with u_id does not exist!")
     
-    if permission_id not in [Role.owner, Role.admin, Role.member]:
+    if permission_id not in [perm.value for perm in Role]:
         raise ValueError(description="Invalid permission_id!")
 
     if authorised_user.get_slackr_role() != Role.owner \
         and authorised_user.get_slackr_role() != Role.admin:
         raise AccessError(description="Logged in user is not admin or owner!")
 
-    if authorised_user.get_slackr_role() == Role.admin:
-        if permission_id == Role.owner:
-            raise AccessError(description="Admins cannot promote anyone to owner!")
-        if target.get_slackr_role() == Role.owner:
-            raise AccessError(description="Admins cannot modify permissions of owners!")
+    if target.get_slackr_role().value < authorised_user.get_slackr_role().value:
+        raise AccessError(description="Cannot modify permissions of a user with higher permissions")
 
-    target.set_role(permission_id)
+    if permission_id < authorised_user.get_slackr_role().value:
+        raise AccessError(description="Cannot modify permissions to be higher than authorised user's own permissions")
+
+    target.set_slackr_role(Role(permission_id))
 
     return {}

@@ -18,11 +18,15 @@ auth_register:
     - Names cannot contain only punctuation.
     - Returned u_ids cannot be negative.
 
+channel_messages:
+    - If the number of messages in a channel is zero, an empty list should be returned instead of throwing a ValueError constantly.
+    
 channel_details:
     - The list of members returned is sorted in order of id.
 
 channel_leave:
     - An owner leaving removes them from the channel's owner list.
+    - If an owner is the last owner (not inherited owner like with slackr admin/owner) of a channel, then they can't leave unless they are the only member left.
 
 channel_join:
     - Owner of slackr is not automatically owner of channels joined.
@@ -36,12 +40,10 @@ channels_list:
     - The list of channels returned is sorted in order of id.
 
 channel_addowner:
-    - Assuming that behaviour of attempting to add someone as owner of channel
-      they're not in will be clarified in iteration 2.
-    - The user being added as owner must already be in the channel.
     - slackr owners can promote themselves to owners of any channel they're in.
     - slackr owners can promote others to owners of channels said others are in,
       even if the slackr owner isn't an owner of the channel themself.
+    - If the target user wasn't in the channel, then they will be in addition to being an owner
 
 channel_removeowner:
     - Assuming that behaviour of attempting to remove someone as owner of
@@ -62,11 +64,13 @@ user_profile:
 message_send:
     - Users cannot send messages to channels they are not members of. Raise
       AccessError if this is attempted.
+    - Message cannot be empty.
 
 message_sendlater:
     - Users cannot send messages to channels they are not members of. Raise
       AccessError if this is attempted.
     - time_sent is a Unix timestamp.
+    - Message cannot be empty.
 
 message_remove:
     - The conditions for the AccessError are probably wrong for this iteration
