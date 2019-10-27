@@ -76,9 +76,8 @@ def test_search_simple():
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
-        assert 'is_unread' in entry
         m_id.append(entry['message_id'])
-        u_id.append(entry['u_id'])
+        u_id.append(entry['u_id'].get_u_id())
         msg.append(entry['message'])
 
     assert search_dict1['messages']
@@ -121,34 +120,31 @@ def test_search_case():
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
-        assert 'is_unread' in entry
         m_id1.append(entry['message_id'])
-        u_id1.append(entry['u_id'])
+        u_id1.append(entry['u_id'].get_u_id())
         msg1.append(entry['message'])
 
     for entry in search_dict2['messages']:
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
-        assert 'is_unread' in entry
         m_id2.append(entry['message_id'])
-        u_id2.append(entry['u_id'])
+        u_id2.append(entry['u_id'].get_u_id())
         msg2.append(entry['message'])
 
     assert search_dict1['messages']
     assert search_dict2['messages']
-    assert search_dict1 != search_dict2
+    assert search_dict1 == search_dict2
     
-    assert len(m_id1) == 2
+    assert len(m_id1) == 3
     assert m_id1[0] != m_id1[1]
+    assert m_id1[1] != m_id1[2]
     assert reg_dict1['u_id'] in u_id1
     assert reg_dict2['u_id'] in u_id1
+    assert reg_dict3['u_id'] in u_id1
     assert "Hello there!" in msg1
     assert "Hello" in msg1
-    
-    assert len(m_id2) == 1
-    assert reg_dict3['u_id'] in u_id2
-    assert "hi everyone" in msg2
+    assert "hi everyone" in msg1
 
 def test_search_notinchannel():
     # SETUP BEGIN
@@ -194,18 +190,16 @@ def test_search_multi_channel():
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
-        assert 'is_unread' in entry
         m_id1.append(entry['message_id'])
-        u_id1.append(entry['u_id'])
+        u_id1.append(entry['u_id'].get_u_id())
         msg1.append(entry['message'])
      
     for entry in search_dict2['messages']:
         assert 'message_id' in entry
         assert 'u_id' in entry
         assert 'time_created' in entry
-        assert 'is_unread' in entry
         m_id2.append(entry['message_id'])
-        u_id2.append(entry['u_id'])
+        u_id2.append(entry['u_id'].get_u_id())
         msg2.append(entry['message'])
             
     assert search_dict1['messages']

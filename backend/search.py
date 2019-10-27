@@ -2,7 +2,6 @@
 # Written by Eric Lin z5257305 and Sabine Lim z5242579
 # 24/10/19
 
-import re
 
 from .auth import validate_token
 
@@ -15,9 +14,7 @@ from .channel import (
 # Given a query string, return a collection of messages that match the query
 def search(token, query_str):
     u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
-
-    query_re = re.compile(f'{query_str.lower()}')
+    user = db_get_user_by_u_id(u_id) 
     channels = user.get_channels()
 
     search_messages = []
@@ -27,7 +24,7 @@ def search(token, query_str):
         while start != -1: 
             match_message = channel_messages(token, channel.get_channel_id(), start)
             for channel_message in match_message['messages']:
-                if query_re.match(channel_message['message']):
+                if query_str.lower() in channel_message['message'].lower():
                     search_messages.append(channel_message)
             start = match_message['end']
     return {'messages': search_messages}
