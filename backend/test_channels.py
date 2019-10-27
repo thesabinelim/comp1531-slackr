@@ -1,5 +1,6 @@
 # COMP1531 Project channels tests
 # Written by Sabine Lim z5242579
+# And Eric Lin z5257305
 # 01/10/19
 
 import pytest
@@ -59,6 +60,7 @@ def test_channels_create_name_too_long():
 
 def test_channels_list_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -77,24 +79,24 @@ def test_channels_list_simple():
     # Check that Test is in 1531 autotest
     assert channels_list(reg_dict1['token']) == {
         'channels': [
-            {7654321, '1531 autotest'}
+            {'channel_id': 1, 'name': '1531 autotest'}
         ]
     }
 
     # Check that Sabine is in PCSoc, 1531 autotest and Steam
     assert channels_list(reg_dict2['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id':  2, 'name': 'PCSoc'},
+            {'channel_id': 1, 'name': '1531 autotest'},
+            {'channel_id': 3, 'name': 'Steam'}
         ]
     }
 
     # Check that Gabe is in 1531 autotest and Steam
     assert channels_list(reg_dict3['token']) == {
         'channels': [
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': 3     , 'name': 'Steam'},
+            {'channel_id': 1, 'name': '1531 autotest'}            
         ]
     }
 
@@ -103,6 +105,7 @@ def test_channels_list_simple():
 
 def test_channels_list_nochannels():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -114,6 +117,7 @@ def test_channels_list_nochannels():
 
 def test_channels_list_joinednone():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -132,6 +136,7 @@ def test_channels_list_joinednone():
 
 def test_channels_listall_simple():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -148,54 +153,56 @@ def test_channels_listall_simple():
     # SETUP END
 
     # Check that all channels are listed for Test, who is in 1 channel
-    assert channels_list(reg_dict1['token']) == {
+    assert channels_listall(reg_dict1['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': 1, 'name': '1531 autotest'},
+            {'channel_id': 2, 'name': 'PCSoc'},
+            {'channel_id': 3, 'name': 'Steam'}
         ]
     }
 
     # Check that all channels are listed for Sabine, who is in all 3 channels
-    assert channels_list(reg_dict2['token']) == {
+    assert channels_listall(reg_dict2['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': 1, 'name': '1531 autotest'},
+            {'channel_id': 2, 'name': 'PCSoc'},
+            {'channel_id': 3, 'name': 'Steam'}
         ]
     }
 
     # Check that all channels are listed for Gabe, who is in 2 channels
-    assert channels_list(reg_dict3['token']) == {
+    assert channels_listall(reg_dict3['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': 1, 'name': '1531 autotest'},
+            {'channel_id': 2, 'name': 'PCSoc'},
+            {'channel_id': 3, 'name': 'Steam'}
         ]
     }
 
     # Check that all channels are listed for Qrst, who is in no channels
-    assert channels_list(reg_dict4['token']) == {
+    assert channels_listall(reg_dict4['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': 1, 'name': '1531 autotest'},
+            {'channel_id': 2, 'name': 'PCSoc'},
+            {'channel_id': 3, 'name': 'Steam'}
         ]
     }
 
 def test_channels_listall_nochannels():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
-    assert channels_list(reg_dict1['token']) == {'channels': []}
-    assert channels_list(reg_dict2['token']) == {'channels': []}
-    assert channels_list(reg_dict3['token']) == {'channels': []}
+    assert channels_listall(reg_dict1['token']) == {'channels': []}
+    assert channels_listall(reg_dict2['token']) == {'channels': []}
+    assert channels_listall(reg_dict3['token']) == {'channels': []}
 
 def test_channels_listall_createdjoinednone():
     # SETUP BEGIN
+    reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -206,19 +213,19 @@ def test_channels_listall_createdjoinednone():
     # SETUP END
 
     # Check that all channels are listed for Sabine, who is in no channels
-    assert channels_list(reg_dict2['token']) == {
+    assert channels_listall(reg_dict2['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': 1, 'name': '1531 autotest'},
+            {'channel_id': 2, 'name': 'PCSoc'},
+            {'channel_id': 3, 'name': 'Steam'}
         ]
     }
 
     # Check that all channels are listed for Qrst, who is in no channels
-    assert channels_list(reg_dict3['token']) == {
+    assert channels_listall(reg_dict3['token']) == {
         'channels': [
-            {3054207, 'PCSoc'},
-            {7654321, '1531 autotest'},
-            {9703358, 'Steam'}
+            {'channel_id': 1, 'name': '1531 autotest'},
+            {'channel_id': 2, 'name': 'PCSoc'},
+            {'channel_id': 3, 'name': 'Steam'}
         ]
     }
