@@ -10,6 +10,7 @@ import SendIcon from '@material-ui/icons/Send';
 import TimerIcon from '@material-ui/icons/Timer';
 import { makeStyles } from '@material-ui/styles';
 import AuthContext from '../../AuthContext';
+import {StepContext} from '../Channel/ChannelMessages';
 import AddMessageTimerDialog from './AddMessageTimerDialog';
 
 const useStyles = makeStyles((theme) => ({
@@ -34,12 +35,14 @@ const useStyles = makeStyles((theme) => ({
 
 const TIMER_INACTIVE_VALUE = -1;
 
-function AddMessage({ channel_id = '', onAdd = () => {} }) {
+function AddMessage({ channel_id = '' }) {
   const classes = useStyles();
   const [currentMessage, setCurrentMessage] = React.useState('');
   const [currentTimer, setCurrentTimer] = React.useState(TIMER_INACTIVE_VALUE);
   const [timerDialogOpen, setTimerDialogOpen] = React.useState(false);
   const token = React.useContext(AuthContext);
+  let onAdd = React.useContext(StepContext);
+  onAdd = onAdd ? onAdd : () => {}; // sanity check
 
   const isTimerSet = currentTimer !== TIMER_INACTIVE_VALUE;
 
