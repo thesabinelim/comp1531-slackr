@@ -51,9 +51,16 @@ function Profile({ profile }) {
       });
   }
 
-  function updateProfileImgUrl(img_url) {
+  function updateProfileImgUrl(raw_text, x_start, y_start, x_end, y_end) {
+    const items = raw_text.split(',');
     axios
-      .post(`/user/profile/uploadphoto`, { token, img_url })
+      .post(`/user/profile/uploadphoto`, { token,
+        img_url: items[0],
+        x_start: items[1],
+        y_start: items[2],
+        x_end: items[3],
+        y_end: items[4],
+      })
       .then(() => {
         console.log('all good');
       })
@@ -77,7 +84,7 @@ function Profile({ profile }) {
 
   return (
     <>
-      <Typography variant="h4">Profile</Typography>
+      <Typography variant="h4">Profile</Typography>     
       <List subheader={<ListSubheader>Profile Details</ListSubheader>}>
         <ListItem key={'name'}>
           <EditableFields
@@ -105,16 +112,6 @@ function Profile({ profile }) {
             onSave={updateEmail}
           />
         </ListItem>
-        <ListItem key={'img_url'}>
-          <EditableFields
-            editable={editable}
-            masterValue={profileDetails.img_url}
-            master={(passed_props) => (
-              <TextField label={'Profile Img URL (JPG)'} {...passed_props} />
-            )}
-            onSave={updateProfileImgUrl}
-          />
-        </ListItem>
         <ListItem key={'handle'}>
           <EditableFields
             editable={editable}
@@ -125,6 +122,18 @@ function Profile({ profile }) {
             onSave={updateHandle}
           />
         </ListItem>
+        <ListItem key={'img_url'}>
+          <EditableFields
+            editable={editable}
+            masterValue={profileDetails.img_url}
+            master={(passed_props) => (
+              <TextField label={'img_url,x1,y1,x2,y2'} {...passed_props} />
+            )}
+            onSave={updateProfileImgUrl}
+          />
+        </ListItem>
+        <br />
+        <div>NOTE: The final field input is to set a profile image. Please enter the 5 components (image url, x_start, y_start, x_end, y_end) separated by commas</div>
       </List>
     </>
   );
