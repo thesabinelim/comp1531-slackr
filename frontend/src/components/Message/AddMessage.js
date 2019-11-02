@@ -185,6 +185,7 @@ function AddMessage({ channel_id = '', onAdd = () => {} }) {
               <InputAdornment position="end">
                 <IconButton
                   aria-label="toggle visibility"
+                  disabled={standupRemaining > 0}
                   onClick={() =>
                     isTimerSet ? setCurrentTimer(-1) : setTimerDialogOpen(true)
                   }
