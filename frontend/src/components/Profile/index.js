@@ -53,7 +53,7 @@ function Profile({ profile }) {
 
   function updateProfileImgUrl(img_url) {
     axios
-      .post(`/user/profile/uploadphoto`, { token, img_url })
+      .post(`/user/profiles/uploadphoto`, { token, img_url })
       .then(() => {
         console.log('all good');
       })
