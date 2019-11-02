@@ -51,6 +51,17 @@ function Profile({ profile }) {
       });
   }
 
+  function updateProfileImgUrl(img_url) {
+    axios
+      .post(`/user/profile/uploadphoto`, { token, img_url })
+      .then(() => {
+        console.log('all good');
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
   function updateHandle(handle_str) {
     axios
       .put(`/user/profile/sethandle`, { token, handle_str })
@@ -92,6 +103,16 @@ function Profile({ profile }) {
               <TextField label={'Email'} {...passed_props} />
             )}
             onSave={updateEmail}
+          />
+        </ListItem>
+        <ListItem key={'img_url'}>
+          <EditableFields
+            editable={editable}
+            masterValue={profileDetails.img_url}
+            master={(passed_props) => (
+              <TextField label={'Profile Img URL (JPG)'} {...passed_props} />
+            )}
+            onSave={updateProfileImgUrl}
           />
         </ListItem>
         <ListItem key={'handle'}>
