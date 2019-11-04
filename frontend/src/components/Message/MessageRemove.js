@@ -10,6 +10,7 @@ import {StepContext} from '../Channel/ChannelMessages';
 
 function MessageRemove({
   message_id,
+  disabled=false,
 }) {
 
   const token = React.useContext(AuthContext);
@@ -32,6 +33,7 @@ function MessageRemove({
 
   return (
     <IconButton
+      disabled={disabled}
       onClick={messageRemove}
       style={{ margin: 1 }}
       size="small"

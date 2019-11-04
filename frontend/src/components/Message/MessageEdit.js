@@ -12,9 +12,11 @@ import {StepContext} from '../Channel/ChannelMessages';
 
 function MessageEdit({
     message_id,
+    disabled=false,
 }) {
 
     const token = React.useContext(AuthContext);
+
     let step = React.useContext(StepContext);
     step = step ? step : () => {}; // sanity check
 
@@ -53,6 +55,7 @@ function MessageEdit({
 
     return (
         <IconButton
+            disabled={disabled}
             onClick={messageEdit}
             style={{ margin: 1 }}
             size="small"

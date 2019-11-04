@@ -6,31 +6,28 @@ import SetUserPermissionsDialog from './SetUserPermissionsDialog';
 
 export default function Admin() {
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [open, setOpen] = React.useState(false);
+  const buttonRef = React.useRef();
 
-  const handleClick = event => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const handleClick =(event) => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
     <div>
       <Button
+        ref={buttonRef}
         aria-controls="simple-menu"
         aria-haspopup="true"
         onClick={handleClick}
         color="inherit"
-    >
+      >
         Admin
       </Button>
       <Menu
         id="simple-menu"
-        anchorEl={anchorEl}
+        anchorEl={buttonRef.current}
         keepMounted
-        open={Boolean(anchorEl)}
+        open={open}
         onClose={handleClose}
       >
         <SetUserPermissionsDialog>
