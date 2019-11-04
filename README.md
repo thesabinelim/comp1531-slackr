@@ -207,7 +207,7 @@ dumps({
     "code": 400,
     "name": "ValueError",
     "message": "This is the text displayed",
-})
+}), 400
 ```
 
 You should create your own custom ValueError (differnet from the built in type) and AccessError and use the [sample code myexcept.py](https://gitlab.cse.unsw.edu.au/COMP1531/19T3-lectures/blob/master/helper/myexcept.py) to see how you can program flask to automatically handle and send back all ValueErrors and AccessErrors caught.
