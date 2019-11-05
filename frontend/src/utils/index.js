@@ -20,3 +20,5 @@ export function useInterval(callback, delay) {
         }
     }, [delay]);
 }
+
+export const isMatchingId = (a,b) => parseInt(a,10) === parseInt(b,10)
