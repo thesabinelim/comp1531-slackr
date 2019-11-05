@@ -14,6 +14,7 @@ import AuthContext from '../../AuthContext';
 import {StepContext} from '../Channel/ChannelMessages';
 import AddMessageTimerDialog from './AddMessageTimerDialog';
 import { useInterval } from '../../utils';
+import { useStep } from '../../utils/update';
 
 const useStyles = makeStyles((theme) => ({
   flex: {
@@ -145,18 +146,20 @@ function AddMessage({ channel_id = '' }) {
     }
   }, 1000);
 
-  useInterval(() => {
+  const checkStandupActive = () => {
     if (standupRemaining > 0) return;
     axios
     .get('/standup/active', { params: { token, channel_id } })
-      .then(({ data }) => {
-        const { is_active = false, time_finish } = data;
-        if (is_active && time_finish) {
-          setStandupEndTime(time_finish);
-        }
-      })
-      .catch((err) => {});
-  }, 2000);
+    .then(({ data }) => {
+      const { is_active = false, time_finish } = data;
+      if (is_active && time_finish) {
+        setStandupEndTime(time_finish);
+      }
+    })
+    .catch((err) => {});
+  }
+
+  const step = useStep(checkStandupActive, [currentMessage] /* check when user is typing */);
 
   const keyDown = (e) => {
     if (e.key === 'Enter' && !e.getModifierState('Shift')) {

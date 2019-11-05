@@ -13,6 +13,7 @@ import {
   TextField,
 } from '@material-ui/core';
 import AuthContext from '../../AuthContext';
+import {useStep} from '../../utils/update';
 
 function AddMemberDialog({ channel_id, ...props }) {
   const [open, setOpen] = React.useState(false);
@@ -20,6 +21,8 @@ function AddMemberDialog({ channel_id, ...props }) {
   const [users, setUsers] = React.useState([]);
 
   const token = React.useContext(AuthContext);
+
+  const step = useStep();
 
 
   function fetchUserData() {
@@ -38,7 +41,7 @@ function AddMemberDialog({ channel_id, ...props }) {
   React.useEffect(() => {
       fetchUserData();
   }, []);
-  
+
   const handleUserSelect = event => {
       const newUserId = parseInt(event.target.value,10);
       setSelectedUser(newUserId);
@@ -59,6 +62,7 @@ function AddMemberDialog({ channel_id, ...props }) {
     axios.post(`/channel/invite`, { token, u_id, channel_id })
       .then((response) => {
         console.log(response);
+        step();
       })
       .catch((err) => {});
   }
@@ -80,7 +84,7 @@ function AddMemberDialog({ channel_id, ...props }) {
             </DialogContentText>
             <Select style={{width:"100%"}} id="u_id" onChange={handleUserSelect} value={selectedUser}>
               {users.map((d, idx) => {
-                return <MenuItem value={d.u_id}>{d.name_first} {d.name_last}</MenuItem>
+                return <MenuItem key={d.u_id} value={d.u_id}>{d.name_first} {d.name_last}</MenuItem>
               })}
             </Select>
           </DialogContent>

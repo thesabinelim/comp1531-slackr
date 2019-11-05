@@ -44,7 +44,7 @@ function SetUserPermissionsDialog({ children, ...props }) {
         fetchUserData();
     }, []);
 
-    
+
     const handleRadioChange = event => {
         const newPermissionId = parseInt(event.target.value,10);
         setPermissionId(newPermissionId);
@@ -104,7 +104,7 @@ function SetUserPermissionsDialog({ children, ...props }) {
                         <Grid item xs={12}>
                             <Select style={{width:"100%"}} id="u_id" onChange={handleUserSelect} value={selectedUser}>
                               {users.map((d, idx) => {
-                                return <MenuItem value={d.u_id}>{d.name_first} {d.name_last}</MenuItem>
+                                return <MenuItem key={d.u_id} value={d.u_id}>{d.name_first} {d.name_last}</MenuItem>
                               })}
                             </Select>
                         </Grid>
