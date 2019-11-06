@@ -9,12 +9,14 @@ import {
   ListItemText,
 } from '@material-ui/core';
 
-
 import AuthContext from '../../AuthContext';
 import MessagePin from './MessagePin';
 import MessageReact from './MessageReact';
 import MessageRemove from './MessageRemove';
+import MessageEdit from './MessageEdit';
 
+import {isMatchingId} from '../../utils';
+import {extractUId} from '../../utils/token';
 
 function Message({
   message_id,
@@ -26,12 +28,14 @@ function Message({
   reacts = [] /* [{ react_id, u_ids }] */,
 }) {
 
-  const [name, setName] = React.useState();
-  const [initials, setInitials] = React.useState();
+  const [name, setName] = React.useState("");
+  const [imgUrl, setImgUrl] = React.useState();
   const token = React.useContext(AuthContext);
+  const isUser = isMatchingId(u_id, extractUId(token));
+
   React.useEffect(() => {
     setName();
-    setInitials();
+    setImgUrl()
     axios
       .get(`/user/profile`, {
         params: {
@@ -45,29 +49,22 @@ function Message({
           name_first = '',
           name_last = '',
           handle_str = '',
+          profile_img_url = '',
         } = data;
         setName(`${name_first} ${name_last}`);
-        setInitials(`${name_first[0]}${name_last[0]}`);
+        setImgUrl(`${profile_img_url}`)
       })
       .catch((err) => {
         console.error(err);
       });
   }, [message_id, token, u_id]);
 
-  const messageRemove = () => {
-    axios.post(`/message/remove`, {
-      token,
-      message_id,
-    });
-  };
-
-
   return (
     <ListItem key={message_id} style={{ width: '100%' }}>
-      {name && initials && message && (
+      {message && (
         <>
           <ListItemIcon>
-            <Avatar>{initials}</Avatar>
+            <img className="avatar-small" src={imgUrl} />
           </ListItemIcon>
           <div
             style={{
@@ -98,8 +95,13 @@ function Message({
                 message_id={message_id}
                 is_pinned={is_pinned}
               />
+              <MessageEdit
+                message_id={message_id}
+                // disabled={!isUser} /* We have no way of checking admin status */
+              />
               <MessageRemove
                 message_id={message_id}
+                // disabled={!isUser} /* We have no way of checking admin status */
               />
             </div>
           </div>

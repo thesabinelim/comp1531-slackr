@@ -15,8 +15,7 @@ import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import AuthContext from '../AuthContext';
 import AddChannelDialog from './Channel/AddChannelDialog';
 
-import { useInterval } from '../utils';
-import { pollingInterval, getIsPolling, subscribeToStep, unsubscribeToStep } from '../utils/update';
+import { useStep } from '../utils/update';
 
 function ChannelList({ channel_id: curr_channel_id }) {
   const [myChannels, setMyChannels] = React.useState([]);
@@ -32,7 +31,6 @@ function ChannelList({ channel_id: curr_channel_id }) {
     axios.all([getMyChannels, getAllChannels]).then(
       axios.spread((myChannelResponse, allChannelResponse) => {
         const myChannelData = myChannelResponse.data.channels;
-        console.log(myChannelData);
         const allChannelData = allChannelResponse.data.channels;
         const filteredChannels = allChannelData.filter((channel) => {
           return (
@@ -40,22 +38,13 @@ function ChannelList({ channel_id: curr_channel_id }) {
             undefined
           );
         });
-        console.log(filteredChannels);
         setMyChannels(myChannelData);
         setAllChannels(filteredChannels);
       })
     );
   };
 
-  React.useEffect(() => {
-    fetchChannelsData();
-    subscribeToStep(fetchChannelsData);
-    return () => unsubscribeToStep(fetchChannelsData);
-  }, [])
-
-  useInterval(() => {
-    if (getIsPolling()) fetchChannelsData();
-  }, pollingInterval);
+  const step = useStep(fetchChannelsData, [], 2);
 
   return (
     <>
@@ -63,7 +52,7 @@ function ChannelList({ channel_id: curr_channel_id }) {
         subheader={
           <ListSubheader style={{ display: 'flex' }}>
             <span style={{ flex: 1 }}>My Channels</span>
-            <AddChannelDialog />
+            <AddChannelDialog callback={fetchChannelsData} />
           </ListSubheader>
         }
       >

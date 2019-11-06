@@ -15,6 +15,7 @@ from backend.user import (
     user_profile, user_profile_setname, user_profile_setemail,
     user_profile_sethandle
 )
+from backend.users import users_all
 from backend.channels import channels_create, channels_list, channels_listall
 from backend.channel import (
     channel_invite, channel_details, channel_join, channel_leave, channel_messages
@@ -144,6 +145,15 @@ def req_user_profile_sethandle():
     token = request.form.get('token')
     handle_str = request.form.get('handle_str')
     return dumps(user_profile_sethandle(token, handle_str))
+
+##################
+# users interface #
+##################
+
+@APP.route('/users/all', methods=['GET'])
+def req_users_all():
+    token = request.args.get('token')
+    return dumps(users_all(token))
 
 ######################
 # channels interface #

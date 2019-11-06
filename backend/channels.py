@@ -43,7 +43,6 @@ def get_channel_list_details(channels):
 # Create new channel with that name that is either a public or private channel.
 # Return dictionary containing channel_id.
 # Raise ValueError exception if name > 20 characters.
-# Raise TokenError if token invalid.
 def channels_create(token, name, is_public):
     if len(name) > 20:
         raise ValueError(description="Name longer than 20 characters!")

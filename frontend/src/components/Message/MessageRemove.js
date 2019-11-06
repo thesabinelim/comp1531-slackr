@@ -6,12 +6,17 @@ import { IconButton } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import AuthContext from '../../AuthContext';
+import {StepContext} from '../Channel/ChannelMessages';
 
 function MessageRemove({
   message_id,
+  disabled=false,
 }) {
 
   const token = React.useContext(AuthContext);
+
+  let step = React.useContext(StepContext);
+  step = step ? step : () => {}; // sanity check
 
   const messageRemove = () => {
     axios.delete(`/message/remove`, {
@@ -19,12 +24,16 @@ function MessageRemove({
         token,
         message_id,
       }
+    })
+    .then(() => {
+      step();
     });
   };
 
 
   return (
     <IconButton
+      disabled={disabled}
       onClick={messageRemove}
       style={{ margin: 1 }}
       size="small"

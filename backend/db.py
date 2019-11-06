@@ -87,10 +87,20 @@ class User:
         self.name_first = name_first
         self.name_last = name_last
         self.handle = handle
+        self.profile_img_url = None
         self.role = role
         self.channels = []
         self.tokens = []
 
+    def to_dict(self):
+        return {
+            'u_id': self.u_id,
+            'email': self.email,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            'handle_str': self.handle,
+            'profile_img_url': self.profile_img_url
+        }
     def get_u_id(self):
         return self.u_id
     def get_email(self):
@@ -104,6 +114,8 @@ class User:
         return self.name_last
     def get_handle(self):
         return self.handle
+    def get_profile_img_url(self):
+        return self.profile_img_url
     def get_slackr_role(self):
         return self.role
     def get_channels(self):
@@ -125,7 +137,9 @@ class User:
         self.name_last = new_name_last
     def set_handle(self, new_handle):
         self.handle = new_handle
-    def set_role(self, new_role):
+    def set_profile_img_url(self, new_profile_img_url):
+        self.profile_img_url = new_profile_img_url
+    def set_slackr_role(self, new_role):
         self.role = new_role
     def join_channel(self, channel):
         if channel not in self.channels:
@@ -297,15 +311,6 @@ def db_get_channel_by_channel_id(channel_id):
             return channel
     return None
 
-# Return Channel with name if it exists in database, None otherwise.
-def db_get_channel_by_name(name):
-    db = get_data()
-
-    for channel in db['channels']:
-        if channel.get_name() == name:
-            return channel
-    return None
-
 #################
 # messages data #
 #################
@@ -363,6 +368,8 @@ class Message:
         if user not in react['users']:
             raise ValueError(description="User has not made that react!")
         react['users'].remove(user)
+        if len(react['users']) == 0:
+            self.reacts.remove(react)
     def pin(self):
         self.pinned = True
     def unpin(self):

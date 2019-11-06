@@ -14,7 +14,7 @@ from .auth import (
 )
 from .user import user_profile
 from .utils import random_string
-from .error import ValueError, InvalidTokenError, CounterfeitTokenError
+from .error import ValueError, AccessError
 
 ###########################
 # Counterfeit Token Tests #
@@ -40,7 +40,7 @@ def test_counterfeit_token():
     # SETUP END
 
     counterfeit_token1 = generate_counterfeit_token(reg_dict1['u_id'])
-    with pytest.raises(CounterfeitTokenError):
+    with pytest.raises(AccessError):
         user_profile(counterfeit_token1, reg_dict1['u_id'])
 
 #######################
@@ -261,11 +261,11 @@ def test_auth_logout_simple():
     assert auth_logout(reg_dict3['token']) == {'is_success': True}
 
     # Check that future authorisation attempts fail
-    with pytest.raises(InvalidTokenError):
+    with pytest.raises(AccessError):
         user_profile(reg_dict1['token'], reg_dict1['u_id'])
-    with pytest.raises(InvalidTokenError):
+    with pytest.raises(AccessError):
         user_profile(reg_dict2['token'], reg_dict2['u_id'])
-    with pytest.raises(InvalidTokenError):
+    with pytest.raises(AccessError):
         user_profile(reg_dict3['token'], reg_dict3['u_id'])
 
 def test_auth_logout_invalidated_token():

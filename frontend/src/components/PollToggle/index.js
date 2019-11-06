@@ -9,7 +9,7 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
-import { getIsPolling, setIsPolling, step } from '../../utils/update';
+import { getIsPolling, setIsPolling, step, usePolling } from '../../utils/update';
 
 const options = ['Live', 'Step'];
 
@@ -18,6 +18,8 @@ function PollToggle() {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
     const [selectedIndex, setSelectedIndex] = React.useState(getIsPolling() ? 0 : 1);
+
+    usePolling();
 
     const handleClick = () => {
         step();

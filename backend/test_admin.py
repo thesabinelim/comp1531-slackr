@@ -4,7 +4,10 @@
 
 import pytest
 
-from admin import *
+from .db import reset_data
+from .auth import auth_register, validate_token
+from .admin import admin_userpermission_change
+from .error import ValueError, AccessError
 
 ##############################
 # admin_userpermission Tests #
@@ -12,6 +15,8 @@ from admin import *
 
 def test_adminpermission_simple():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
@@ -34,6 +39,8 @@ def test_adminpermission_simple():
 
 def test_adminpermission_bad_uid():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     # SETUP END
 
@@ -42,6 +49,8 @@ def test_adminpermission_bad_uid():
     
 def test_adminpermission_bad_permissionid():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     # SETUP END
@@ -54,6 +63,8 @@ def test_adminpermission_bad_permissionid():
 
 def test_adminpermission_noperms():
     # SETUP BEGIN
+    reset_data()
+
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
     # SETUP END
@@ -66,8 +77,8 @@ def test_adminpermission_noperms():
     with pytest.raises(AccessError):
         admin_userpermission_change(reg_dict2['token'], reg_dict2['u_id'], 2)
 
-    # Test promotes Sabine to owner
-    assert admin_userpermission_change(reg_dict1['token'], reg_dict1['u_id'], 2) == {}
+    # Test promotes Sabine to admin
+    assert admin_userpermission_change(reg_dict1['token'], reg_dict2['u_id'], 2) == {}
 
     # Sabine tries to promote herself to owner
     with pytest.raises(AccessError):

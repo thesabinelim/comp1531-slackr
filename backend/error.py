@@ -35,13 +35,3 @@ class AccessError(HTTPException):
     code = 403
     name = "AccessError"
     message = "No message specified"
-
-class InvalidTokenError(HTTPException):
-    code = 401
-    name = "InvalidTokenError"
-    message = "No message specified"
-
-class CounterfeitTokenError(HTTPException):
-    code = 401
-    name = "CounterfeitTokenError"
-    message = "No message specified"
