@@ -13,7 +13,7 @@ from backend.auth import (
 )
 from backend.user import (
     user_profile, user_profile_setname, user_profile_setemail,
-    user_profile_sethandle
+    user_profile_sethandle, user_profiles_uploadphoto
 )
 from backend.users import users_all
 from backend.channels import channels_create, channels_list, channels_listall
@@ -146,6 +146,15 @@ def req_user_profile_sethandle():
     handle_str = request.form.get('handle_str')
     return dumps(user_profile_sethandle(token, handle_str))
 
+@APP.route('/user/profiles/uploadphoto', methods=['POST'])
+def req_user_profiles_uploadphoto():
+    token = request.form.get('token')
+    img_url = request.form.get('img_url')
+    x_start = int(request.form.get('x_start'))
+    y_start = int(request.form.get('y_start'))
+    x_end = int(request.form.get('x_end'))
+    y_end = int(request.form.get('y_end'))
+    return dumps(user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end))
 ##################
 # users interface #
 ##################

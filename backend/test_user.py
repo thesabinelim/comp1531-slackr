@@ -217,8 +217,8 @@ def test_user_profiles_uploadphoto_valid():
         "https://i.imgur.com/2u1jklN.jpg",
         0,
         0,
-        100,
-        100)
+        720,
+        720)
 
 def test_user_profiles_uploadphoto_http_error():
     # SETUP BEGIN

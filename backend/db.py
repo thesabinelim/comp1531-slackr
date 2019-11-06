@@ -9,6 +9,7 @@ import time
 
 from .utils import random_string
 from .error import ValueError
+from flask import request
 
 ####################
 # Password hashing #
@@ -99,7 +100,7 @@ class User:
             'name_first': self.name_first,
             'name_last': self.name_last,
             'handle_str': self.handle,
-            'profile_img_url': self.profile_img_url
+            'profile_img_url': self.get_profile_img_url()
         }
     def get_u_id(self):
         return self.u_id
