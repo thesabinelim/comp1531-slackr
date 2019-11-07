@@ -4,10 +4,11 @@
 
 import re
 
-from .db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle
+from .db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle, db_get_backend_url
 from .auth import validate_token
-from .utils import is_valid_email
+from .utils import is_valid_email, random_string
 from .error import ValueError
+import os
 
 # Python Image Processing library for upload photo
 # use 'pip install Pillow' and 'pip install requests'
@@ -97,8 +98,19 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
 
     # Crop the image
     cropped_image = img.crop([x_start, y_start, x_end, y_end])
-    cropped_image.save('imgs/testing.jpg')
+    if not os.path.exists('imgurls'):
+        os.makedirs('imgurls')
+
+    image_folder = 'imgurls'
+    randstr = random_string(20)
+    filepath = f"{image_folder}/{user.get_u_id()}_{randstr}.jpg"
+    while os.path.exists(f"{filepath}"):
+        randstr = random_string(20)
+        filepath = f"{image_folder}/{user.get_u_id()}_{randstr}.jpg"
+    cropped_image.save(filepath)
 
     # Set the user's profile_img_url to this new cropped image
     # This is just relative to local storage, and usage appends the url
-    user.set_profile_img_url('imgs/testing.jpg')
+    backend_url = db_get_backend_url()
+    
+    user.set_profile_img_url(f'{backend_url}{filepath}')

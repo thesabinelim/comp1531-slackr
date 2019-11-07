@@ -207,11 +207,11 @@ def test_user_profiles_uploadphoto_valid():
     # SETUP END
     user_profiles_uploadphoto(
         reg_dict1['token'],
-        "https://i.imgur.com/2u1jklN.jpg",
+        "https://i.imgur.com/43wtR5u.jpg",
         0,
         0,
-        200,
-        200)
+        638,
+        905)
     user_profiles_uploadphoto(
         reg_dict1['token'],
         "https://i.imgur.com/2u1jklN.jpg",

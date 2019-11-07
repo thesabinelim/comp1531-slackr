@@ -46,11 +46,24 @@ def reset_data():
         'channels': [],
         'messages': [],
         'reset_requests': [],
-        'time_offset': 0
+        'time_offset': 0,
+        'backend_url': 'http://localhost:5001/'
     }
 
 data = None
 reset_data()
+
+###############
+# URL Routing #
+###############
+
+def db_set_backend_url(backend_url):
+    db = get_data()
+    db['backend_url'] = backend_url
+
+def db_get_backend_url():
+    db = get_data()
+    return db['backend_url']
 
 #####################
 # Time manipulation #
