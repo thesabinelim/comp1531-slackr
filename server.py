@@ -2,7 +2,7 @@
 import sys
 from flask_cors import CORS
 from json import dumps
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_mail import Mail, Message
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
@@ -11,9 +11,10 @@ from backend.auth import (
     auth_login, auth_logout, auth_register, auth_passwordreset_request,
     auth_passwordreset_reset
 )
+from backend.db import db_set_backend_url
 from backend.user import (
     user_profile, user_profile_setname, user_profile_setemail,
-    user_profile_sethandle
+    user_profile_sethandle, user_profiles_uploadphoto
 )
 from backend.users import users_all
 from backend.channels import channels_create, channels_list, channels_listall
@@ -28,7 +29,7 @@ from backend.admin import admin_userpermission_change
 from backend.standup import standup_start, standup_send
 from backend.error import default_handler, ValueError, AccessError
 
-APP = Flask(__name__)
+APP = Flask(__name__, static_url_path='/imgurls/', static_folder='imgurls')
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 APP.register_error_handler(Exception, default_handler)
@@ -79,6 +80,10 @@ def req_echo_get():
 def req_echo_post():
     """ Description of function """
     return dumps({'echo' : request.form.get('echo')})
+
+@APP.route('/imgurls/<path:path>')
+def send_image(path):
+    return send_from_directory(APP.static_folder, path, cache_timeout=0)
 
 ##################
 # auth interface #
@@ -146,6 +151,16 @@ def req_user_profile_sethandle():
     handle_str = request.form.get('handle_str')
     return dumps(user_profile_sethandle(token, handle_str))
 
+@APP.route('/user/profiles/uploadphoto', methods=['POST'])
+def req_user_profiles_uploadphoto():
+    token = request.form.get('token')
+    img_url = request.form.get('img_url')
+    x_start = int(request.form.get('x_start'))
+    y_start = int(request.form.get('y_start'))
+    x_end = int(request.form.get('x_end'))
+    y_end = int(request.form.get('y_end'))
+    return dumps(user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end))
+    
 ##################
 # users interface #
 ##################
@@ -298,5 +313,12 @@ def req_standup_send():
     message = request.form.get('message')
     return dumps(standup_send(token, channel_id, message))
 
+def get_backend_url():
+    addr = request.environ['REMOTE_ADDR']
+    port = request.environ['REMOTE_PORT']
+    backend_url = f"http://{addr}:{port}"
+    return backend_url
+
 if __name__ == '__main__':
     APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 5000), debug=True)
+    db_set_backend_url(get_backend_url())

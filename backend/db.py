@@ -9,6 +9,7 @@ import time
 
 from .utils import random_string
 from .error import ValueError
+from flask import request
 
 ####################
 # Password hashing #
@@ -45,11 +46,24 @@ def reset_data():
         'channels': [],
         'messages': [],
         'reset_requests': [],
-        'time_offset': 0
+        'time_offset': 0,
+        'backend_url': 'http://localhost:5001/'
     }
 
 data = None
 reset_data()
+
+###############
+# URL Routing #
+###############
+
+def db_set_backend_url(backend_url):
+    db = get_data()
+    db['backend_url'] = backend_url
+
+def db_get_backend_url():
+    db = get_data()
+    return db['backend_url']
 
 #####################
 # Time manipulation #
@@ -99,7 +113,7 @@ class User:
             'name_first': self.name_first,
             'name_last': self.name_last,
             'handle_str': self.handle,
-            'profile_img_url': self.profile_img_url
+            'profile_img_url': self.get_profile_img_url()
         }
     def get_u_id(self):
         return self.u_id

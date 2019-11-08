@@ -4,10 +4,17 @@
 
 import re
 
-from .db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle
+from .db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle, db_get_backend_url
 from .auth import validate_token
-from .utils import is_valid_email
+from .utils import is_valid_email, random_string
 from .error import ValueError
+import os
+
+# Python Image Processing library for upload photo
+# use 'pip install Pillow' and 'pip install requests'
+from PIL import Image
+import requests
+from io import BytesIO
 
 # For a valid user, returns information about their email, first name, last 
 # name, and handle.
@@ -20,12 +27,7 @@ def user_profile(token, target_u_id):
     if target_user is None:
         raise ValueError(description="User does not exist")
 
-    return { 
-        "email": target_user.get_email(),
-        "name_first": target_user.get_first_name(), 
-        "name_last": target_user.get_last_name(),
-        "handle_str": target_user.get_handle()
-    }
+    return target_user.to_dict()
 
 # Update the authorised user's first and last name
 def user_profile_setname(token, name_first, name_last):
@@ -71,18 +73,44 @@ def user_profile_sethandle(token, handle_str):
     return {}
 
 
-# NOTE: Not to be implemented until iteration 3 according to spec!!!
 # Given a URL of an image on the internet, crops the image within bounds 
 # (x_start, y_start) and (x_end, y_end). Position (0,0) is the top left.
+# After processing this image is stored locally on the server, and the 
+# profile_img_url is a url to the server
 def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
-    # Need to get http status of img_url
-    # For now these are just test values
-    http_return = 200
-    img_width = 200
-    img_height = 200
-    if http_return != 200:
-        raise ValueError
+    u_id = validate_token(token)
+    user = db_get_user_by_u_id(u_id)
+
+    # https://stackoverflow.com/questions/7391945/how-do-i-read-image-data-from-a-url-in-python
+    response = requests.get(img_url)
+    if response.status_code != 200:
+        raise ValueError(description=f"img_url returned HTTP {response.status_code}!")
+
+    # Load the image
+    img = Image.open(BytesIO(response.content))
+    img_width, img_height = img.size
+    if img.format != "JPEG":
+        raise ValueError(description="Image is not a JPEG!")
     if x_start < 0 or x_start > img_width or x_end < 0 or x_end > img_width:
-        raise ValueError
+        raise ValueError(description="X is out of bounds of image")
     if y_start < 0 or y_start > img_height or y_end < 0 or y_end > img_height:
-        raise ValueError
+        raise ValueError(description="Y is out of bounds of image")
+
+    # Crop the image
+    cropped_image = img.crop([x_start, y_start, x_end, y_end])
+    if not os.path.exists('imgurls'):
+        os.makedirs('imgurls')
+
+    image_folder = 'imgurls'
+    randstr = random_string(20)
+    filepath = f"{image_folder}/{user.get_u_id()}_{randstr}.jpg"
+    while os.path.exists(f"{filepath}"):
+        randstr = random_string(20)
+        filepath = f"{image_folder}/{user.get_u_id()}_{randstr}.jpg"
+    cropped_image.save(filepath)
+
+    # Set the user's profile_img_url to this new cropped image
+    # This is just relative to local storage, and usage appends the url
+    backend_url = db_get_backend_url()
+    
+    user.set_profile_img_url(f'{backend_url}{filepath}')
