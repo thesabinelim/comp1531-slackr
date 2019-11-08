@@ -582,7 +582,7 @@ def test_message_edit_message_empty():
     messages2 = db_get_message_by_message_id(message_dict2['message_id'])
     # Empty text means deleting this message
     assert message_edit(reg_dict1['token'], message_dict1['message_id'], "") == {}
-    assert channel1.messages[0] == messages2
+    assert not channel1.has_message(messages1)
 
 
 def test_message_edit_invalid_message_id():
