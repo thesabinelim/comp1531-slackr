@@ -279,7 +279,8 @@ def req_admin_userpermission_change():
 def req_standup_start():
     token = request.form.get('token')
     channel_id = int(request.form.get('channel_id'))
-    return dumps(standup_start(token, channel_id))
+    length = int(request.form.get('length'))
+    return dumps(standup_start(token, channel_id, length))
 
 @APP.route('/standup/send', methods=['POST'])
 def req_standup_send():
