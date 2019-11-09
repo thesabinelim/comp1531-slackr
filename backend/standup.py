@@ -22,6 +22,7 @@ def standup_validate
 # Raises AccessError when the channel exists but the user isnt in that channel.
 # Return dictionary containing time the standup will finish.
 def standup_start(token, channel_id, length):
+
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
     
@@ -49,6 +50,10 @@ def standup_start(token, channel_id, length):
 
     return {'time_finish': time_finish}
 
+# For a given channel, return whether a standup is active in it,
+# and what time the standup finishes. If no standup is active,
+# then time_finish returns None
+# not sure how to
 def standup_active(token, channel_id):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
@@ -57,11 +62,13 @@ def standup_active(token, channel_id):
     if channel is None:
         raise ValueError(description="Channel with channel_id does not exist in database!")
     
-    if not channel.has_member(user):
-        raise AccessError(description="Authorised user is not member of that channel!")
+    standup = channel.get_standup()
+    time_finish = time.time() + db_get_time_offset()
 
-    
+    if standup is None or adjusted_time >= (standup.get_time_created()):
+            return None
 
+    return time_finish
 
 # The standup_send function takes the users token, the desired channel_id
 # and a message under 1000 characters and puts it in the standup_queue.
