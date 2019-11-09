@@ -282,6 +282,12 @@ def req_standup_start():
     length = int(request.form.get('length'))
     return dumps(standup_start(token, channel_id, length))
 
+@APP.route('/standup/active', methods=['GET'])
+def req_standup_active():
+    token = request.form.get('token')
+    channel_id = int(request.form.get('channel_id'))
+    return dumps(standup_active(token, channel_id))
+
 @APP.route('/standup/send', methods=['POST'])
 def req_standup_send():
     token = request.form.get('token')
