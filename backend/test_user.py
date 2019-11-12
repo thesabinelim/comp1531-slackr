@@ -11,6 +11,7 @@ from .user import (
 )
 from .db import reset_data
 from .error import ValueError
+from .utils import is_valid_url
 
 def test_user_profile_return():
     # SETUP BEGIN
@@ -220,7 +221,12 @@ def test_user_profiles_uploadphoto_valid():
         720,
         720)
 
-def test_user_profiles_uploadphoto_http_error():
+def test_is_valid_url():
+    assert is_valid_url("h") is False
+    assert is_valid_url("http://i.imgur.com/2u1jklN.jpg") is True
+    assert is_valid_url("https://i.imgur.com/2u1jklN.jpg") is True
+
+def test_user_profiles_uploadphoto_url_error():
     # SETUP BEGIN
     reset_data()
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
@@ -229,6 +235,14 @@ def test_user_profiles_uploadphoto_http_error():
         user_profiles_uploadphoto(
             reg_dict1['token'],
             "https",
+            0,
+            0,
+            200,
+            200)
+    with pytest.raises(ValueError):
+        user_profiles_uploadphoto(
+            reg_dict1['token'],
+            "https://https://img.com",
             0,
             0,
             200,
@@ -249,6 +263,25 @@ def test_user_profiles_uploadphoto_http_error():
             0,
             200,
             200)
+
+def test_user_profiles_uploadphoto_http_error():
+    # SETUP BEGIN
+    reset_data()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    # SETUP END
+
+    # Uses a website which generates HTTP errors based off of error numbers
+    http_errors = [404, 400, 300, 403, 500]
+    for e in http_errors:
+        with pytest.raises(ValueError):
+            user_profiles_uploadphoto(
+                reg_dict1['token'],
+                f"https://httpstat.us/{e}",
+                0,
+                0,
+                200,
+                200)
+
 
 def test_user_profiles_uploadphoto_incorrect_dimensions():
     # SETUP BEGIN
@@ -286,4 +319,52 @@ def test_user_profiles_uploadphoto_incorrect_dimensions():
             0,
             0,
             200,
+            200000000)
+    with pytest.raises(ValueError):
+        user_profiles_uploadphoto(
+            reg_dict1['token'],
+            "https://i.imgur.com/2u1jklN.jpg",
+            0,
+            0,
+            200,
             -1)
+    # End dimensions before start dimensions
+    with pytest.raises(ValueError):
+        user_profiles_uploadphoto(
+            reg_dict1['token'],
+            "https://i.imgur.com/2u1jklN.jpg",
+            200,
+            200,
+            100,
+            100)
+    # Cannot have a image of size 0
+    with pytest.raises(ValueError):
+        user_profiles_uploadphoto(
+            reg_dict1['token'],
+            "https://i.imgur.com/2u1jklN.jpg",
+            0,
+            0,
+            0,
+            0)
+
+def test_user_profiles_uploadphoto_not_a_jpeg():
+    # SETUP BEGIN
+    reset_data()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    # SETUP END
+    with pytest.raises(ValueError):
+        user_profiles_uploadphoto(
+            reg_dict1['token'],
+            "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png",
+            0,
+            0,
+            200,
+            200)
+    with pytest.raises(ValueError):
+        user_profiles_uploadphoto(
+            reg_dict1['token'],
+            "https://media.giphy.com/media/12KMwdClRgh6o0/giphy.gif",
+            0,
+            0,
+            200,
+            200)

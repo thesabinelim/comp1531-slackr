@@ -6,7 +6,7 @@ import re
 
 from .db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle, db_get_backend_url
 from .auth import validate_token
-from .utils import is_valid_email, random_string
+from .utils import is_valid_email, random_string, is_valid_url
 from .error import ValueError
 import os
 
@@ -81,13 +81,25 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
 
+    # Validate url, as requests does not work with malformed urls
+    if not is_valid_url(img_url):
+        raise ValueError(description=f"img_url is a malformed URL!")
+
     # https://stackoverflow.com/questions/7391945/how-do-i-read-image-data-from-a-url-in-python
-    response = requests.get(img_url)
+    response = None
+    try:
+        response = requests.get(img_url)
+    except Exception as e:
+        raise ValueError(description=f"img_url is invalid!")
     if response.status_code != 200:
         raise ValueError(description=f"img_url returned HTTP {response.status_code}!")
 
-    # Load the image
-    img = Image.open(BytesIO(response.content))
+    # Attempt to load the image
+    img = None
+    try:
+        img = Image.open(BytesIO(response.content))
+    except IOError as e:
+        raise ValueError(description="URL is not an image!")
     img_width, img_height = img.size
     if img.format != "JPEG":
         raise ValueError(description="Image is not a JPEG!")
@@ -95,6 +107,8 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
         raise ValueError(description="X is out of bounds of image")
     if y_start < 0 or y_start > img_height or y_end < 0 or y_end > img_height:
         raise ValueError(description="Y is out of bounds of image")
+    if x_end <= x_start or y_end <= y_start:
+        raise ValueError(description="End coordinates are before the start coordinates")
 
     # Crop the image
     cropped_image = img.crop([x_start, y_start, x_end, y_end])
