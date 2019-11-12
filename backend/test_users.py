@@ -17,14 +17,14 @@ def test_users_all_simple():
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
-    users = users_all(reg_dict1['token'])
+    users = users_all(reg_dict1['token'])['users']
 
     assert users[0] == {
         'u_id': reg_dict1['u_id'],
         'email': 'user@example.com',
         'name_first': 'Test',
         'name_last': 'User',
-        'handle_str': 'TestUser',
+        'handle_str': 'testuser',
         'profile_img_url': None
     }
 
@@ -33,7 +33,7 @@ def test_users_all_simple():
         'email': 'sabine.lim@unsw.edu.au',
         'name_first': 'Sabine',
         'name_last': 'Lim',
-        'handle_str': 'SabineLim',
+        'handle_str': 'sabinelim',
         'profile_img_url': None
     }
 
@@ -42,7 +42,7 @@ def test_users_all_simple():
         'email': 'gamer@twitch.tv',
         'name_first': 'Gabe',
         'name_last': 'Newell',
-        'handle_str': 'GabeNewell',
+        'handle_str': 'gabenewell',
         'profile_img_url': None
     }
 
@@ -52,12 +52,12 @@ def test_users_all_one():
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     # SETUP END
 
-    assert users_all(reg_dict1['token'])[0] == {
+    assert users_all(reg_dict1['token'])['users'][0] == {
         'u_id': reg_dict1['u_id'],
         'email': 'user@example.com',
         'name_first': 'Test',
         'name_last': 'User',
-        'handle_str': 'TestUser',
+        'handle_str': 'testuser',
         'profile_img_url': None
     }
 
@@ -67,12 +67,12 @@ def test_users_all_update_profile():
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
     # SETUP END
 
-    assert users_all(reg_dict1['token'])[0] == {
+    assert users_all(reg_dict1['token'])['users'][0] == {
         'u_id': reg_dict1['u_id'],
         'email': 'user@example.com',
         'name_first': 'Test',
         'name_last': 'User',
-        'handle_str': 'TestUser',
+        'handle_str': 'testuser',
         'profile_img_url': None
     }
 
@@ -80,7 +80,7 @@ def test_users_all_update_profile():
     user_profile_setemail(reg_dict1['token'], 'john.appleseed@example.com')
     user_profile_sethandle(reg_dict1['token'], 'Testificate')
     
-    assert users_all(reg_dict1['token'])[0] == {
+    assert users_all(reg_dict1['token'])['users'][0] == {
         'u_id': reg_dict1['u_id'],
         'email': 'john.appleseed@example.com',
         'name_first': 'Test2',
@@ -97,14 +97,14 @@ def test_users_all_not_slackr_owner():
     reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
     # SETUP END
 
-    users = users_all(reg_dict3['token'])
+    users = users_all(reg_dict3['token'])['users']
 
     assert users[0] == {
         'u_id': reg_dict1['u_id'],
         'email': 'user@example.com',
         'name_first': 'Test',
         'name_last': 'User',
-        'handle_str': 'TestUser',
+        'handle_str': 'testuser',
         'profile_img_url': None
     }
 
@@ -113,7 +113,7 @@ def test_users_all_not_slackr_owner():
         'email': 'sabine.lim@unsw.edu.au',
         'name_first': 'Sabine',
         'name_last': 'Lim',
-        'handle_str': 'SabineLim',
+        'handle_str': 'sabinelim',
         'profile_img_url': None
     }
 
@@ -122,6 +122,6 @@ def test_users_all_not_slackr_owner():
         'email': 'gamer@twitch.tv',
         'name_first': 'Gabe',
         'name_last': 'Newell',
-        'handle_str': 'GabeNewell',
+        'handle_str': 'gabenewell',
         'profile_img_url': None
     }
