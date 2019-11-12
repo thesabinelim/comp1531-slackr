@@ -83,18 +83,7 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
 
-    # Validate url, as requests does not work with malformed urls
-    if not is_valid_url(img_url):
-        raise ValueError(description=f"img_url is a malformed URL!")
-
-    # https://stackoverflow.com/questions/7391945/how-do-i-read-image-data-from-a-url-in-python
-    response = None
-    try:
-        response = requests.get(img_url)
-    except Exception as e:
-        raise ValueError(description=f"img_url is invalid!")
-    if response.status_code != 200:
-        raise ValueError(description=f"img_url returned HTTP {response.status_code}!")
+    response = attempt_img_url_request(img_url)
 
     # Attempt to load the image
     img = None
@@ -103,7 +92,7 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     except IOError as e:
         raise ValueError(description="URL is not an image!")
     verify_img_bounds_valid(img, x_start, y_start, x_end, y_end)
-    
+
     cropped_image = img.crop([x_start, y_start, x_end, y_end])
     image_folder = db_get_image_folder()
     if not os.path.exists(image_folder):
@@ -116,6 +105,24 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     # This is just relative to local storage, and usage appends the url
     backend_url = db_get_backend_url()
     user.set_profile_img_url(f'{backend_url}{filepath}')
+
+# Attempts a request on the img_url. Since this is client-side, more error checking
+# is required to make sure that the URL is valid and not malformed
+# Returns the reponse of the request, which will contain the content if successful
+def attempt_img_url_request(img_url):
+    # Validate url, as requests does not work with malformed urls
+    if not is_valid_url(img_url):
+        raise ValueError(description=f"img_url is a malformed URL!")
+
+    # https://stackoverflow.com/questions/7391945/how-do-i-read-image-data-from-a-url-in-python
+    response = None
+    try:
+        response = requests.get(img_url)
+    except:
+        raise ValueError(description=f"img_url is invalid!")
+    if response.status_code != 200:
+        raise ValueError(description=f"img_url returned HTTP {response.status_code}!")
+    return response
 
 # Checks that the supplied bounds to crop the image are valid
 def verify_img_bounds_valid(img, x_start, y_start, x_end, y_end):
