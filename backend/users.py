@@ -1,4 +1,4 @@
-# COMP1531 Project Users
+# COMP1531 Project users
 # Written by Sabine Lim z5242579
 # 06/11/19
 
