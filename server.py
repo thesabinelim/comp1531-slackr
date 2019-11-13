@@ -19,7 +19,8 @@ from backend.user import (
 from backend.users import users_all
 from backend.channels import channels_create, channels_list, channels_listall
 from backend.channel import (
-    channel_invite, channel_details, channel_join, channel_leave, channel_messages
+    channel_invite, channel_details, channel_join, channel_leave, channel_messages,
+    channel_addowner, channel_removeowner
 )
 from backend.message import (
     message_sendlater, message_send, message_remove, message_edit,
@@ -232,6 +233,20 @@ def req_channel_messages():
     channel_id = int(request.args.get('channel_id'))
     start = int(request.args.get('start'))
     return dumps(channel_messages(token, channel_id, start))
+
+@APP.route('/channel/addowner', methods=['POST'])
+def req_channel_addowner():
+    token = request.form.get('token')
+    channel_id = int(request.form.get('channel_id'))
+    u_id = int(request.form.get('u_id'))
+    return dumps(channel_addowner(token, channel_id, u_id))
+
+@APP.route('/channel/removeowner', methods=['POST'])
+def req_channel_removeowner():
+    token = request.form.get('token')
+    channel_id = int(request.form.get('channel_id'))
+    u_id = int(request.form.get('u_id'))
+    return dumps(channel_removeowner(token, channel_id, u_id))
 
 #####################
 # message interface #
