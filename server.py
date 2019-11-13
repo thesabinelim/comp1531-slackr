@@ -26,7 +26,7 @@ from backend.message import (
     message_react, message_unreact, message_pin, message_unpin
 )
 from backend.admin import admin_userpermission_change
-from backend.standup import standup_start, standup_send
+from backend.standup import standup_start, standup_send, standup_active
 from backend.error import default_handler, ValueError, AccessError
 
 APP = Flask(__name__, static_url_path='/imgurls/', static_folder='imgurls')
@@ -315,8 +315,8 @@ def req_standup_start():
 
 @APP.route('/standup/active', methods=['GET'])
 def req_standup_active():
-    token = request.form.get('token')
-    channel_id = int(request.form.get('channel_id'))
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
     return dumps(standup_active(token, channel_id))
 
 @APP.route('/standup/send', methods=['POST'])

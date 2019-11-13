@@ -13,8 +13,6 @@ from .db import (
 from .auth import validate_token
 from .error import ValueError, AccessError
 
-def standup_validate
-
 # standup_start commands initiates 15 minutes of standup and then returns
 # 15 minutes of stand up time.
 # Raises ValueError when the channel_id is invalid or if there is already an
@@ -63,12 +61,12 @@ def standup_active(token, channel_id):
         raise ValueError(description="Channel with channel_id does not exist in database!")
     
     standup = channel.get_standup()
-    time_finish = time.time() + db_get_time_offset()
+    adjusted_time = time.time() + db_get_time_offset()
 
     if standup is None or adjusted_time >= (standup.get_time_created()):
             return None
 
-    return time_finish
+    return standup.get_time_created()
 
 # The standup_send function takes the users token, the desired channel_id
 # and a message under 1000 characters and puts it in the standup_queue.
