@@ -11,6 +11,7 @@ from .message import (
     message_send, message_sendlater, message_edit, message_remove, message_pin,
     message_unpin, message_react, message_unreact
 )
+from .db import (db_get_channel_by_channel_id,reset_data,get_data,db_get_message_by_message_id,db_get_all_channels,db_get_channel_by_channel_id,db_get_message_by_message_id)
 from .channel import (
     channel_join, channel_invite, channel_leave, channel_addowner,
     channel_removeowner, channel_messages
@@ -493,6 +494,7 @@ def test_message_remove_message_not_sender():
     # Unless they're a Slackr admin/owner
     assert message_remove(reg_dict1['token'], message_dict4['message_id']) == {}
 
+
 ######################
 # message_edit Tests #
 ######################
@@ -568,20 +570,20 @@ def test_message_edit_message_empty():
     reset_data()
 
     reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
-    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
-    
+
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
-    create_dict2 = channels_create(reg_dict2['token'], 'PCSoc', False)
 
     message_dict1 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Oof")
-    message_dict2 = message_send(reg_dict2['token'], create_dict2['channel_id'], "Ouch")
+    message_dict2 = message_send(reg_dict1['token'], create_dict1['channel_id'], "Ouch")
     # SETUP END
+    channel1 = db_get_channel_by_channel_id(create_dict1['channel_id'])
 
-    # Messages can't be empty
-    with pytest.raises(ValueError):
-        message_edit(reg_dict1['token'], message_dict1['message_id'], "")
-    with pytest.raises(ValueError):
-        message_edit(reg_dict2['token'], message_dict2['message_id'], "")
+    messages1 = db_get_message_by_message_id(message_dict1['message_id'])
+    messages2 = db_get_message_by_message_id(message_dict2['message_id'])
+    # Empty text means deleting this message
+    assert message_edit(reg_dict1['token'], message_dict1['message_id'], "") == {}
+    assert not channel1.has_message(messages1)
+
 
 def test_message_edit_invalid_message_id():
     # SETUP BEGIN

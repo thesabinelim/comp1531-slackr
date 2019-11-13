@@ -9,6 +9,7 @@ import time
 
 from .utils import random_string
 from .error import ValueError
+from flask import request
 
 ####################
 # Password hashing #
@@ -45,11 +46,24 @@ def reset_data():
         'channels': [],
         'messages': [],
         'reset_requests': [],
-        'time_offset': 0
+        'time_offset': 0,
+        'backend_url': 'http://localhost:5001/'
     }
 
 data = None
 reset_data()
+
+###############
+# URL Routing #
+###############
+
+def db_set_backend_url(backend_url):
+    db = get_data()
+    db['backend_url'] = backend_url
+
+def db_get_backend_url():
+    db = get_data()
+    return db['backend_url']
 
 #####################
 # Time manipulation #
@@ -87,10 +101,20 @@ class User:
         self.name_first = name_first
         self.name_last = name_last
         self.handle = handle
+        self.profile_img_url = None
         self.role = role
         self.channels = []
         self.tokens = []
 
+    def to_dict(self):
+        return {
+            'u_id': self.u_id,
+            'email': self.email,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            'handle_str': self.handle,
+            'profile_img_url': self.get_profile_img_url()
+        }
     def get_u_id(self):
         return self.u_id
     def get_email(self):
@@ -104,6 +128,8 @@ class User:
         return self.name_last
     def get_handle(self):
         return self.handle
+    def get_profile_img_url(self):
+        return self.profile_img_url
     def get_slackr_role(self):
         return self.role
     def get_channels(self):
@@ -125,6 +151,8 @@ class User:
         self.name_last = new_name_last
     def set_handle(self, new_handle):
         self.handle = new_handle
+    def set_profile_img_url(self, new_profile_img_url):
+        self.profile_img_url = new_profile_img_url
     def set_slackr_role(self, new_role):
         self.role = new_role
     def join_channel(self, channel):
@@ -187,6 +215,10 @@ def db_get_user_by_email(email):
         if user.get_email() == email:
             return user
     return None
+
+# Returns the images folder that holds user's uploded photos
+def db_get_image_folder():
+    return 'imgurls'
 
 #################
 # channels data #

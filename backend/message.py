@@ -113,9 +113,6 @@ def message_edit(token, message_id, text):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
 
-    if len(text) == 0:
-        raise ValueError(description="Message cannot be empty!")
-
     if len(text) > 1000:
         raise ValueError(description="Message cannot be longer than 1000 characters!")
 
@@ -131,8 +128,10 @@ def message_edit(token, message_id, text):
     if user != message.get_sender() and not channel.has_owner(user):
         raise AccessError(description="Message was not sent by logged in user and user is \
             not admin or owner!")
-
-    message.set_text(text)
+    if text == "":
+        channel.remove_message(message)
+    else:
+        message.set_text(text)
 
     return {}
 

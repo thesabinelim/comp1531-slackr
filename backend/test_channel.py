@@ -225,12 +225,14 @@ def test_channel_details_simple():
     assert detail1['owner_members'] == [{
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     }]
     assert detail1['all_members'] == [{
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     }]
 
     # Check PCSoc channel details
@@ -241,28 +243,33 @@ def test_channel_details_simple():
     assert detail2['owner_members'] == [{
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
-        'name_last': 'Lim'
+        'name_last': 'Lim',
+        'profile_img_url': None
     },
     {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     }
     ]
     assert {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     } in detail2['all_members']
     assert {
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
-        'name_last': 'Lim'
+        'name_last': 'Lim',
+        'profile_img_url': None
     } in detail2['all_members']
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } not in detail2['all_members']
     channel_invite(reg_dict2['token'], create_dict2['channel_id'], \
         reg_dict3['u_id']) == {}
@@ -270,7 +277,8 @@ def test_channel_details_simple():
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } in detail2['all_members']
 
     # Check Steam channel details
@@ -281,27 +289,32 @@ def test_channel_details_simple():
     assert detail3['owner_members'] == [{
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     },
     {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     }]
     assert {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     } in detail3['all_members']
     assert {
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
-        'name_last': 'Lim'
+        'name_last': 'Lim',
+        'profile_img_url': None
     } not in detail3['all_members']
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } in detail3['all_members']
 
 def test_channel_details_notinchannel():
@@ -836,7 +849,8 @@ def test_channel_addowner_simple():
     assert {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     } in channel_details(reg_dict1['token'], create_dict2['channel_id'])['owner_members']
 
     # Test adds Sabine as owner of 1531 autotest
@@ -845,7 +859,8 @@ def test_channel_addowner_simple():
     assert {
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
-        'name_last': 'Lim'
+        'name_last': 'Lim',
+        'profile_img_url': None
     } in channel_details(reg_dict1['token'], create_dict2['channel_id'])['owner_members']
 
     # Gabe adds Sabine as owner of 1531 autotest
@@ -854,7 +869,8 @@ def test_channel_addowner_simple():
     assert {
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
-        'name_last': 'Lim'
+        'name_last': 'Lim',
+        'profile_img_url': None
     } in channel_details(reg_dict1['token'], create_dict2['channel_id'])['owner_members']
 
 def test_channel_addowner_slackrowner_promoteself():
@@ -874,7 +890,8 @@ def test_channel_addowner_slackrowner_promoteself():
     assert {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     } in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
 def test_channel_addowner_slackrowner_promoteother_notchannelowner():
@@ -897,7 +914,8 @@ def test_channel_addowner_slackrowner_promoteother_notchannelowner():
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
 def test_channel_addowner_target_notinchannel():
@@ -916,24 +934,28 @@ def test_channel_addowner_target_notinchannel():
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } in channel_details(reg_dict3['token'], create_dict2['channel_id'])['owner_members']
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } in channel_details(reg_dict3['token'], create_dict2['channel_id'])['all_members']
     # Test attempts to add Gabe as owner of 1531 autotest
     channel_addowner(reg_dict1['token'], create_dict1['channel_id'], reg_dict3['u_id'])
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } in channel_details(reg_dict3['token'], create_dict1['channel_id'])['owner_members']
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } in channel_details(reg_dict3['token'], create_dict1['channel_id'])['all_members']
 
 def test_channel_addowner_user_notinchannel():
@@ -1053,7 +1075,8 @@ def test_channel_removeowner_simple():
     assert {
         'u_id': reg_dict1['u_id'],
         'name_first': 'Test',
-        'name_last': 'User'
+        'name_last': 'User',
+        'profile_img_url': None
     } not in channel_details(reg_dict1['token'], create_dict2['channel_id'])['owner_members']
 
     # Test removes Sabine as owner of 1531 autotest
@@ -1062,7 +1085,8 @@ def test_channel_removeowner_simple():
     assert {
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
-        'name_last': 'Lim'
+        'name_last': 'Lim',
+        'profile_img_url': None
     } not in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
     # Gabe removes Sabine as owner of Steam
@@ -1071,7 +1095,8 @@ def test_channel_removeowner_simple():
     assert {
         'u_id': reg_dict2['u_id'],
         'name_first': 'Sabine',
-        'name_last': 'Lim'
+        'name_last': 'Lim',
+        'profile_img_url': None
     } not in channel_details(reg_dict3['token'], create_dict3['channel_id'])['owner_members']
 
 def test_channel_removeowner_slackrowner_demoteother_notchannelowner():
@@ -1096,7 +1121,8 @@ def test_channel_removeowner_slackrowner_demoteother_notchannelowner():
     assert {
         'u_id': reg_dict3['u_id'],
         'name_first': 'Gabe',
-        'name_last': 'Newell'
+        'name_last': 'Newell',
+        'profile_img_url': None
     } not in channel_details(reg_dict1['token'], create_dict1['channel_id'])['owner_members']
 
 def test_channel_removeowner_target_notinchannel():

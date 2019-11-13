@@ -19,8 +19,8 @@ import AddMemberDialog from './AddMemberDialog';
 import ChannelMessages from './ChannelMessages';
 import AuthContext from '../../AuthContext';
 import { extractUId } from '../../utils/token';
-import { useInterval } from '../../utils';
-import { pollingInterval, getIsPolling, subscribeToStep, unsubscribeToStep } from '../../utils/update';
+import { isMatchingId } from '../../utils';
+import { useStep } from '../../utils/update';
 
 function Channel({ channel_id, ...props }) {
   const [name, setName] = React.useState('');
@@ -47,16 +47,7 @@ function Channel({ channel_id, ...props }) {
       .catch((err) => {});
   }
 
-  React.useEffect(() => {
-    fetchChannelData();
-    subscribeToStep(fetchChannelData);
-    return () => unsubscribeToStep(fetchChannelData);
-  }, [channel_id, token])
-
-  useInterval(() => {
-    if (getIsPolling()) fetchChannelData();
-  }, pollingInterval * 2);
-
+  const step = useStep(fetchChannelData, [channel_id, token], 2);
 
   function joinChannel(channel_id, token) {
     axios
@@ -109,26 +100,24 @@ function Channel({ channel_id, ...props }) {
   }
 
   function userIsMember(members) {
-    return members.find((member) => parseInt(member.u_id,10) === parseInt(u_id,10)) !== undefined;
+    return members.find((member) => isMatchingId(member.u_id, u_id)) !== undefined;
   }
 
   function userIsOwner(owners, u_id) {
-    return owners.find((owner) => parseInt(owner.u_id,10) === parseInt(u_id,10)) !== undefined;
+    return owners.find((owner) => isMatchingId(owner.u_id, u_id)) !== undefined;
   }
 
   const viewerIsOwner = userIsOwner(owners, u_id);
+  const viewerIsMember = userIsMember(members);
 
   return (
     <>
       <Typography variant="h4">{name.toUpperCase()}</Typography>
       <List subheader={<ListSubheader>Members</ListSubheader>}>
-        {members.map(({ u_id, name_first, name_last }) => (
+        {members.map(({ u_id, name_first, name_last, profile_img_url }) => (
           <ListItem key={u_id}>
             <ListItemIcon>
-              <Avatar>
-                {name_first[0]}
-                {name_last[0]}
-              </Avatar>
+              <img className="avatar-small" src={profile_img_url} />
             </ListItemIcon>
             <ListItemText
               primary={
@@ -191,7 +180,7 @@ function Channel({ channel_id, ...props }) {
           )}
         </ListItem>
       </List>
-      <ChannelMessages channel_id={channel_id} />
+      {viewerIsMember && <ChannelMessages channel_id={channel_id}/>}
     </>
   );
 }

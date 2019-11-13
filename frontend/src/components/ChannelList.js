@@ -15,8 +15,7 @@ import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import AuthContext from '../AuthContext';
 import AddChannelDialog from './Channel/AddChannelDialog';
 
-import { useInterval } from '../utils';
-import { pollingInterval, getIsPolling, subscribeToStep, unsubscribeToStep } from '../utils/update';
+import { useStep } from '../utils/update';
 
 function ChannelList({ channel_id: curr_channel_id }) {
   const [myChannels, setMyChannels] = React.useState([]);
@@ -45,15 +44,7 @@ function ChannelList({ channel_id: curr_channel_id }) {
     );
   };
 
-  React.useEffect(() => {
-    fetchChannelsData();
-    subscribeToStep(fetchChannelsData);
-    return () => unsubscribeToStep(fetchChannelsData);
-  }, [])
-
-  useInterval(() => {
-    if (getIsPolling()) fetchChannelsData();
-  }, pollingInterval * 2);
+  const step = useStep(fetchChannelsData, [], 2);
 
   return (
     <>

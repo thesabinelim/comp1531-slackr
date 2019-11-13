@@ -55,7 +55,8 @@ def channel_details(token, channel_id):
         owner_members.append({
             'u_id': owner.get_u_id(),
             'name_first': owner.get_first_name(),
-            'name_last': owner.get_last_name()
+            'name_last': owner.get_last_name(),
+            'profile_img_url': owner.get_profile_img_url()
         })
 
     all_members = []
@@ -63,7 +64,8 @@ def channel_details(token, channel_id):
         all_members.append({
             'u_id': member.get_u_id(),
             'name_first': member.get_first_name(),
-            'name_last': member.get_last_name()
+            'name_last': member.get_last_name(),
+            'profile_img_url': member.get_profile_img_url()
         })
 
     return {

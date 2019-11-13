@@ -5,3 +5,5 @@ export const PERMISSION_IDS = {
     ADMIN: 2,
     MEMBER: 3,
 }
+export const PAGINATION_SIZE = 50;
+export const SLICE_SIZE = 10;
