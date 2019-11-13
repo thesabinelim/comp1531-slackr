@@ -216,6 +216,10 @@ def db_get_user_by_email(email):
             return user
     return None
 
+# Returns the images folder that holds user's uploded photos
+def db_get_image_folder():
+    return 'imgurls'
+
 #################
 # channels data #
 #################

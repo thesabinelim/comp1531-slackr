@@ -5,11 +5,22 @@
 import re
 import random
 import string
+from urllib.parse import urlparse
 
 # Return True if email is valid, 0 otherwise.
 def is_valid_email(email):
     email_re = r'^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
     return True if re.search(email_re, email) else False
+
+# Returns true if the url is not malformed
+# https://stackoverflow.com/questions/7160737/python-how-to-validate-a-url-in-python-malformed-or-not
+# e.g. 'google', 'http:/s', 'google.com' are malformed. 'http://google.com' is not
+def is_valid_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc, result.path])
+    except:
+        return False
 
 # Return randomly generated string with given length. String can contain
 # lowercase alphanumeric characters.

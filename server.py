@@ -154,6 +154,12 @@ def req_user_profile_sethandle():
 @APP.route('/user/profiles/uploadphoto', methods=['POST'])
 def req_user_profiles_uploadphoto():
     token = request.form.get('token')
+    if request.form.get('img_url') is None \
+        or request.form.get('x_start') is None \
+        or request.form.get('y_start') is None \
+        or request.form.get('x_end') is None \
+        or request.form.get('y_end') is None:
+        raise ValueError(description="Not enough arguments supplied to upload photo!")
     img_url = request.form.get('img_url')
     x_start = int(request.form.get('x_start'))
     y_start = int(request.form.get('y_start'))
