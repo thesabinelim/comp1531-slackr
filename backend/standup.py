@@ -51,7 +51,6 @@ def standup_start(token, channel_id, length):
 # For a given channel, return whether a standup is active in it,
 # and what time the standup finishes. If no standup is active,
 # then time_finish returns None
-# not sure how to
 def standup_active(token, channel_id):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
