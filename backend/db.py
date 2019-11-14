@@ -44,9 +44,12 @@ def commit_data():
 
 def load_data():
     global data
-    db_file = open("db.p", "rb")
-    data = pickle_load(db_file)
-    db_file.close()
+    try:
+        db_file = open("db.p", "rb")
+        data = pickle_load(db_file)
+        db_file.close()
+    except FileNotFoundError:
+        reset_data()
 
 def get_data():
     global data
@@ -66,7 +69,7 @@ def reset_data():
 data = None
 load_data()
 
-s = sched.scheduler()
+s = scheduler()
 def sched_commit_data():
     commit_data()
     s.enter(60, 1, sched_commit_data)
