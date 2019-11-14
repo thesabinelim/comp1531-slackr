@@ -19,9 +19,14 @@ from .error import ValueError, AccessError
 # active standup running in that channel.
 # Raises AccessError when the channel exists but the user isnt in that channel.
 # Return dictionary containing time the standup will finish.
-def standup_start(token, channel_id):
+def standup_start(token, channel_id, length):
+
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
+    
+    # new valueerror if length is wrong
+    if (length <= 0):
+        raise ValueError(description="Standup time less then 0")
 
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:
@@ -29,18 +34,38 @@ def standup_start(token, channel_id):
 
     if not channel.has_member(user):
         raise AccessError(description="Authorised user is not member of that channel!")
+
     adjusted_time = time.time() + db_get_time_offset()
     if channel.get_standup() is not None \
         and adjusted_time < channel.get_standup().get_time_created():
         raise ValueError(description="An active standup is currently running in this channel!")
 
     # Set standup to expire in 15 minutes.
-    time_finish = time.time() + 15 * 60
+    time_finish = time.time() + length * 60
 
     message = db_create_message(user, channel, "", time_finish)
     channel.set_standup(message)
 
     return {'time_finish': time_finish}
+
+# For a given channel, return whether a standup is active in it,
+# and what time the standup finishes. If no standup is active,
+# then time_finish returns None
+def standup_active(token, channel_id):
+    u_id = validate_token(token)
+    user = db_get_user_by_u_id(u_id)
+    
+    channel = db_get_channel_by_channel_id(channel_id)
+    if channel is None:
+        raise ValueError(description="Channel with channel_id does not exist in database!")
+    
+    standup = channel.get_standup()
+    adjusted_time = time.time() + db_get_time_offset()
+
+    if standup is None or adjusted_time >= (standup.get_time_created()):
+            return None
+
+    return standup.get_time_created()
 
 # The standup_send function takes the users token, the desired channel_id
 # and a message under 1000 characters and puts it in the standup_queue.

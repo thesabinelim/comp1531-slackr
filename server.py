@@ -19,14 +19,15 @@ from backend.user import (
 from backend.users import users_all
 from backend.channels import channels_create, channels_list, channels_listall
 from backend.channel import (
-    channel_invite, channel_details, channel_join, channel_leave, channel_messages
+    channel_invite, channel_details, channel_join, channel_leave, channel_messages,
+    channel_addowner, channel_removeowner
 )
 from backend.message import (
     message_sendlater, message_send, message_remove, message_edit,
     message_react, message_unreact, message_pin, message_unpin
 )
 from backend.admin import admin_userpermission_change
-from backend.standup import standup_start, standup_send
+from backend.standup import standup_start, standup_send, standup_active
 from backend.error import default_handler, ValueError, AccessError
 
 APP = Flask(__name__, static_url_path='/imgurls/', static_folder='imgurls')
@@ -154,6 +155,12 @@ def req_user_profile_sethandle():
 @APP.route('/user/profiles/uploadphoto', methods=['POST'])
 def req_user_profiles_uploadphoto():
     token = request.form.get('token')
+    if request.form.get('img_url') is None \
+        or request.form.get('x_start') is None \
+        or request.form.get('y_start') is None \
+        or request.form.get('x_end') is None \
+        or request.form.get('y_end') is None:
+        raise ValueError(description="Not enough arguments supplied to upload photo!")
     img_url = request.form.get('img_url')
     x_start = int(request.form.get('x_start'))
     y_start = int(request.form.get('y_start'))
@@ -226,6 +233,20 @@ def req_channel_messages():
     channel_id = int(request.args.get('channel_id'))
     start = int(request.args.get('start'))
     return dumps(channel_messages(token, channel_id, start))
+
+@APP.route('/channel/addowner', methods=['POST'])
+def req_channel_addowner():
+    token = request.form.get('token')
+    channel_id = int(request.form.get('channel_id'))
+    u_id = int(request.form.get('u_id'))
+    return dumps(channel_addowner(token, channel_id, u_id))
+
+@APP.route('/channel/removeowner', methods=['POST'])
+def req_channel_removeowner():
+    token = request.form.get('token')
+    channel_id = int(request.form.get('channel_id'))
+    u_id = int(request.form.get('u_id'))
+    return dumps(channel_removeowner(token, channel_id, u_id))
 
 #####################
 # message interface #
@@ -304,7 +325,14 @@ def req_admin_userpermission_change():
 def req_standup_start():
     token = request.form.get('token')
     channel_id = int(request.form.get('channel_id'))
-    return dumps(standup_start(token, channel_id))
+    length = int(request.form.get('length'))
+    return dumps(standup_start(token, channel_id, length))
+
+@APP.route('/standup/active', methods=['GET'])
+def req_standup_active():
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(standup_active(token, channel_id))
 
 @APP.route('/standup/send', methods=['POST'])
 def req_standup_send():

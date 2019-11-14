@@ -4,9 +4,12 @@
 
 import re
 
-from .db import User, db_get_user_by_u_id, db_get_user_by_email, db_get_user_by_handle, db_get_backend_url
+from .db import (
+    User, db_get_user_by_u_id, db_get_user_by_email, 
+    db_get_user_by_handle, db_get_backend_url, db_get_image_folder
+)
 from .auth import validate_token
-from .utils import is_valid_email, random_string
+from .utils import is_valid_email, random_string, is_valid_url
 from .error import ValueError
 import os
 
@@ -72,7 +75,6 @@ def user_profile_sethandle(token, handle_str):
 
     return {}
 
-
 # Given a URL of an image on the internet, crops the image within bounds 
 # (x_start, y_start) and (x_end, y_end). Position (0,0) is the top left.
 # After processing this image is stored locally on the server, and the 
@@ -81,13 +83,49 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     u_id = validate_token(token)
     user = db_get_user_by_u_id(u_id)
 
+    response = attempt_img_url_request(img_url)
+
+    # Attempt to load the image
+    img = None
+    try:
+        img = Image.open(BytesIO(response.content))
+    except IOError as e:
+        raise ValueError(description="URL is not an image!")
+    verify_img_bounds_valid(img, x_start, y_start, x_end, y_end)
+
+    cropped_image = img.crop([x_start, y_start, x_end, y_end])
+    image_folder = db_get_image_folder()
+    if not os.path.exists(image_folder):
+        os.makedirs(image_folder)
+
+    filepath = generate_filepath_for_user_img(user.get_u_id())
+    cropped_image.save(filepath)
+
+    # Set the user's profile_img_url to this new cropped image
+    # This is just relative to local storage, and usage appends the url
+    backend_url = db_get_backend_url()
+    user.set_profile_img_url(f'{backend_url}{filepath}')
+
+# Attempts a request on the img_url. Since this is client-side, more error checking
+# is required to make sure that the URL is valid and not malformed
+# Returns the reponse of the request, which will contain the content if successful
+def attempt_img_url_request(img_url):
+    # Validate url, as requests does not work with malformed urls
+    if not is_valid_url(img_url):
+        raise ValueError(description=f"img_url is a malformed URL!")
+
     # https://stackoverflow.com/questions/7391945/how-do-i-read-image-data-from-a-url-in-python
-    response = requests.get(img_url)
+    response = None
+    try:
+        response = requests.get(img_url)
+    except:
+        raise ValueError(description=f"img_url is invalid!")
     if response.status_code != 200:
         raise ValueError(description=f"img_url returned HTTP {response.status_code}!")
+    return response
 
-    # Load the image
-    img = Image.open(BytesIO(response.content))
+# Checks that the supplied bounds to crop the image are valid
+def verify_img_bounds_valid(img, x_start, y_start, x_end, y_end):
     img_width, img_height = img.size
     if img.format != "JPEG":
         raise ValueError(description="Image is not a JPEG!")
@@ -95,22 +133,17 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
         raise ValueError(description="X is out of bounds of image")
     if y_start < 0 or y_start > img_height or y_end < 0 or y_end > img_height:
         raise ValueError(description="Y is out of bounds of image")
+    if x_end <= x_start or y_end <= y_start:
+        raise ValueError(description="End coordinates are before the start coordinates")
 
-    # Crop the image
-    cropped_image = img.crop([x_start, y_start, x_end, y_end])
-    if not os.path.exists('imgurls'):
-        os.makedirs('imgurls')
-
-    image_folder = 'imgurls'
+# Attempts to generate a random filename for a users uploaded image
+# Returns the filepath for this image's filename, relative to the server
+def generate_filepath_for_user_img(u_id):
+    image_folder = db_get_image_folder()
     randstr = random_string(20)
-    filepath = f"{image_folder}/{user.get_u_id()}_{randstr}.jpg"
+    filepath = f"{image_folder}/{u_id}_{randstr}.jpg"
     while os.path.exists(f"{filepath}"):
         randstr = random_string(20)
-        filepath = f"{image_folder}/{user.get_u_id()}_{randstr}.jpg"
-    cropped_image.save(filepath)
+        filepath = f"{image_folder}/{u_id}_{randstr}.jpg"
+    return filepath
 
-    # Set the user's profile_img_url to this new cropped image
-    # This is just relative to local storage, and usage appends the url
-    backend_url = db_get_backend_url()
-    
-    user.set_profile_img_url(f'{backend_url}{filepath}')
