@@ -8,7 +8,6 @@ from hashlib import pbkdf2_hmac
 from enum import Enum
 from time import time
 from pickle import load as pickle_load, dump as pickle_dump
-from sched import scheduler
 
 from .utils import random_string
 from .error import ValueError
@@ -37,19 +36,29 @@ def hash_password(password):
 # database #
 ############
 
+data = None
+
 def commit_data():
     db_file = open("db.p", "wb")
     pickle_dump(data, db_file)
     db_file.close()
 
-def load_data():
+# def commit_data_timer():
+#     while True:
+#         commit_data()
+#         sleep(60)
+
+def init_data():
     global data
     try:
         db_file = open("db.p", "rb")
         data = pickle_load(db_file)
         db_file.close()
+        print('load success!')
     except FileNotFoundError:
         reset_data()
+        print('reset!')
+    # Thread(target=commit_data_timer).start()
 
 def get_data():
     global data
@@ -66,16 +75,7 @@ def reset_data():
         'backend_url': 'http://localhost:5001/'
     }
 
-data = None
-load_data()
-
-s = scheduler()
-def sched_commit_data():
-    commit_data()
-    s.enter(60, 1, sched_commit_data)
-
-sched_commit_data()
-s.run()
+init_data()
 
 ###############
 # URL Routing #
