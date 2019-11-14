@@ -2,14 +2,16 @@
 # Written by Sabine Lim z5242579
 # 17/10/19
 
-import os
-import hashlib
-import enum
-import time
+from flask import request
+from os import urandom
+from hashlib import pbkdf2_hmac
+from enum import Enum
+from time import time
+from pickle import load as pickle_load, dump as pickle_dump
+from sched import scheduler
 
 from .utils import random_string
 from .error import ValueError
-from flask import request
 
 ####################
 # Password hashing #
@@ -21,7 +23,7 @@ def get_salt():
 
 def reset_salt():
     global salt
-    salt = os.urandom(32)
+    salt = urandom(32)
 
 salt = None
 reset_salt()
@@ -29,11 +31,22 @@ reset_salt()
 # Return salted hash of password supplied.
 def hash_password(password):
     salt = get_salt()
-    return hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    return pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
 
 ############
 # database #
 ############
+
+def commit_data():
+    db_file = open("db.p", "wb")
+    pickle_dump(data, db_file)
+    db_file.close()
+
+def load_data():
+    global data
+    db_file = open("db.p", "rb")
+    data = pickle_load(db_file)
+    db_file.close()
 
 def get_data():
     global data
@@ -51,7 +64,15 @@ def reset_data():
     }
 
 data = None
-reset_data()
+load_data()
+
+s = sched.scheduler()
+def sched_commit_data():
+    commit_data()
+    s.enter(60, 1, sched_commit_data)
+
+sched_commit_data()
+s.run()
 
 ###############
 # URL Routing #
@@ -69,7 +90,7 @@ def db_get_backend_url():
 # Time manipulation #
 #####################
 # Used for functions that depend on time to test.
-# Their calculations for time.time() will add get_db_time_offset() on the end.
+# Their calculations for time() will add get_db_time_offset() on the end.
 # Outside of testing, this will always be zero, but when testing this allows us
 # to modify the time to test more easily.
 def db_add_time_offset(seconds):
@@ -88,7 +109,7 @@ def db_get_time_offset():
 # users data #
 ##############
 
-class Role(enum.Enum):
+class Role(Enum):
     owner = 1
     admin = 2
     member = 3
@@ -439,12 +460,12 @@ class Reset_Request:
     def get_time_expires(self):
         return self.time_expires
     def is_expired(self):
-        return self.time_expires <= time.time()
+        return self.time_expires <= time()
 
     def set_time_expires(self, new_time_expires):
         self.time_expires = new_time_expires
     def expire(self):
-        self.time_expires = time.time()
+        self.time_expires = time()
 
 # Create Reset_Request with provided details and add to database, return
 # Reset_Request.
