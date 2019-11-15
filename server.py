@@ -11,7 +11,7 @@ from backend.auth import (
     auth_login, auth_logout, auth_register, auth_passwordreset_request,
     auth_passwordreset_reset
 )
-from backend.db import db_set_backend_url
+from backend.db import db_set_backend_url, init_data
 from backend.user import (
     user_profile, user_profile_setname, user_profile_setemail,
     user_profile_sethandle, user_profiles_uploadphoto
@@ -36,7 +36,7 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, default_handler)
 CORS(APP)
 
-
+init_data()
 
 @APP.route('/valueerror')
 def login():
@@ -44,7 +44,6 @@ def login():
 @APP.route('/accesserror')
 def logout():
     raise AccessError(description="Access name is bad")
-
 
 ########
 # Mail #

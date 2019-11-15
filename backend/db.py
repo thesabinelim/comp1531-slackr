@@ -6,31 +6,12 @@ from flask import request
 from os import urandom
 from hashlib import pbkdf2_hmac
 from enum import Enum
-from time import time
+from time import time, sleep
 from pickle import load as pickle_load, dump as pickle_dump
+from threading import Thread
 
 from .utils import random_string
 from .error import ValueError
-
-####################
-# Password hashing #
-####################
-
-def get_salt():
-    global salt
-    return salt
-
-def reset_salt():
-    global salt
-    salt = urandom(32)
-
-salt = None
-reset_salt()
-
-# Return salted hash of password supplied.
-def hash_password(password):
-    salt = get_salt()
-    return pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
 
 ############
 # database #
@@ -39,30 +20,37 @@ def hash_password(password):
 data = None
 
 def commit_data():
-    db_file = open("db.p", "wb")
+    db_file = open("backend/db.p", "wb")
     pickle_dump(data, db_file)
     db_file.close()
 
-# def commit_data_timer():
-#     while True:
-#         commit_data()
-#         sleep(60)
+def commit_data_timer():
+    while True:
+        commit_data()
+        sleep(60)
 
 def init_data():
     global data
     try:
-        db_file = open("db.p", "rb")
+        db_file = open("backend/db.p", "rb")
         data = pickle_load(db_file)
         db_file.close()
         print('load success!')
+        print(data)
     except FileNotFoundError:
         reset_data()
-        print('reset!')
-    # Thread(target=commit_data_timer).start()
+        print('database reset!')
+    Thread(target=commit_data_timer).start()
 
 def get_data():
     global data
     return data
+
+def get_salt():
+    return get_data()['salt']
+
+def reset_salt():
+    get_data()['salt'] = urandom(32)
 
 def reset_data():
     global data
@@ -72,10 +60,19 @@ def reset_data():
         'messages': [],
         'reset_requests': [],
         'time_offset': 0,
-        'backend_url': 'http://localhost:5001/'
+        'backend_url': 'http://localhost:5001/',
+        'salt': None,
     }
+    reset_salt()
 
-init_data()
+####################
+# Password hashing #
+####################
+
+# Return salted hash of password supplied.
+def hash_password(password):
+    salt = get_salt()
+    return pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
 
 ###############
 # URL Routing #
