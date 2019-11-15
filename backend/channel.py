@@ -122,7 +122,7 @@ def channel_messages(token, channel_id, start):
             for react_user in react_users:
                 react_u_ids.append(react_user.get_u_id())
 
-            reacted = u_id in react_u_ids
+            reacted = user['u_id'] in react_u_ids
             message_dict['reacts'].append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
 
         message_dict['is_pinned'] = current_message.is_pinned()
