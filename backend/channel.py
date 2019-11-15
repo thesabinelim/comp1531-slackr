@@ -20,11 +20,7 @@ def channel_invite(token, channel_id, receiver_id):
     sender = validate_token(token)
 
     receiver = db_get_user_by_u_id(receiver_id)
-    if receiver is None:
-        raise ValueError(description="User with u_id does not exist!")
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
 
     if not sender.in_channel(channel):
         raise AccessError(description="Invite sender is not member of channel!")
@@ -41,8 +37,6 @@ def channel_details(token, channel_id):
     user = validate_token(token)
 
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
 
     if not user.in_channel(channel):
         raise AccessError(description="User is not member of channel!")
@@ -84,8 +78,6 @@ def channel_messages(token, channel_id, start):
     user = validate_token(token)
 
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
     if not user.in_channel(channel):
         raise AccessError(description="User is not member of channel!")
         
@@ -122,7 +114,7 @@ def channel_messages(token, channel_id, start):
             for react_user in react_users:
                 react_u_ids.append(react_user.get_u_id())
 
-            reacted = u_id in react_u_ids
+            reacted = user.get_u_id() in react_u_ids
             message_dict['reacts'].append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
 
         message_dict['is_pinned'] = current_message.is_pinned()
@@ -140,8 +132,6 @@ def channel_leave(token, channel_id):
     user = validate_token(token)
 
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
     
     # Last owner can't leave unless they are also last member
     if len(channel.get_true_owners()) == 1 and channel.has_true_owner(user) \
@@ -183,8 +173,6 @@ def channel_addowner(token, channel_id, target_id):
     target_user = db_get_user_by_u_id(target_id)
 
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
     # user already owner of channel
     if channel.has_true_owner(target_user):
         raise ValueError(description="User already an owner of channel")
@@ -209,8 +197,6 @@ def channel_removeowner(token, channel_id, target_id):
     target_user = db_get_user_by_u_id(target_id)
 
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
     # user already owner of channel
     if not channel.has_true_owner(target_user):
         raise ValueError(description="User already not an owner of channel")

@@ -27,8 +27,6 @@ def user_profile(token, target_u_id):
     validate_token(token)
 
     target_user = db_get_user_by_u_id(target_u_id)
-    if target_user is None:
-        raise ValueError(description="User does not exist")
 
     return target_user.to_dict()
 
