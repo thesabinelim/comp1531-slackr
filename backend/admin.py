@@ -12,12 +12,9 @@ from .error import ValueError, AccessError
 # Raise ValueError for invalid u_id or permission_id.
 # Raise AccessError when user is not admin or owner.
 def admin_userpermission_change(token, target_id, permission_id):
-    u_id = validate_token(token)
-    authorised_user = db_get_user_by_u_id(u_id)
+    authorised_user = validate_token(token)
 
     target = db_get_user_by_u_id(target_id)
-    if target is None:
-        raise ValueError(description="User with u_id does not exist!")
     
     if permission_id not in [perm.value for perm in Role]:
         raise ValueError(description="Invalid permission_id!")

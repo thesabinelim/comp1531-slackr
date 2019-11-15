@@ -11,7 +11,7 @@ from backend.auth import (
     auth_login, auth_logout, auth_register, auth_passwordreset_request,
     auth_passwordreset_reset
 )
-from backend.db import db_set_backend_url
+from backend.db import db_set_backend_url, init_data
 from backend.user import (
     user_profile, user_profile_setname, user_profile_setemail,
     user_profile_sethandle, user_profiles_uploadphoto
@@ -28,6 +28,7 @@ from backend.message import (
 )
 from backend.admin import admin_userpermission_change
 from backend.standup import standup_start, standup_send, standup_active
+from backend.search import search
 from backend.error import default_handler, ValueError, AccessError
 
 APP = Flask(__name__, static_url_path='/imgurls/', static_folder='imgurls')
@@ -36,7 +37,7 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, default_handler)
 CORS(APP)
 
-
+init_data()
 
 @APP.route('/valueerror')
 def login():
@@ -44,7 +45,6 @@ def login():
 @APP.route('/accesserror')
 def logout():
     raise AccessError(description="Access name is bad")
-
 
 ########
 # Mail #
@@ -340,6 +340,15 @@ def req_standup_send():
     channel_id = int(request.form.get('channel_id'))
     message = request.form.get('message')
     return dumps(standup_send(token, channel_id, message))
+
+##########
+# Search #
+##########
+@APP.route('/search', methods=['GET'])
+def req_search():
+    token = request.args.get('token')
+    query_str = request.args.get('query_str')
+    return dumps(search(token, query_str))
 
 def get_backend_url():
     addr = request.environ['REMOTE_ADDR']

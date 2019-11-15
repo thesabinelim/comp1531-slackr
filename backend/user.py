@@ -27,15 +27,12 @@ def user_profile(token, target_u_id):
     validate_token(token)
 
     target_user = db_get_user_by_u_id(target_u_id)
-    if target_user is None:
-        raise ValueError(description="User does not exist")
 
     return target_user.to_dict()
 
 # Update the authorised user's first and last name
 def user_profile_setname(token, name_first, name_last):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     if len(name_first) < 1 or len(name_first) > 50:
         raise ValueError(description="First name not between 1 and 50 characters")
@@ -49,12 +46,11 @@ def user_profile_setname(token, name_first, name_last):
 
 # Update the authorised user's email address
 def user_profile_setemail(token, email):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     if not is_valid_email(email):
         raise ValueError(description="Email invalid")
-    if db_get_user_by_email(email) is not None:
+    if db_get_user_by_email(email, error=False) is not None:
         raise ValueError(description="Email already in use")
 
     user.set_email(email)
@@ -63,12 +59,11 @@ def user_profile_setemail(token, email):
 
 # Update the authorised user's handle (i.e. display name)
 def user_profile_sethandle(token, handle_str):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     if len(handle_str) < 3 or len(handle_str) > 20:
         raise ValueError(description="Handle not between 3 and 20 characters")
-    if db_get_user_by_handle(handle_str) is not None:
+    if db_get_user_by_handle(handle_str, error=False) is not None:
         raise ValueError(description="Handle is already in use")
 
     user.set_handle(handle_str)
@@ -80,8 +75,7 @@ def user_profile_sethandle(token, handle_str):
 # After processing this image is stored locally on the server, and the 
 # profile_img_url is a url to the server
 def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     response = attempt_img_url_request(img_url)
 

@@ -2,42 +2,55 @@
 # Written by Sabine Lim z5242579
 # 17/10/19
 
-import os
-import hashlib
-import enum
-import time
+from flask import request
+from os import urandom
+from hashlib import pbkdf2_hmac
+from enum import Enum
+from time import time, sleep
+from pickle import load as pickle_load, dump as pickle_dump
+from threading import Thread
 
 from .utils import random_string
 from .error import ValueError
-from flask import request
-
-####################
-# Password hashing #
-####################
-
-def get_salt():
-    global salt
-    return salt
-
-def reset_salt():
-    global salt
-    salt = os.urandom(32)
-
-salt = None
-reset_salt()
-
-# Return salted hash of password supplied.
-def hash_password(password):
-    salt = get_salt()
-    return hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
 
 ############
 # database #
 ############
 
+data = None
+
+def commit_data():
+    db_file = open("backend/db.p", "wb")
+    pickle_dump(data, db_file)
+    db_file.close()
+
+def commit_data_timer():
+    while True:
+        commit_data()
+        sleep(60)
+
+def init_data():
+    global data
+    try:
+        db_file = open("backend/db.p", "rb")
+        data = pickle_load(db_file)
+        db_file.close()
+        print('load success!')
+        print(data)
+    except FileNotFoundError:
+        reset_data()
+        print('database reset!')
+    Thread(target=commit_data_timer).start()
+
 def get_data():
     global data
     return data
+
+def get_salt():
+    return get_data()['salt']
+
+def reset_salt():
+    get_data()['salt'] = urandom(32)
 
 def reset_data():
     global data
@@ -47,11 +60,19 @@ def reset_data():
         'messages': [],
         'reset_requests': [],
         'time_offset': 0,
-        'backend_url': 'http://localhost:5001/'
+        'backend_url': 'http://localhost:5001/',
+        'salt': None,
     }
+    reset_salt()
 
-data = None
-reset_data()
+####################
+# Password hashing #
+####################
+
+# Return salted hash of password supplied.
+def hash_password(password):
+    salt = get_salt()
+    return pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
 
 ###############
 # URL Routing #
@@ -69,7 +90,7 @@ def db_get_backend_url():
 # Time manipulation #
 #####################
 # Used for functions that depend on time to test.
-# Their calculations for time.time() will add get_db_time_offset() on the end.
+# Their calculations for time() will add get_db_time_offset() on the end.
 # Outside of testing, this will always be zero, but when testing this allows us
 # to modify the time to test more easily.
 def db_add_time_offset(seconds):
@@ -88,7 +109,7 @@ def db_get_time_offset():
 # users data #
 ##############
 
-class Role(enum.Enum):
+class Role(Enum):
     owner = 1
     admin = 2
     member = 3
@@ -189,31 +210,37 @@ def db_get_all_users():
     db = get_data()
     return db['users']
 
-# Return User with u_id if they exist in database, None otherwise.
-def db_get_user_by_u_id(u_id):
+# Return User with u_id if they exist in database, raise ValueError otherwise.
+def db_get_user_by_u_id(u_id, error=True):
     db = get_data()
 
     for user in db['users']:
         if user.get_u_id() == u_id:
             return user
+    if error:
+        raise ValueError(description=f"User with u_id {u_id} does not exist!")
     return None
 
-# Return User with handle if they exist in database, None otherwise.
-def db_get_user_by_handle(handle):
+# Return User with handle if they exist in database, raise ValueError otherwise.
+def db_get_user_by_handle(handle, error=True):
     db = get_data()
 
     for user in db['users']:
         if user.get_handle() == handle:
             return user
+    if error:
+        raise ValueError(description=f"User with handle {handle} does not exist!")
     return None
 
-# Return User with email if they exist in database, None otherwise.
-def db_get_user_by_email(email):
+# Return User with email if they exist in database, raise ValueError otherwise.
+def db_get_user_by_email(email, error=True):
     db = get_data()
 
     for user in db['users']:
         if user.get_email() == email:
             return user
+    if error:
+        raise ValueError(description=f"User with email {email} does not exist!")
     return None
 
 # Returns the images folder that holds user's uploded photos
@@ -320,13 +347,15 @@ def db_get_all_channels():
     db = get_data()
     return db['channels']
 
-# Return Channel with channel_id if it exists in database, None otherwise.
-def db_get_channel_by_channel_id(channel_id):
+# Return Channel with channel_id if it exists in database, raise ValueError otherwise.
+def db_get_channel_by_channel_id(channel_id, error=True):
     db = get_data()
 
     for channel in db['channels']:
         if channel.get_channel_id() == channel_id:
             return channel
+    if error:
+        raise ValueError(description=f"Channel with channel_id {channel_id} does not exist!")
     return None
 
 #################
@@ -413,13 +442,15 @@ def db_get_all_messages():
     db = get_data()
     return db['messages']
 
-# Return Message with message_id if it exists in database, None otherwise.
-def db_get_message_by_message_id(message_id):
+# Return Message with message_id if it exists in database, raise ValueError otherwise.
+def db_get_message_by_message_id(message_id, error=True):
     db = get_data()
 
     for message in db['messages']:
         if message.get_message_id() == message_id:
             return message
+    if error:
+        raise ValueError(description=f"Message with message_id {message_id} does not exist!")
     return None
 
 #######################
@@ -439,12 +470,12 @@ class Reset_Request:
     def get_time_expires(self):
         return self.time_expires
     def is_expired(self):
-        return self.time_expires <= time.time()
+        return self.time_expires <= time()
 
     def set_time_expires(self, new_time_expires):
         self.time_expires = new_time_expires
     def expire(self):
-        self.time_expires = time.time()
+        self.time_expires = time()
 
 # Create Reset_Request with provided details and add to database, return
 # Reset_Request.

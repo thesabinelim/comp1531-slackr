@@ -5,7 +5,7 @@
 import pytest
 
 from .db import reset_data
-from .auth import auth_register, validate_token
+from .auth import auth_register
 from .admin import admin_userpermission_change
 from .error import ValueError, AccessError
 

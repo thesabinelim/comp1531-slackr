@@ -13,8 +13,7 @@ from .channel import (
 )
 # Given a query string, return a collection of messages that match the query
 def search(token, query_str):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id) 
+    user = validate_token(token)
     channels = user.get_channels()
 
     search_messages = []
