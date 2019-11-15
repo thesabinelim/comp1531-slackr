@@ -33,8 +33,6 @@ def message_sendlater(token, channel_id, text, time_sent):
     validate_message_text(text, time(), time_sent)
 
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
 
     if not channel.has_member(user):
         raise AccessError(description="Authorised user is not member of that channel!")
@@ -55,8 +53,6 @@ def message_send(token, channel_id, text):
     validate_message_text(text, now, now)
 
     channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
 
     if not channel.has_member(user):
         raise AccessError(description="Authorised user is not member of that channel!")
@@ -76,8 +72,6 @@ def message_remove(token, message_id):
     user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
-    if message is None:
-        raise ValueError(description="Message with message_id does not exist!")
 
     sender = message.get_sender()
     channel = message.get_channel()
@@ -108,8 +102,8 @@ def message_edit(token, message_id, text):
         raise ValueError(description="Message cannot be longer than 1000 characters!")
 
     message = db_get_message_by_message_id(message_id)
-    if message is None or not message.get_channel().has_message(message):
-        raise ValueError(description="Message with message_id does not exist!")
+    if not message.get_channel().has_message(message):
+        raise ValueError(description="Message with message_id does not exist in channel!")
 
     channel = message.get_channel()
 
@@ -138,7 +132,7 @@ def message_react(token, message_id, react_id):
     user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
-    if message is None or not message.get_channel().has_message(message):
+    if not message.get_channel().has_message(message):
         raise ValueError(description="Message with message_id is not a valid message within a channel authorised user has joined!")
 
     channel = message.get_channel()
@@ -164,7 +158,7 @@ def message_unreact(token, message_id, react_id):
     user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
-    if message is None or not message.get_channel().has_message(message):
+    if not message.get_channel().has_message(message):
         raise ValueError(description="Message with message_id is not a valid message within a channel authorised user has joined!")
 
     channel = message.get_channel()
@@ -190,7 +184,7 @@ def message_pin(token, message_id):
     user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
-    if message is None or not message.get_channel().has_message(message):
+    if not message.get_channel().has_message(message):
         raise ValueError(description="Message with message_id does not exist!")
 
     channel = message.get_channel()
@@ -218,8 +212,8 @@ def message_unpin(token, message_id):
     user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
-    if message is None or not message.get_channel().has_message(message):
-        raise ValueError(description="Message with message_id does not exist!")
+    if not message.get_channel().has_message(message):
+        raise ValueError(description="Message with message_id does not exist in channel!")
 
     channel = message.get_channel()
     if not user.in_channel(channel):

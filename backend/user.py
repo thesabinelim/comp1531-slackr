@@ -27,8 +27,6 @@ def user_profile(token, target_u_id):
     validate_token(token)
 
     target_user = db_get_user_by_u_id(target_u_id)
-    if target_user is None:
-        raise ValueError(description="User does not exist")
 
     return target_user.to_dict()
 
@@ -52,7 +50,7 @@ def user_profile_setemail(token, email):
 
     if not is_valid_email(email):
         raise ValueError(description="Email invalid")
-    if db_get_user_by_email(email) is not None:
+    if db_get_user_by_email(email, error=False) is not None:
         raise ValueError(description="Email already in use")
 
     user.set_email(email)
@@ -65,7 +63,7 @@ def user_profile_sethandle(token, handle_str):
 
     if len(handle_str) < 3 or len(handle_str) > 20:
         raise ValueError(description="Handle not between 3 and 20 characters")
-    if db_get_user_by_handle(handle_str) is not None:
+    if db_get_user_by_handle(handle_str, error=False) is not None:
         raise ValueError(description="Handle is already in use")
 
     user.set_handle(handle_str)
