@@ -4,7 +4,7 @@
 # and Sabine Lim z5242579
 # 3/10/19
 
-import time
+from time import time
 
 from .db import (
     User, Channel, Message, db_get_user_by_u_id, db_get_channel_by_channel_id,
@@ -31,13 +31,13 @@ def standup_start(token, channel_id, length):
     if not channel.has_member(user):
         raise AccessError(description="Authorised user is not member of that channel!")
 
-    adjusted_time = time.time() + db_get_time_offset()
+    adjusted_time = time() + db_get_time_offset()
     if channel.get_standup() is not None \
         and adjusted_time < channel.get_standup().get_time_created():
         raise ValueError(description="An active standup is currently running in this channel!")
 
     # Set standup to expire in 15 minutes.
-    time_finish = time.time() + length * 60
+    time_finish = time() + length * 60
 
     message = db_create_message(user, channel, "", time_finish)
     channel.set_standup(message)
@@ -48,12 +48,12 @@ def standup_start(token, channel_id, length):
 # and what time the standup finishes. If no standup is active,
 # then time_finish returns None
 def standup_active(token, channel_id):
-    user = validate_token(token)
+    validate_token(token)
     
     channel = db_get_channel_by_channel_id(channel_id)
     
     standup = channel.get_standup()
-    adjusted_time = time.time() + db_get_time_offset()
+    adjusted_time = time() + db_get_time_offset()
 
     if standup is None or adjusted_time >= (standup.get_time_created()):
             return None
@@ -74,7 +74,7 @@ def standup_send(token, channel_id, message):
         raise AccessError(description="Authorised user is not member of that channel!")
 
     standup = channel.get_standup()
-    adjusted_time = time.time() + db_get_time_offset()
+    adjusted_time = time() + db_get_time_offset()
     if standup is None or adjusted_time >= (standup.get_time_created()):
         raise ValueError(description="No active standup is currently running in this channel!")
 

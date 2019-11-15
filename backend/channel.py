@@ -3,7 +3,7 @@
 # and Eric Lin z5257305
 # 23/10/19
 
-import time
+from time import time
 
 from .db import (
     Role, User, Channel, Message, db_get_channel_by_channel_id,
@@ -44,21 +44,11 @@ def channel_details(token, channel_id):
     name = channel.get_name()
     owner_members = []
     for owner in channel.get_owners():
-        owner_members.append({
-            'u_id': owner.get_u_id(),
-            'name_first': owner.get_first_name(),
-            'name_last': owner.get_last_name(),
-            'profile_img_url': owner.get_profile_img_url()
-        })
+        owner_members.append(owner.to_dict_short())
 
     all_members = []
     for member in channel.get_members():
-        all_members.append({
-            'u_id': member.get_u_id(),
-            'name_first': member.get_first_name(),
-            'name_last': member.get_last_name(),
-            'profile_img_url': member.get_profile_img_url()
-        })
+        all_members.append(member.to_dict_short())
 
     return {
         'name': name,
@@ -84,7 +74,7 @@ def channel_messages(token, channel_id, start):
     offset = 0
     all_messages = channel.get_messages()
     for message in all_messages:
-        if message.get_time_created() > time.time() + db_get_time_offset():
+        if message.get_time_created() > time() + db_get_time_offset():
             offset += 1
         else:
             break
@@ -94,31 +84,11 @@ def channel_messages(token, channel_id, start):
     if (len(all_messages) == 0):
         return {'messages': [], 'start': 0, 'end': -1}
     
-    
     counter = start
     messages = []
     while (counter + offset) < len(all_messages) and counter < start + 50:
-        message_dict = {}
         current_message = all_messages[counter + offset]
-        message_dict['message_id'] = current_message.get_message_id()
-        message_dict['u_id'] = current_message.get_sender().get_u_id()
-        message_dict['message'] = current_message.get_text()
-        message_dict['time_created'] = current_message.get_time_created()
-
-        message_dict['reacts'] = []
-        for react in current_message.get_reacts():
-            react_id = react['react_id']
-            react_users = react['users']
-
-            react_u_ids = []
-            for react_user in react_users:
-                react_u_ids.append(react_user.get_u_id())
-
-            reacted = user.get_u_id() in react_u_ids
-            message_dict['reacts'].append({'react_id': react_id, 'u_ids': react_u_ids, 'is_this_user_reacted': reacted})
-
-        message_dict['is_pinned'] = current_message.is_pinned()
-        messages.append(message_dict)
+        messages.append(current_message.to_dict())
         counter += 1
     end = counter
     if end + offset >= len(all_messages):

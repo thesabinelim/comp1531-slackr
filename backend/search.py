@@ -2,7 +2,6 @@
 # Written by Eric Lin z5257305 and Sabine Lim z5242579
 # 24/10/19
 
-
 from .auth import validate_token
 
 from .db import (

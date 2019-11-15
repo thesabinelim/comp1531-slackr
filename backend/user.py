@@ -2,8 +2,6 @@
 # Written by Bridget McCarthy z5255505
 # 02/10/19
 
-import re
-
 from .db import (
     User, db_get_user_by_u_id, db_get_user_by_email, 
     db_get_user_by_handle, db_get_backend_url, db_get_image_folder

@@ -33,10 +33,7 @@ def channels_listall(token):
 def get_channel_list_details(channels):
     channel_detail_list = []
     for channel in channels:
-        channel_detail_list.append({
-            'channel_id': channel.get_channel_id(),
-            'name': channel.get_name()
-        })
+        channel_detail_list.append(channel.to_dict())
     return channel_detail_list
 
 # Create new channel with that name that is either a public or private channel.

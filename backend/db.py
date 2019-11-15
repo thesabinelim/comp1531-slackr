@@ -134,7 +134,14 @@ class User:
             'name_first': self.name_first,
             'name_last': self.name_last,
             'handle_str': self.handle,
-            'profile_img_url': self.get_profile_img_url()
+            'profile_img_url': self.profile_img_url
+        }
+    def to_dict_short(self):
+        return {
+            'u_id': self.u_id,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            'profile_img_url': self.profile_img_url
         }
     def get_u_id(self):
         return self.u_id
@@ -261,6 +268,11 @@ class Channel:
         self.messages = []
         self.standup = None
 
+    def to_dict(self):
+        return {
+            'channel_id': self.channel_id,
+            'name': self.name
+        }
     def get_channel_id(self):
         return self.channel_id
     def get_name(self):
@@ -362,6 +374,18 @@ def db_get_channel_by_channel_id(channel_id, error=True):
 # messages data #
 #################
 
+def react_to_dict(react, u_id):
+    return {
+        'react_id': react['react_id'],
+        'u_ids': react['u_ids'],
+        'is_this_user_reacted': u_id in react['u_ids']
+    }
+
+def reacts_to_dict(reacts, u_id):
+    result = []
+    for react in reacts:
+        result.append(react_to_dict(react, u_id))
+
 class Message:
     def __init__(self, message_id, sender, channel, text, time_created):
         self.message_id = message_id
@@ -372,6 +396,15 @@ class Message:
         self.reacts = []
         self.pinned = False
 
+    def to_dict(self):
+        return {
+            'message_id': self.message_id,
+            'u_id': self.sender.u_id,
+            'message': self.text,
+            'time_created': self.time_created,
+            'reacts': reacts_to_dict(self.reacts, self.sender.get_u_id()),
+            'is_pinned': self.pinned
+        }
     def get_message_id(self):
         return self.message_id
     def get_sender(self):
@@ -401,9 +434,9 @@ class Message:
             # This is the first react with this id.
             self.reacts.append({
                 'react_id': react_id,
-                'users': [user]
+                'u_ids': [user.get_u_id()]
             })
-        elif user in react['users']:
+        elif user.get_u_id() in react['u_ids']:
             raise ValueError(description="User has already made that react!")
         else:
             react['users'].append(user)
