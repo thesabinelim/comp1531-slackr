@@ -211,31 +211,37 @@ def db_get_all_users():
     return db['users']
 
 # Return User with u_id if they exist in database, raise ValueError otherwise.
-def db_get_user_by_u_id(u_id):
+def db_get_user_by_u_id(u_id, error=True):
     db = get_data()
 
     for user in db['users']:
         if user.get_u_id() == u_id:
             return user
-    raise ValueError(description=f"User with u_id {u_id} does not exist!")
+    if error:
+        raise ValueError(description=f"User with u_id {u_id} does not exist!")
+    return None
 
 # Return User with handle if they exist in database, raise ValueError otherwise.
-def db_get_user_by_handle(handle):
+def db_get_user_by_handle(handle, error=True):
     db = get_data()
 
     for user in db['users']:
         if user.get_handle() == handle:
             return user
-    raise ValueError(description=f"User with handle {handle} does not exist!")
+    if error:
+        raise ValueError(description=f"User with handle {handle} does not exist!")
+    return None
 
 # Return User with email if they exist in database, raise ValueError otherwise.
-def db_get_user_by_email(email):
+def db_get_user_by_email(email, error=True):
     db = get_data()
 
     for user in db['users']:
         if user.get_email() == email:
             return user
-    raise ValueError(description=f"User with email {email} does not exist!")
+    if error:
+        raise ValueError(description=f"User with email {email} does not exist!")
+    return None
 
 # Returns the images folder that holds user's uploded photos
 def db_get_image_folder():
@@ -342,13 +348,15 @@ def db_get_all_channels():
     return db['channels']
 
 # Return Channel with channel_id if it exists in database, raise ValueError otherwise.
-def db_get_channel_by_channel_id(channel_id):
+def db_get_channel_by_channel_id(channel_id, error=True):
     db = get_data()
 
     for channel in db['channels']:
         if channel.get_channel_id() == channel_id:
             return channel
-    raise ValueError(description=f"Channel with channel_id {channel_id} does not exist!")
+    if error:
+        raise ValueError(description=f"Channel with channel_id {channel_id} does not exist!")
+    return None
 
 #################
 # messages data #
@@ -435,13 +443,15 @@ def db_get_all_messages():
     return db['messages']
 
 # Return Message with message_id if it exists in database, raise ValueError otherwise.
-def db_get_message_by_message_id(message_id):
+def db_get_message_by_message_id(message_id, error=True):
     db = get_data()
 
     for message in db['messages']:
         if message.get_message_id() == message_id:
             return message
-    raise ValueError(description=f"Message with message_id {message_id} does not exist!")
+    if error:
+        raise ValueError(description=f"Message with message_id {message_id} does not exist!")
+    return None
 
 #######################
 # reset_requests data #

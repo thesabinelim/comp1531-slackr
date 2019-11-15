@@ -109,7 +109,7 @@ def is_valid_password(password):
 # Returns random 20 character alphanumeric string if handle already taken.
 def get_new_user_handle(name_first, name_last):
     handle = f"{name_first.lower()}{name_last.lower()}"[0:20]
-    while (db_get_user_by_handle(handle) is not None):
+    while (db_get_user_by_handle(handle, error=False) is not None):
         handle = random_string(20)
     return handle
 
@@ -128,17 +128,17 @@ def get_new_user_handle(name_first, name_last):
 # name_last is not between 1 and 50 chars
 # First user registered is automatically made owner.
 def auth_register(email, password, name_first, name_last):
-    if (not is_valid_email(email)):
+    if not is_valid_email(email):
         raise ValueError(description="Invalid email")
-    if (db_get_user_by_email(email)):
+    if db_get_user_by_email(email, error=False):
         raise ValueError(description="Email already in use")
 
-    if (len(password) < 6):
+    if len(password) < 6:
         raise ValueError(description="Password < 6 characters")
 
-    if (len(name_first) < 1 or len(name_first) > 50):
+    if len(name_first) < 1 or len(name_first) > 50:
         raise ValueError(description="First name not between 1 and 50 characters")
-    if (len(name_last) < 1 or len(name_last) > 50):
+    if len(name_last) < 1 or len(name_last) > 50:
         raise ValueError(description="Last name not between 1 and 50 characters")
 
     # First user registered is automatically made owner.
