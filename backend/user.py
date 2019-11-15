@@ -2,6 +2,14 @@
 # Written by Bridget McCarthy z5255505
 # 02/10/19
 
+# Python Image Processing library for upload photo
+# use 'pip install Pillow' and 'pip install requests'
+from PIL import Image
+from requests import get as requests_get
+from io import BytesIO
+from os import makedirs
+from os.path import exists as path_exists
+
 from .db import (
     User, db_get_user_by_u_id, db_get_user_by_email, 
     db_get_user_by_handle, db_get_backend_url, db_get_image_folder
@@ -9,13 +17,6 @@ from .db import (
 from .auth import validate_token
 from .utils import is_valid_email, random_string, is_valid_url
 from .error import ValueError
-import os
-
-# Python Image Processing library for upload photo
-# use 'pip install Pillow' and 'pip install requests'
-from PIL import Image
-import requests
-from io import BytesIO
 
 # For a valid user, returns information about their email, first name, last 
 # name, and handle.
@@ -87,8 +88,8 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
 
     cropped_image = img.crop([x_start, y_start, x_end, y_end])
     image_folder = db_get_image_folder()
-    if not os.path.exists(image_folder):
-        os.makedirs(image_folder)
+    if not path_exists(image_folder):
+        makedirs(image_folder)
 
     filepath = generate_filepath_for_user_img(user.get_u_id())
     cropped_image.save(filepath)
@@ -109,7 +110,7 @@ def attempt_img_url_request(img_url):
     # https://stackoverflow.com/questions/7391945/how-do-i-read-image-data-from-a-url-in-python
     response = None
     try:
-        response = requests.get(img_url)
+        response = requests_get(img_url)
     except:
         raise ValueError(description=f"img_url is invalid!")
     if response.status_code != 200:
@@ -134,7 +135,7 @@ def generate_filepath_for_user_img(u_id):
     image_folder = db_get_image_folder()
     randstr = random_string(20)
     filepath = f"{image_folder}/{u_id}_{randstr}.jpg"
-    while os.path.exists(f"{filepath}"):
+    while path_exists(f"{filepath}"):
         randstr = random_string(20)
         filepath = f"{image_folder}/{u_id}_{randstr}.jpg"
     return filepath
