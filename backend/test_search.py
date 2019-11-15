@@ -4,25 +4,14 @@
 
 import pytest
 
-from .auth import (
-    validate_token, auth_register
-)
-from .channel import (
-    channel_join
-)
-from .channels import (
-    channels_create
-)
-from .message import (   
-    message_send, message_sendlater
-)
-from .search import (
-    search
-)
-from .db import (
-    reset_data
-)
+from .auth import auth_register
+from .channel import channel_join
+from .channels import channels_create
+from .message import message_send, message_sendlater
+from .search import search
+from .db import reset_data
 from .error import ValueError, AccessError
+
 def test_search_none():
     # SETUP BEGIN
     reset_data()

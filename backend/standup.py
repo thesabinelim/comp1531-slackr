@@ -20,9 +20,7 @@ from .error import ValueError, AccessError
 # Raises AccessError when the channel exists but the user isnt in that channel.
 # Return dictionary containing time the standup will finish.
 def standup_start(token, channel_id, length):
-
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
     
     # new valueerror if length is wrong
     if (length <= 0):
@@ -52,8 +50,7 @@ def standup_start(token, channel_id, length):
 # and what time the standup finishes. If no standup is active,
 # then time_finish returns None
 def standup_active(token, channel_id):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
     
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:
@@ -73,8 +70,7 @@ def standup_active(token, channel_id):
 # characters or an active standup is not currently running in that channel.
 # Raises AccessError when the channel exists but the user isnt in that channel.
 def standup_send(token, channel_id, message):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:

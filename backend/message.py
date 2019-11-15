@@ -19,8 +19,7 @@ from .error import ValueError, AccessError
 # member of.
 # Return dictionary containing message_id.
 def message_sendlater(token, channel_id, text, time_sent):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     if len(text) == 0:
         raise ValueError(description="Message cannot be empty!")
@@ -50,8 +49,7 @@ def message_sendlater(token, channel_id, text, time_sent):
 # member of.
 # Return dictionary containing message_id.
 def message_send(token, channel_id, text):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     if len(text) == 0:
         raise ValueError(description="Message cannot be empty!")
@@ -80,8 +78,7 @@ def message_send(token, channel_id, text):
 #   OR user is not in the channel containing the message.
 # Return empty dictionary.
 def message_remove(token, message_id):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
     if message is None:
@@ -110,8 +107,7 @@ def message_remove(token, message_id):
 # user is not an admin or owner of either the channel or the Slackr.
 # Return empty dictionary.
 def message_edit(token, message_id, text):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     if len(text) > 1000:
         raise ValueError(description="Message cannot be longer than 1000 characters!")
@@ -144,8 +140,7 @@ def message_edit(token, message_id, text):
 # the react_id by user.
 # Return empty dictionary.
 def message_react(token, message_id, react_id):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
     if message is None or not message.get_channel().has_message(message):
@@ -171,8 +166,7 @@ def message_react(token, message_id, react_id):
 # the react_id.
 # Return empty dictionary.
 def message_unreact(token, message_id, react_id):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
     if message is None or not message.get_channel().has_message(message):
@@ -198,8 +192,7 @@ def message_unreact(token, message_id, react_id):
 # the message.
 # Return empty dictionary.
 def message_pin(token, message_id):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
     if message is None or not message.get_channel().has_message(message):
@@ -227,8 +220,7 @@ def message_pin(token, message_id):
 # the message.
 # Return empty dictionary.
 def message_unpin(token, message_id):
-    u_id = validate_token(token)
-    user = db_get_user_by_u_id(u_id)
+    user = validate_token(token)
 
     message = db_get_message_by_message_id(message_id)
     if message is None or not message.get_channel().has_message(message):
