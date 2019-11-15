@@ -257,7 +257,7 @@ def req_message_sendlater():
     token = request.form.get('token')
     channel_id = int(request.form.get('channel_id'))
     message = request.form.get('message')
-    time_sent = request.form.get('time_sent')
+    time_sent = float(request.form.get('time_sent'))
     return dumps(message_sendlater(token, channel_id, message, time_sent))
 
 @APP.route('/message/send', methods=['POST'])
