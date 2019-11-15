@@ -2,7 +2,7 @@
 # Written by Bridget McCarthy z5255505 and Sabine Lim z5242579
 # 1/10/19
 
-import time
+from time import time
 
 from .db import (
     Role, User, Channel, Message, db_create_message, db_get_user_by_u_id, 
@@ -10,6 +10,15 @@ from .db import (
 )
 from .auth import validate_token
 from .error import ValueError, AccessError
+
+def validate_message_text(text, time_now, time_sent):
+    if len(text) == 0:
+        raise ValueError(description="Message cannot be empty!")
+    elif len(text) > 1000:
+        raise ValueError(description="Message cannot be longer than 1000 characters!")
+
+    if time_sent < time_now:
+        raise ValueError(description="Time sent cannot be in the past!")
 
 # Send a message from authorised_user to the channel specified by channel_id.
 # automatically at a specified time in the future. 
@@ -21,15 +30,7 @@ from .error import ValueError, AccessError
 def message_sendlater(token, channel_id, text, time_sent):
     user = validate_token(token)
 
-    if len(text) == 0:
-        raise ValueError(description="Message cannot be empty!")
-
-    if len(text) > 1000:
-        raise ValueError(description="Message cannot be longer than 1000 characters!")
-
-    now = time.time()
-    if time_sent < now:
-        raise ValueError(description="Time sent cannot be in the past!")
+    validate_message_text(text, time(), time_sent)
 
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:
@@ -39,9 +40,8 @@ def message_sendlater(token, channel_id, text, time_sent):
         raise AccessError(description="Authorised user is not member of that channel!")
 
     message = db_create_message(user, channel, text, time_sent)
-    message_id = message.get_message_id()
 
-    return {'message_id': message_id}
+    return {'message_id': message.get_message_id()}
 
 # Send a message from authorised_user to the channel specified by channel_id.
 # Raises ValueError exception when the message is more than 1000 characters.
@@ -51,11 +51,8 @@ def message_sendlater(token, channel_id, text, time_sent):
 def message_send(token, channel_id, text):
     user = validate_token(token)
 
-    if len(text) == 0:
-        raise ValueError(description="Message cannot be empty!")
-
-    if len(text) > 1000:
-        raise ValueError(description="Message cannot be longer than 1000 characters!")
+    now = time()
+    validate_message_text(text, now, now)
 
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:
@@ -64,11 +61,9 @@ def message_send(token, channel_id, text):
     if not channel.has_member(user):
         raise AccessError(description="Authorised user is not member of that channel!")
 
-    now = time.time()
     message = db_create_message(user, channel, text, now)
-    message_id = message.get_message_id()
 
-    return {'message_id': message_id}
+    return {'message_id': message.get_message_id()}
 
 # Given a message_id for a message, this message is removed from the channel.
 # Raises ValueError when the message_id no longer exists.
