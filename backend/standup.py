@@ -13,8 +13,8 @@ from .db import (
 from .auth import validate_token
 from .error import ValueError, AccessError
 
-# standup_start commands initiates 15 minutes of standup and then returns
-# 15 minutes of stand up time.
+# standup_start commands initiates 'length' seconds of standup and then returns
+# 'length' seconds of stand up time.
 # Raises ValueError when the channel_id is invalid or if there is already an
 # active standup running in that channel.
 # Raises AccessError when the channel exists but the user isnt in that channel.
@@ -36,8 +36,8 @@ def standup_start(token, channel_id, length):
         and adjusted_time < channel.get_standup().get_time_created():
         raise ValueError(description="An active standup is currently running in this channel!")
 
-    # Set standup to expire in 15 minutes.
-    time_finish = time.time() + length * 60
+    # Set standup to expire in 'length' seconds.
+    time_finish = time.time() + length
 
     message = db_create_message(user, channel, "", time_finish)
     channel.set_standup(message)
