@@ -385,6 +385,7 @@ def reacts_to_dict(reacts, u_id):
     result = []
     for react in reacts:
         result.append(react_to_dict(react, u_id))
+    return result
 
 class Message:
     def __init__(self, message_id, sender, channel, text, time_created):
@@ -439,16 +440,16 @@ class Message:
         elif user.get_u_id() in react['u_ids']:
             raise ValueError(description="User has already made that react!")
         else:
-            react['users'].append(user)
+            react['u_ids'].append(user.get_u_id())
     # Raise ValueError if user has not made that react or react does not exist.
     def remove_react(self, user, react_id):
         react = self.get_react_by_react_id(react_id)
         if react is None:
             raise ValueError(description="React with react_id has not been made!")
-        if user not in react['users']:
+        if user.get_u_id() not in react['u_ids']:
             raise ValueError(description="User has not made that react!")
-        react['users'].remove(user)
-        if len(react['users']) == 0:
+        react['u_ids'].remove(user.get_u_id())
+        if len(react['u_ids']) == 0:
             self.reacts.remove(react)
     def pin(self):
         self.pinned = True
