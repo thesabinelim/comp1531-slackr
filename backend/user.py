@@ -58,21 +58,32 @@ def user_profile_setname_error(name_first, name_last):
     if len(name_last) < 1 or len(name_last) > 50:
         raise ValueError(description = "Last name not between 1 and 50 characters")
 
-
-
+########################### User Profile Setemail #####################################
 
 # Update the authorised user's email address
+
 def user_profile_setemail(token, email):
     user = validate_token(token)
-
-    if not is_valid_email(email):
-        raise ValueError(description="Email invalid")
-    if db_get_user_by_email(email, error=False) is not None:
-        raise ValueError(description="Email already in use")
+    
+    user_profile_setemail_error(user, email)
 
     user.set_email(email)
 
     return {}
+
+# error list
+def user_profile_setemail_error(user, email):
+
+    # if email is invalid
+    if not is_valid_email(email):
+        raise ValueError(description = "Email invalid")
+    
+    # email is already used by another account
+    if db_get_user_by_email(email, error=False) is not None:
+        raise ValueError(description="Email already in use")
+
+########################### User Profile Setname #####################################
+
 
 # Update the authorised user's handle (i.e. display name)
 def user_profile_sethandle(token, handle_str):
