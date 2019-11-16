@@ -48,7 +48,19 @@
     -  there was already a function that checked if messages where valid however there was code repetition when validating the user, channel and retrieving messages from message_ids. To reduce the overall complexity two functions to setup at the start of a function where implemented. These are under the header validate channel & message at the top. This increased readability in all the functions in this file.
     - as above error functions where implemented for the same reasons.
     - headers where also added to make it easier to find functions
+    
+- search.py
 
+- standup.py
+    - created a setup function at the start that gets the user and channel from the token  and channel id. This was used in all functions to reduce code repetition. This also made functions more readable.
+    - implemented all the above style; headers, error functions and more documentation to increase readability.
+    
+- user.py
+    - implemented all the above style; headers, error functions and more documentation to increase readability. No substantial code repetition was found.
+
+- users.py
+    
+- utils.py
 
 - upload_photo 12/11/19
     - The initial code was very long and had all of the logic placed into a
