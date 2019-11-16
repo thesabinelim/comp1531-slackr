@@ -28,7 +28,13 @@
     underneath the main function to reduce the complexity in the main function
     once again aiming for high levels of readability in the main function
     
-
+- channel.py
+    - two small functions at the top for validating users, retrieving channels and 
+    a target if given. One of the two functions was already found in each function
+    so to reduce repetition of code throughout the whole file I implemented these two functions under the heading Channel Setup
+    - once again created error functions to increase readability and sorted these with headings as to not get confused
+    - channel messages was originally a large function with low readability with multiple while loops and error checks, it had fairly low readability. To fix this i broke the iterating loop and the loop in charge of appending a list with all found messages and changed them into functions called channel message count and channel message accumulate accordingly. These are all grouped together and have made the main function far more understandable then it was before. Overall this also enables future maintainence to be far swifter.
+    - Increased the amount of comments overall 
     
 
 
