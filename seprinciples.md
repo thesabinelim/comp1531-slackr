@@ -36,6 +36,12 @@
     - channel messages was originally a large function with low readability with multiple while loops and error checks, it had fairly low readability. To fix this i broke the iterating loop and the loop in charge of appending a list with all found messages and changed them into functions called channel message count and channel message accumulate accordingly. These are all grouped together and have made the main function far more understandable then it was before. Overall this also enables future maintainence to be far swifter.
     - Increased the amount of comments overall 
     
+- channels.py
+    - not very much needed to be done here, just added an error function to increase readability in its associated function alongside increasing maintainability.
+    - just grouped functions under headers to fit with the style of the others and make it a bit easier to find functions.
+    
+- db.py
+    
 
 
 
