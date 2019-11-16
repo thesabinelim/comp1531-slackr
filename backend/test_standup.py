@@ -32,9 +32,9 @@ def test_standup_start_simple():
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
     # SETUP END
     
-    sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'], 15 * 60)
+    sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'], 15)
     assert sup_dict1
-    assert sup_dict1['time_finish'] >= time.time() + 15 * 60 - 1
+    assert sup_dict1['time_finish'] >= time.time() - 1
 
     channel = db_get_channel_by_channel_id(create_dict1['channel_id'])
     assert channel.get_standup().get_text() == ""
