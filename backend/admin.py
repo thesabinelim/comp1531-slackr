@@ -50,10 +50,13 @@ def admin_errors(target, permission_id, authorised_user):
 # authorises users, checks errors then changes and returns.
 def admin_userpermission_change(token, target_id, permission_id):
     
+    # authorises the user
     authorised_user, target = admin_setup(token, target_id)
     
+    # checks for errors
     admin_errors(target, permission_id, authorised_user)
 
+    # reassigns permission id
     target.set_slackr_role(Role(permission_id))
 
     return {}
