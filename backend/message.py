@@ -155,7 +155,7 @@ def message_edit(token, message_id, text):
     user, channel, message = validate_user_message(token, message_id)
     
     # error checks
-    message_remove_error(user, channel, message, sender)
+    message_edit_error(user, channel, message, text)
     
     # if the text is empty remove, else reset it
     if text == "":
@@ -166,7 +166,7 @@ def message_edit(token, message_id, text):
     return {}
 
 # error list
-def message_edit_error(user, channel, message, sender):
+def message_edit_error(user, channel, message, text):
     
     # new message is too long
     if len(text) > 1000:
