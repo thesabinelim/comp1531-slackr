@@ -103,21 +103,31 @@ def invalidate_token(token):
 # not belong to a user, or password is incorrect.
 
 def auth_login(email, password):
-    if not is_valid_email(email):
-        raise ValueError(description="Email invalid!")
 
     user = db_get_user_by_email(email)
-
-    if not user.password_matches(password):
-        raise ValueError(description="Incorrect password!")
-
+    
+    # error check
+    auth_login_error(email, password, user)
+    
+    # the users u_id
     u_id = user.get_u_id()
-    user = db_get_user_by_u_id(u_id)
 
+    # generate a token and add to account
     token = generate_token(u_id)
     user.add_token(token)
 
     return {'u_id': u_id, 'token': token}
+
+# error list
+def auth_login_error(email, password, user):
+
+    # if given email is invalid
+    if not is_valid_email(email):
+        raise ValueError(description = "Email invalid!")
+    
+    # if password doesn't match the user
+    if not user.password_matches(password):
+        raise ValueError(description = "Incorrect password!")
 
 ############################## Auth Logout ########################################
 
