@@ -17,8 +17,7 @@ from .error import ValueError
 def channels_list(token):
     user = validate_token(token)
 
-    channels = user.get_channels()
-    channel_detail_list = get_channel_list_details(channels)
+    channel_detail_list = get_channel_list_details(user.get_channels())
 
     return {'channels': channel_detail_list}
 
@@ -29,8 +28,7 @@ def channels_list(token):
 def channels_listall(token):
     validate_token(token)
 
-    channels = db_get_all_channels()
-    channel_detail_list = get_channel_list_details(channels)
+    channel_detail_list = get_channel_list_details(db_get_all_channels())
 
     return {'channels': channel_detail_list}
 
@@ -52,17 +50,22 @@ def get_channel_list_details(channels):
 # Raise ValueError exception if name > 20 characters.
 
 def channels_create(token, name, is_public):
-    if len(name) > 20:
-        raise ValueError(description="Name longer than 20 characters!")
-
+    
+    channels_create_error(name)
     user = validate_token(token)
 
     channel = db_create_channel(name, is_public)
     channel_id = channel.get_channel_id()
 
+    # Adds user and makes user owner of the channel
     channel.add_member(user)
-    # Make channel creator owner of channel
     channel.add_owner(user)
     user.join_channel(channel)
 
     return {'channel_id': channel_id}
+
+# error list
+def channels_create_error(name):
+    
+    if len(name) > 20:
+        raise ValueError(description = "Name longer than 20 characters!")
