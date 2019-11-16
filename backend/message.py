@@ -13,6 +13,7 @@ from .error import ValueError, AccessError
 
 ############################## Validate Message ########################################
 
+# basic checks that messages must go through
 def validate_message_text(text, time_now, time_sent):
     
     # if the message is empty
@@ -29,6 +30,7 @@ def validate_message_text(text, time_now, time_sent):
 
 ############################ Validate Channel & Message ######################################
 
+# sets up the user and channel then returns both
 def validate_user_channel(token, channel_id):
 
     user = validate_token(token)
@@ -36,6 +38,7 @@ def validate_user_channel(token, channel_id):
 
     return user, channel
 
+# sets up the user, channel and message and returns all three
 def validate_user_message(token, message_id):
     
     user = validate_token(token)
