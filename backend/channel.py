@@ -16,19 +16,24 @@ from .error import ValueError, AccessError
 # Return {} if successful.
 # Raises ValueError exception if channel_id is invalid/user is not in channel or
 # if u_id is invalid.
+
 def channel_invite(token, channel_id, receiver_id):
     sender = validate_token(token)
 
     receiver = db_get_user_by_u_id(receiver_id)
     channel = db_get_channel_by_channel_id(channel_id)
-
-    if not sender.in_channel(channel):
-        raise AccessError(description="Invite sender is not member of channel!")
+    
+    channel_invite_error(sender, channel)
 
     channel.add_member(receiver)
     receiver.join_channel(channel)
 
     return {}
+
+def channel_invite_error(sender, channel):
+    if not sender.in_channel(channel):
+        raise AccessError(description="Invite sender is not member of channel!")
+
 
 # Given channel with channel_id that user is in, return details about channel.
 # Raise ValueError exception if channel with id does not exist.
