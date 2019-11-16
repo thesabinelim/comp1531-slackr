@@ -255,6 +255,8 @@ def message_unreact_error(user, channel, message, react_id):
     if not channel.has_member(user):
         raise ValueError(description = "User is not part of the channel associated with message id")
 
+################################# Message Pin ########################################
+
 # Given a message within a channel, mark it as "pinned" to be given special 
 # display treatment by the frontend.
 # Raises ValueError when message_id is not a valid message.
@@ -263,26 +265,37 @@ def message_unreact_error(user, channel, message, react_id):
 # Raises AccessError when authorised user is not a member of channel for
 # the message.
 # Return empty dictionary.
+
 def message_pin(token, message_id):
-    user = validate_token(token)
-
-    message = db_get_message_by_message_id(message_id)
-    if not message.get_channel().has_message(message):
-        raise ValueError(description="Message with message_id does not exist!")
-
-    channel = message.get_channel()
-    if not user.in_channel(channel):
-        raise AccessError(description="Logged in user is not member of channel containing message with message_id!")
-
-    if not channel.has_owner(user):
-        raise ValueError(description="Logged in user is not admin or owner!")
-
-    if message.is_pinned():
-        raise ValueError(description="Message with message_id is already pinned!")
+    
+    # validate user, message and channel
+    user, channel, message = validate_user_message(token, message_id)
+    
+    # error checks
+    message_pin_error(user, channel, message)
 
     message.pin()
 
     return {}
+
+def message_pin_error(user, channel, message):
+    
+    # Message doesn't exist
+    if not message.get_channel().has_message(message):
+        raise ValueError(description = "Message with message_id does not exist!")
+    
+    # User isn't part of the channel
+    if not user.in_channel(channel):
+        raise AccessError(description = "Logged in user is not member of channel containing message with message_id!")
+    
+    # user does'nt have permissions
+    if not channel.has_owner(user):
+        raise ValueError(description = "Logged in user is not admin or owner!")
+    
+    # message is already pinned
+    if message.is_pinned():
+        raise ValueError(description = "Message with message_id is already pinned!")
+
 
 # Given a message within a channel, remove it's mark as unpinned.
 # Raises ValueError when message_id is not a valid message.
