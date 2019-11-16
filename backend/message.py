@@ -116,7 +116,7 @@ def message_send_error(channel, user):
 
 def message_remove(token, message_id):
     
-    # authenticate and return user, channel and message
+    # validate user, message and channel
     user, channel, message = validate_user_message(token, message_id)
 
     # error checks
@@ -152,6 +152,7 @@ def message_remove_error(user, channel, message):
 
 def message_edit(token, message_id, text):
 
+    # validate user, message and channel
     user, channel, message = validate_user_message(token, message_id)
     
     # error checks
@@ -198,6 +199,7 @@ def message_edit_error(user, channel, message, text):
 
 def message_react(token, message_id, react_id):
     
+    # validate user, message and channel
     user, channel, message = validate_user_message(token, message_id)
     
     # error checks
@@ -220,6 +222,7 @@ def message_react_error(user, channel, message, react_id):
     if not channel.has_member(user):
         raise ValueError(description = "User is not part of the channel associated with message id")
 
+############################## Message Unreact ########################################
 
 # Given a message within a channel the authorised user is part of, remove a 
 # "react" to that particular message.
@@ -230,22 +233,27 @@ def message_react_error(user, channel, message, react_id):
 # the react_id.
 # Return empty dictionary.
 def message_unreact(token, message_id, react_id):
-    user = validate_token(token)
-
-    message = db_get_message_by_message_id(message_id)
-    if not message.get_channel().has_message(message):
-        raise ValueError(description="Message with message_id is not a valid message within a channel authorised user has joined!")
-
-    channel = message.get_channel()
-    if not channel.has_member(user):
-        raise ValueError(description="Message with message_id is not a valid message within a channel authorised user has joined!")
-
+    
+    # validate user, message and channel
+    user, channel, message = validate_user_message(token, message_id)
+    
+    # error checks
+    message_unreact_error(user, channel, message, react_id)
+    
     try:
         message.remove_react(user, react_id)
     except ValueError:
-        raise ValueError(description="Message does not have a reaction with react_id by logged in user!")
+        raise ValueError(description = "Message does not have a reaction with react_id by logged in user!")
 
     return {}
+
+def message_unreact_error(user, channel, message, react_id):
+    
+    if not message.get_channel().has_message(message):
+        raise ValueError(description = "Message with message_id is not a valid message within a channel authorised user has joined!")
+    
+    if not channel.has_member(user):
+        raise ValueError(description = "User is not part of the channel associated with message id"")
 
 # Given a message within a channel, mark it as "pinned" to be given special 
 # display treatment by the frontend.
