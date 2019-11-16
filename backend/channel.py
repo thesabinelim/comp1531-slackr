@@ -220,24 +220,27 @@ def channel_join_error(sender, channel):
 # Raise AccessError exception if user is not owner of either slackr or channel.
 
 def channel_addowner(token, channel_id, target_id):
-    authorised_user = validate_token(token)
     
-    target_user = db_get_user_by_u_id(target_id)
+    sender, channel, reciever = channel_setup_target(token, channel_id, target_id)
+    channel_addowner_error(sender, channel, reciever)
     
-    channel = db_get_channel_by_channel_id(channel_id)
-    # user already owner of channel
-    if channel.has_true_owner(target_user):
-        raise ValueError(description="User already an owner of channel")
-    # Authorised u_id not owner of slackr and not owner of channel
-    if not channel.has_owner(authorised_user):
-        raise AccessError(description="Authorised user is not an owner of the slack or channel")
-    
-    if not channel.has_member(target_user):
-        channel.add_member(target_user)
-        target_user.join_channel(channel)
-    channel.add_owner(target_user)
+    if not channel.has_member(reciever):
+        channel.add_member(reciever)
+        reciever.join_channel(channel)
+    channel.add_owner(reciever)
     
     return {}
+
+def channel_addowner_error(sender, channel, reciever):
+
+    # user already owner of channel
+    if channel.has_true_owner(reciever):
+        raise ValueError(description = "User already an owner of channel")
+    
+    # Authorised u_id not owner of slackr and not owner of channel
+    if not channel.has_owner(sender):
+        raise AccessError(description = "Authorised user is not an owner of the slack or channel")
+
 
 # Remove user with u_id as owner of this channel. Returns {}.
 # Raise ValueError exception if channel with id does not exist or user is not
