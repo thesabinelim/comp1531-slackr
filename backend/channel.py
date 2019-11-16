@@ -14,6 +14,14 @@ from .error import ValueError, AccessError
 
 ############################## Channel Setup ########################################
 
+def channel_setup_notarget(token, channel_id):
+    
+    # sets up the sender and channel
+    sender = validate_token(token)
+    channel = db_get_channel_by_channel_id(channel_id)
+    
+    return sender, channel
+
 def channel_setup_target(token, channel_id, receiver_id):
 
     # sets up the sender, channel and reciever
@@ -33,28 +41,29 @@ def channel_setup_target(token, channel_id, receiver_id):
 def channel_invite(token, channel_id, receiver_id):
     
     sender, channel, receiver = channel_setup_target(token, channel_id, receiver_id)
-    channel_invite_error(sender, channel)
+    channel_invite_error(sender, channel, receiver)
 
     channel.add_member(receiver)
     receiver.join_channel(channel)
 
     return {}
 
-def channel_invite_error(sender, channel):
+# any errors possible, passing in all values.
+def channel_invite_error(sender, channel, receiver):
+    
     if not sender.in_channel(channel):
-        raise AccessError(description="Invite sender is not member of channel!")
+        raise AccessError(description = "Invite sender is not member of channel!")
 
+############################# Channel Details #######################################
 
 # Given channel with channel_id that user is in, return details about channel.
 # Raise ValueError exception if channel with id does not exist.
 # Raise AccessError exception if user is not member of channel.
+
 def channel_details(token, channel_id):
-    user = validate_token(token)
-
-    channel = db_get_channel_by_channel_id(channel_id)
-
-    if not user.in_channel(channel):
-        raise AccessError(description="User is not member of channel!")
+    
+    sender, channel = channel_setup_notarget(token, channel_id)
+    channel_details_error(sender, channel)
 
     name = channel.get_name()
     owner_members = []
@@ -71,6 +80,13 @@ def channel_details(token, channel_id):
         'all_members': all_members
     }
 
+def channel_details_error(sender, channel):
+
+    if not sender.in_channel(channel):
+        raise AccessError(description = "User is not member of channel!")
+
+############################# Channel Messages #######################################
+
 # Given channel with channel_id that user is in, return up to 50 messages
 # between index "start" and "start + 50". Message with index 0 is most recent
 # message in channel. Return a new index "end" which is value of "start + 50" or
@@ -79,28 +95,40 @@ def channel_details(token, channel_id):
 # Raise ValueError exception when channel with id does not exist or start is >
 # total number of messages in channel.
 # Raise AccessError exception when user is not member of channel with id.
-def channel_messages(token, channel_id, start):
-    user = validate_token(token)
 
-    channel = db_get_channel_by_channel_id(channel_id)
-    if not user.in_channel(channel):
-        raise AccessError(description="User is not member of channel!")
-        
-    offset = 0
+# main program, top down approach
+def channel_messages(token, channel_id, start):
+    
+    # sets up the channel
+    sender, channel = channel_setup_notarget(token, channel_id)
+
+    # list of all_messages
     all_messages = channel.get_messages()
+    
+    offset = channel_messages_count(channel, all_messages)
+    
+    channel_messages_error(sender, channel, all_messages, offset, start)
+
+    messages, end = channel_messages_accumulate(start, offset, all_messages)
+    
+    return {'messages': messages, 'start': start, 'end': end}
+
+def channel_messages_count(channel, all_messages):
+    offset = 0
+
     for message in all_messages:
         if message.get_time_created() > time() + db_get_time_offset():
             offset += 1
         else:
             break
-    if start != 0 and start >= len(all_messages) - offset:
-        raise ValueError(description="Start index is greater than the number of messages in the channel!")
 
-    if (len(all_messages) == 0):
-        return {'messages': [], 'start': 0, 'end': -1}
-    
+    return offset
+
+def channel_messages_accumulate(start, offset, all_messages):
+
     counter = start
     messages = []
+    
     while (counter + offset) < len(all_messages) and counter < start + 50:
         current_message = all_messages[counter + offset]
         messages.append(current_message.to_dict())
@@ -108,14 +136,32 @@ def channel_messages(token, channel_id, start):
     end = counter
     if end + offset >= len(all_messages):
         end = -1
-    return {'messages': messages, 'start': start, 'end': end}
+
+    return messages, end
+
+
+def channel_messages_error(sender, channel, all_messages, offset, start):
+
+    if not sender.in_channel(channel):
+        raise AccessError(description = "User is not member of channel!")
+
+    if start != 0 and start >= len(all_messages) - offset:
+        raise ValueError(description = "Start index is greater than the number of messages in the channel!")
+    
+    if (len(all_messages) == 0):
+        return {'messages': [], 'start': 0, 'end': -1}
+
+############################# Channel Messages #######################################
+
+
+
 
 # Given channel ID, remove user from channel. Returns {}.
 # Raise ValueError exception if channel with id does not exist.
 # An owner leaving removes them from the channel's owner list.
 def channel_leave(token, channel_id):
     user = validate_token(token)
-
+    
     channel = db_get_channel_by_channel_id(channel_id)
     
     # Last owner can't leave unless they are also last member
@@ -134,11 +180,11 @@ def channel_leave(token, channel_id):
 # Raise TokenError if token invalid.
 def channel_join(token, channel_id):
     user = validate_token(token)
-
+    
     channel = db_get_channel_by_channel_id(channel_id)
     if channel is None:
         raise ValueError(description="Channel with channel_id does not exist!")
-
+    
     if not channel.is_public():
         if user.get_slackr_role() != Role.admin and user.get_slackr_role() != Role.owner:
             raise AccessError(description="Channel is private and user is not admin or owner!")
@@ -154,9 +200,9 @@ def channel_join(token, channel_id):
 # Raise AccessError exception if user is not owner of either slackr or channel.
 def channel_addowner(token, channel_id, target_id):
     authorised_user = validate_token(token)
-
+    
     target_user = db_get_user_by_u_id(target_id)
-
+    
     channel = db_get_channel_by_channel_id(channel_id)
     # user already owner of channel
     if channel.has_true_owner(target_user):
@@ -178,9 +224,9 @@ def channel_addowner(token, channel_id, target_id):
 # Raise AccessError exception if user is not owner of either slackr or channel.
 def channel_removeowner(token, channel_id, target_id):
     authorised_user = validate_token(token)
-
+    
     target_user = db_get_user_by_u_id(target_id)
-
+    
     channel = db_get_channel_by_channel_id(channel_id)
     # user already owner of channel
     if not channel.has_true_owner(target_user):
