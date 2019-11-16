@@ -1,5 +1,5 @@
 - admin.py
-    - created a stub function for the errors so that the overall opacity of the 
+    - created a function for the errors so that the overall opacity of the 
     program is far more 'opaque', that is that its easier for the user to
     understand what is happening in the main function. This also allows further
     flexibility when implementing new errors in the future as this can be done at
@@ -13,7 +13,24 @@
     - all of this increases complexity however the tradeoffs in readability and 
     flexibility, i believe, outweight this factor.
     
-- 
+- auth.py
+    - once again whereever possible I've added stubs for errors as they don't
+    need to be in the main function. This enables both flexibility in implementing 
+    further checks and increases readability
+    - created a function for validating the token and retrieving the payload
+    outside validate_token called validate_token_payload to further increase
+    readability and maintainability of the main function.
+    - increased levels of documentation for error functions to make it easier
+    to understand exactly what they try to achieve
+    - had to implement line spacing between function classes so that its
+    easier to understand where functions stopped and started
+    - created a function in auth_register for returning a new token and u_id on signup
+    underneath the main function to reduce the complexity in the main function
+    once again aiming for high levels of readability in the main function
+    
+
+    
+
 
 
 - upload_photo 12/11/19
