@@ -18,10 +18,13 @@ from .auth import validate_token
 from .utils import is_valid_email, random_string, is_valid_url
 from .error import ValueError
 
+############################## User Profile ########################################
+
 # For a valid user, returns information about their email, first name, last 
 # name, and handle.
 # Raises a ValueError when the u_id is not a valid user.
 # Returns a dictionary of user information.
+
 def user_profile(token, target_u_id):
     validate_token(token)
 
@@ -29,19 +32,34 @@ def user_profile(token, target_u_id):
 
     return target_user.to_dict()
 
+########################### User Profile Setname #####################################
+
 # Update the authorised user's first and last name
+
 def user_profile_setname(token, name_first, name_last):
     user = validate_token(token)
 
-    if len(name_first) < 1 or len(name_first) > 50:
-        raise ValueError(description="First name not between 1 and 50 characters")
-    if len(name_last) < 1 or len(name_last) > 50:
-        raise ValueError(description="Last name not between 1 and 50 characters")
-
+    # check for errors
+    user_profile_setname_error(name_first, name_last)
+    
     user.set_first_name(name_first)
     user.set_last_name(name_last)
 
     return {}
+
+# error list
+def user_profile_setname_error(name_first, name_last):
+    
+    # first name is incorrect length
+    if len(name_first) < 1 or len(name_first) > 50:
+        raise ValueError(description = "First name not between 1 and 50 characters")
+    
+    # last name is incorrect length
+    if len(name_last) < 1 or len(name_last) > 50:
+        raise ValueError(description = "Last name not between 1 and 50 characters")
+
+
+
 
 # Update the authorised user's email address
 def user_profile_setemail(token, email):
