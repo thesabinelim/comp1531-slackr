@@ -96,7 +96,7 @@ def channel_details_error(sender, channel):
 # total number of messages in channel.
 # Raise AccessError exception when user is not member of channel with id.
 
-# main program, top down approach
+# main
 def channel_messages(token, channel_id, start):
     
     # sets up the channel
@@ -105,17 +105,22 @@ def channel_messages(token, channel_id, start):
     # list of all_messages
     all_messages = channel.get_messages()
     
+    # Itterates through all messages till correct timeframe
     offset = channel_messages_count(channel, all_messages)
     
+    # checks errors
     channel_messages_error(sender, channel, all_messages, offset, start)
 
+    # puts all messages into a list
     messages, end = channel_messages_accumulate(start, offset, all_messages)
     
     return {'messages': messages, 'start': start, 'end': end}
 
+# iterates through the list
 def channel_messages_count(channel, all_messages):
-    offset = 0
 
+    offset = 0
+    
     for message in all_messages:
         if message.get_time_created() > time() + db_get_time_offset():
             offset += 1
@@ -124,6 +129,7 @@ def channel_messages_count(channel, all_messages):
 
     return offset
 
+# accumulates all messages into a list
 def channel_messages_accumulate(start, offset, all_messages):
 
     counter = start
@@ -139,7 +145,7 @@ def channel_messages_accumulate(start, offset, all_messages):
 
     return messages, end
 
-
+# error list
 def channel_messages_error(sender, channel, all_messages, offset, start):
 
     if not sender.in_channel(channel):
