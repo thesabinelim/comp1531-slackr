@@ -185,6 +185,8 @@ def message_edit_error(user, channel, message, text):
         raise AccessError(description = "Message was not sent by logged in user and user is \
                           not admin or owner!")
 
+############################## Message React ########################################
+
 # Given a message within a channel the authorised user is part of, add a "react"
 # to that particular message. 
 # Raises ValueError when message_id is not a valid message within a channel 
@@ -193,23 +195,31 @@ def message_edit_error(user, channel, message, text):
 # Raises ValueError when message for message_id already has a reaction with
 # the react_id by user.
 # Return empty dictionary.
+
 def message_react(token, message_id, react_id):
-    user = validate_token(token)
-
-    message = db_get_message_by_message_id(message_id)
-    if not message.get_channel().has_message(message):
-        raise ValueError(description="Message with message_id is not a valid message within a channel authorised user has joined!")
-
-    channel = message.get_channel()
-    if not channel.has_member(user):
-        raise ValueError(description="Message with message_id is not a valid message within a channel authorised user has joined!")
-
+    
+    user, channel, message = validate_user_message(token, message_id)
+    
+    # error checks
+    message_react_error(user, channel, message, react_id)
+    
     try:
         message.add_react(user, react_id)
     except ValueError:
-        raise ValueError(description="Message already has a reaction with react_id by logged in user!")
+        raise ValueError(description = "Message already has a reaction with react_id by logged in user!")
 
     return {}
+
+def message_react_error(user, channel, message, react_id):
+
+    # If the message isnt available
+    if not message.get_channel().has_message(message):
+        raise ValueError(description = "Message with message_id is not a valid message within a channel authorised user has joined!")
+    
+    # user is not part of the channel
+    if not channel.has_member(user):
+        raise ValueError(description = "User is not part of the channel associated with message id")
+
 
 # Given a message within a channel the authorised user is part of, remove a 
 # "react" to that particular message.
