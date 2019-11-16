@@ -241,6 +241,7 @@ def auth_register_error(email, password, name_first, name_last):
 # Return dictionary containing email recipients, title and body.
 
 def auth_passwordreset_request(email):
+
     try:
         user = db_get_user_by_email(email)
     except ValueError:
@@ -262,16 +263,25 @@ def auth_passwordreset_request(email):
 # Raise ValueError exception if reset_code or new_password is invalid.
 
 def auth_passwordreset_reset(reset_code, new_password):
+
+    # confirms its the correct reset code supplied
     reset_request = db_get_reset_request_by_reset_code(reset_code)
-    if reset_request is None:
-        raise ValueError(description="Reset code is invalid!")
-
-    if not is_valid_password(new_password):
-        raise ValueError(description="New password is invalid!")
-
+    
+    # error checks
+    auth_passwordreset_reset_errors(reset_request, new_password)
+    
     user = reset_request.get_user()
     reset_request.expire()
 
     user.set_password(new_password)
 
     return {}
+
+# error list
+def auth_passwordreset_reset_errors(reset_request, new_password):
+
+    if reset_request is None:
+        raise ValueError(description="Reset code is invalid!")
+    
+    if not is_valid_password(new_password):
+        raise ValueError(description="New password is invalid!")
