@@ -11,14 +11,41 @@ from .db import (
 from .auth import validate_token
 from .error import ValueError, AccessError
 
-def validate_message_text(text, time_now, time_sent):
-    if len(text) == 0:
-        raise ValueError(description="Message cannot be empty!")
-    elif len(text) > 1000:
-        raise ValueError(description="Message cannot be longer than 1000 characters!")
+############################## Validate Message ########################################
 
+def validate_message_text(text, time_now, time_sent):
+    
+    # if the message is empty
+    if len(text) == 0:
+        raise ValueError(description = "Message cannot be empty!")
+    
+    # if the message is over 1000 characters
+    elif len(text) > 1000:
+        raise ValueError(description = "Message cannot be longer than 1000 characters!")
+
+    #
     if time_sent < time_now:
-        raise ValueError(description="Time sent cannot be in the past!")
+        raise ValueError(description = "Time sent cannot be in the past!")
+
+############################ Validate Channel & Message ######################################
+
+def validate_user_channel(token, channel_id):
+
+    user = validate_token(token)
+    channel = db_get_channel_by_channel_id(channel_id)
+
+    return user, channel
+
+def validate_user_message(token, message_id):
+    
+    user = validate_token(token)
+    message = db_get_message_by_message_id(message_id)
+    channel = message.get_channel()
+
+    return user, channel, message
+
+
+############################ Message Sendlater ######################################
 
 # Send a message from authorised_user to the channel specified by channel_id.
 # automatically at a specified time in the future. 
@@ -27,39 +54,57 @@ def validate_message_text(text, time_now, time_sent):
 # Raises AccessError when user attempts to send message to channel they are not
 # member of.
 # Return dictionary containing message_id.
+
 def message_sendlater(token, channel_id, text, time_sent):
-    user = validate_token(token)
 
+    # authenticate user and channel
+    user, channel = validate_user_channel(token, channel_id)
+
+    # check for errors
     validate_message_text(text, time(), time_sent)
-
-    channel = db_get_channel_by_channel_id(channel_id)
-
-    if not channel.has_member(user):
-        raise AccessError(description="Authorised user is not member of that channel!")
-
+    message_sendlater_error(channel, user)
+    
     message = db_create_message(user, channel, text, time_sent)
 
     return {'message_id': message.get_message_id()}
+
+# error list
+def message_sendlater_error(channel, user):
+    
+    # The user it not a member of the channel
+    if not channel.has_member(user):
+        raise AccessError(description = "User is not member of that channel!")
+
+############################## Message Send ########################################
 
 # Send a message from authorised_user to the channel specified by channel_id.
 # Raises ValueError exception when the message is more than 1000 characters.
 # Raises AccessError when user attempts to send message to channel they are not
 # member of.
 # Return dictionary containing message_id.
+
 def message_send(token, channel_id, text):
-    user = validate_token(token)
+    
+    # authenticate user and channel
+    user, channel = validate_user_channel(token, channel_id)
 
     now = time()
+    
+    # check for errors
     validate_message_text(text, now, now)
-
-    channel = db_get_channel_by_channel_id(channel_id)
-
-    if not channel.has_member(user):
-        raise AccessError(description="Authorised user is not member of that channel!")
+    message_send_error(channel, user)
 
     message = db_create_message(user, channel, text, now)
 
     return {'message_id': message.get_message_id()}
+
+def message_send_error(channel, user):
+
+    # The user it not a member of the channel
+    if not channel.has_member(user):
+        raise AccessError(description = "Authorised user is not member of that channel!")
+
+############################## Message Remove ########################################
 
 # Given a message_id for a message, this message is removed from the channel.
 # Raises ValueError when the message_id no longer exists.
@@ -68,26 +113,36 @@ def message_send(token, channel_id, text):
 #   AND user is not an owner of the channel or owner of the slack.
 #   OR user is not in the channel containing the message.
 # Return empty dictionary.
-def message_remove(token, message_id):
-    user = validate_token(token)
 
-    message = db_get_message_by_message_id(message_id)
+def message_remove(token, message_id):
+    
+    # authenticate and return user, channel and message
+    user, channel, message = validate_user_message(token, message_id)
 
     sender = message.get_sender()
-    channel = message.get_channel()
 
-    if not user.in_channel(channel):
-        raise AccessError(description="The authorised user is not the channel containing the message!")
-
-    if not channel.has_message(message):
-        raise ValueError(description="Message with message_id has already been deleted!")
-
-    if user != sender and not channel.has_owner(user):
-        raise AccessError(description="The authorised user is not the sender of the message!")
-
+    # error checks
+    message_remove_error(user, channel, message, sender)
+    
     channel.remove_message(message)
 
     return {}
+
+# error list
+def message_remove_error(user, channel, message, sender):
+    
+    # if the user is not in the channel
+    if not user.in_channel(channel):
+        raise AccessError(description = "The authorised user is not the channel containing the message!")
+    
+    # if the message no longer exists
+    if not channel.has_message(message):
+        raise ValueError(description = "Message with message_id has already been deleted!")
+
+    # if the user is not the person who sent the message
+    if user != sender and not channel.has_owner(user):
+        raise AccessError(description = "The authorised user is not the sender of the message!")
+
 
 # Given a message, update it's text with new text.
 # Raises ValueError when message with message_id does not exist.
