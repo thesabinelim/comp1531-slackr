@@ -55,6 +55,7 @@ def channel_invite(token, channel_id, receiver_id):
 # any errors possible, passing in all values.
 def channel_invite_error(sender, channel, receiver):
     
+    # the sender of the invite isnt a part of the channel
     if not sender.in_channel(channel):
         raise AccessError(description = "Invite sender is not member of channel!")
 
@@ -86,6 +87,7 @@ def channel_details(token, channel_id):
 
 def channel_details_error(sender, channel):
 
+    # user searching for details isnt a member of the channel
     if not sender.in_channel(channel):
         raise AccessError(description = "User is not member of channel!")
 
@@ -152,12 +154,15 @@ def channel_messages_accumulate(start, offset, all_messages):
 # error list
 def channel_messages_error(sender, channel, all_messages, offset, start):
 
+    # user is not a member of the channel
     if not sender.in_channel(channel):
         raise AccessError(description = "User is not member of channel!")
 
+    # the start index that the user sends is too large
     if start != 0 and start >= len(all_messages) - offset:
         raise ValueError(description = "Start index is greater than the number of messages in the channel!")
     
+    # if messages 
     if (len(all_messages) == 0):
         return {'messages': [], 'start': 0, 'end': -1}
 
@@ -241,24 +246,30 @@ def channel_addowner_error(sender, channel, reciever):
     if not channel.has_owner(sender):
         raise AccessError(description = "Authorised user is not an owner of the slack or channel")
 
+############################# Channel Removeowner ########################################
 
 # Remove user with u_id as owner of this channel. Returns {}.
 # Raise ValueError exception if channel with id does not exist or user is not
 # owner of channel.
 # Raise AccessError exception if user is not owner of either slackr or channel.
+
 def channel_removeowner(token, channel_id, target_id):
-    authorised_user = validate_token(token)
     
-    target_user = db_get_user_by_u_id(target_id)
-    
-    channel = db_get_channel_by_channel_id(channel_id)
-    # user already owner of channel
-    if not channel.has_true_owner(target_user):
-        raise ValueError(description="User already not an owner of channel")
-    # Authorised u_id not owner of slackr and not owner of channel
-    if not channel.has_owner(authorised_user):
-        raise AccessError(description="Authorised user is not an owner of the slack or channel")
-    
-    channel.remove_owner(target_user)
+    sender, channel, reciever = channel_setup_target(token, channel_id, target_id)
+    channel_removeowner_error(sender, channel, reciever)
+   
+    channel.remove_owner(reciever)
     
     return {}
+
+def channel_removeowner_error(sender, channel, reciever):
+    
+    # user already owner of channel
+    if not channel.has_true_owner(reciever):
+        raise ValueError(description = "User already not an owner of channel")
+    
+    # Authorised u_id not owner of slackr and not owner of channel
+    if not channel.has_owner(sender):
+        raise AccessError(description = "Authorised user is not an owner of the slack or channel")
+
+
