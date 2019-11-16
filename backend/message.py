@@ -119,17 +119,15 @@ def message_remove(token, message_id):
     # authenticate and return user, channel and message
     user, channel, message = validate_user_message(token, message_id)
 
-    sender = message.get_sender()
-
     # error checks
-    message_remove_error(user, channel, message, sender)
+    message_remove_error(user, channel, message)
     
     channel.remove_message(message)
 
     return {}
 
 # error list
-def message_remove_error(user, channel, message, sender):
+def message_remove_error(user, channel, message):
     
     # if the user is not in the channel
     if not user.in_channel(channel):
@@ -140,9 +138,10 @@ def message_remove_error(user, channel, message, sender):
         raise ValueError(description = "Message with message_id has already been deleted!")
 
     # if the user is not the person who sent the message
-    if user != sender and not channel.has_owner(user):
+    if user != message.get_sender() and not channel.has_owner(user):
         raise AccessError(description = "The authorised user is not the sender of the message!")
 
+############################## Message Edit ########################################
 
 # Given a message, update it's text with new text.
 # Raises ValueError when message with message_id does not exist.
@@ -150,30 +149,41 @@ def message_remove_error(user, channel, message, sender):
 # Raises AccessError when message_id not sent by authorised user AND authorised
 # user is not an admin or owner of either the channel or the Slackr.
 # Return empty dictionary.
+
 def message_edit(token, message_id, text):
-    user = validate_token(token)
 
-    if len(text) > 1000:
-        raise ValueError(description="Message cannot be longer than 1000 characters!")
-
-    message = db_get_message_by_message_id(message_id)
-    if not message.get_channel().has_message(message):
-        raise ValueError(description="Message with message_id does not exist in channel!")
-
-    channel = message.get_channel()
-
-    if not channel.has_member(user):
-        raise AccessError(description="Authorised user is not member of that channel!")
-
-    if user != message.get_sender() and not channel.has_owner(user):
-        raise AccessError(description="Message was not sent by logged in user and user is \
-            not admin or owner!")
+    user, channel, message = validate_user_message(token, message_id)
+    
+    # error checks
+    message_remove_error(user, channel, message, sender)
+    
+    # if the text is empty remove, else reset it
     if text == "":
         channel.remove_message(message)
     else:
         message.set_text(text)
 
     return {}
+
+# error list
+def message_edit_error(user, channel, message, sender):
+    
+    # new message is too long
+    if len(text) > 1000:
+        raise ValueError(description = "Message cannot be longer than 1000 characters!")
+    
+    # message does not exist
+    if not message.get_channel().has_message(message):
+        raise ValueError(description = "Message with message_id does not exist in channel!")
+
+    # user is not a member of the channel
+    if not channel.has_member(user):
+        raise AccessError(description = "Authorised user is not member of that channel!")
+
+    # user it not the sender
+    if user != message.get_sender() and not channel.has_owner(user):
+        raise AccessError(description = "Message was not sent by logged in user and user is \
+                          not admin or owner!")
 
 # Given a message within a channel the authorised user is part of, add a "react"
 # to that particular message. 
