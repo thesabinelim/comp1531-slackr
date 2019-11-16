@@ -253,7 +253,7 @@ def message_unreact_error(user, channel, message, react_id):
         raise ValueError(description = "Message with message_id is not a valid message within a channel authorised user has joined!")
     
     if not channel.has_member(user):
-        raise ValueError(description = "User is not part of the channel associated with message id"")
+        raise ValueError(description = "User is not part of the channel associated with message id")
 
 # Given a message within a channel, mark it as "pinned" to be given special 
 # display treatment by the frontend.
