@@ -181,19 +181,10 @@ def get_new_user_handle(name_first, name_last):
 # First user registered is automatically made owner.
 
 def auth_register(email, password, name_first, name_last):
-    if not is_valid_email(email):
-        raise ValueError(description="Invalid email")
-    if db_get_user_by_email(email, error=False):
-        raise ValueError(description="Email already in use")
 
-    if len(password) < 6:
-        raise ValueError(description="Password < 6 characters")
-
-    if len(name_first) < 1 or len(name_first) > 50:
-        raise ValueError(description="First name not between 1 and 50 characters")
-    if len(name_last) < 1 or len(name_last) > 50:
-        raise ValueError(description="Last name not between 1 and 50 characters")
-
+    # error checks
+    auth_register_error(email, password, name_first, name_last)
+    
     # First user registered is automatically made owner.
     role = Role.member
     if db_get_all_users() == []:
@@ -203,12 +194,44 @@ def auth_register(email, password, name_first, name_last):
     handle = get_new_user_handle(name_first, name_last)
 
     user = db_create_user(email, password, name_first, name_last, handle, role)
+
+    # sets up the u_id and token
+    u_id, token = auth_register_credentials(user)
+
+    return {'token': token, 'u_id': u_id}
+
+# sets up the users u_id and token
+def auth_register_credentials(user):
+
     u_id = user.get_u_id()
     token = generate_token(u_id)
     user = db_get_user_by_u_id(u_id)
     user.add_token(token)
 
-    return {'token': token, 'u_id': u_id}
+    return u_id, token
+
+# error list
+def auth_register_error(email, password, name_first, name_last):
+
+    # if the email supplied is invalid
+    if not is_valid_email(email):
+        raise ValueError(description = "Invalid email")
+    
+    # if the email is already used
+    if db_get_user_by_email(email, error=False):
+        raise ValueError(description = "Email already in use")
+    
+    # password is too short
+    if len(password) < 6:
+        raise ValueError(description = "Password < 6 characters")
+    
+    # first name is too long
+    if len(name_first) < 1 or len(name_first) > 50:
+        raise ValueError(description = "First name not between 1 and 50 characters")
+    
+    # last name is too long
+    if len(name_last) < 1 or len(name_last) > 50:
+        raise ValueError(description = "Last name not between 1 and 50 characters")
 
 ############################## Auth Passwordreset ########################################
 
