@@ -33,7 +33,6 @@ def admin_userpermission_change(token, target_id, permission_id):
 def admin_setup(token, target_id):
     
     u_id = validate_token(token)
-    
     authorised_user = db_get_user_by_u_id(u_id)
     target = db_get_user_by_u_id(target_id)
     
