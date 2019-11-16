@@ -40,9 +40,13 @@ def channel_setup_target(token, channel_id, receiver_id):
 
 def channel_invite(token, channel_id, receiver_id):
     
+    # authenticates the user and channel
     sender, channel, receiver = channel_setup_target(token, channel_id, receiver_id)
+    
+    # checks for errors
     channel_invite_error(sender, channel, receiver)
 
+    # adds the member
     channel.add_member(receiver)
     receiver.join_channel(channel)
 
@@ -96,7 +100,7 @@ def channel_details_error(sender, channel):
 # total number of messages in channel.
 # Raise AccessError exception when user is not member of channel with id.
 
-# main
+# main, more documentation to explain general process
 def channel_messages(token, channel_id, start):
     
     # sets up the channel
@@ -157,53 +161,64 @@ def channel_messages_error(sender, channel, all_messages, offset, start):
     if (len(all_messages) == 0):
         return {'messages': [], 'start': 0, 'end': -1}
 
-############################# Channel Messages #######################################
-
-
-
+############################# Channel Leave #######################################
 
 # Given channel ID, remove user from channel. Returns {}.
 # Raise ValueError exception if channel with id does not exist.
 # An owner leaving removes them from the channel's owner list.
+
 def channel_leave(token, channel_id):
-    user = validate_token(token)
     
-    channel = db_get_channel_by_channel_id(channel_id)
+    sender, channel = channel_setup_notarget(token, channel_id)
+    channel_leave_error(sender, channel)
     
-    # Last owner can't leave unless they are also last member
-    if len(channel.get_true_owners()) == 1 and channel.has_true_owner(user) \
-        and len(channel.get_members()) > 1:
-        raise ValueError(description="Last owner cannot leave a channel with members still in it!")
-    channel.remove_owner(user)
-    channel.remove_member(user)
-    user.leave_channel(channel)
+    channel.remove_owner(sender)
+    channel.remove_member(sender)
+    sender.leave_channel(channel)
 
     return {}
+
+# error list
+def channel_leave_error(sender, channel):
+    
+    # Last owner can't leave unless they are also last member
+    if len(channel.get_true_owners()) == 1 and channel.has_true_owner(sender) \
+        and len(channel.get_members()) > 1:
+        raise ValueError(description = "Last owner cannot leave a channel with members still in it!")
+
+############################# Channel Join ########################################
 
 # Given id of channel that user can join, add them to that channel.
 # Raise ValueError exception if channel with id does not exist.
 # Raise AccessError if channel is private and user is not admin.
 # Raise TokenError if token invalid.
-def channel_join(token, channel_id):
-    user = validate_token(token)
-    
-    channel = db_get_channel_by_channel_id(channel_id)
-    if channel is None:
-        raise ValueError(description="Channel with channel_id does not exist!")
-    
-    if not channel.is_public():
-        if user.get_slackr_role() != Role.admin and user.get_slackr_role() != Role.owner:
-            raise AccessError(description="Channel is private and user is not admin or owner!")
 
-    channel.add_member(user)
-    user.join_channel(channel)
+def channel_join(token, channel_id):
+    
+    sender, channel = channel_setup_notarget(token, channel_id)
+    channel_join_error(sender, channel)
+
+    channel.add_member(sender)
+    sender.join_channel(channel)
 
     return {}
+
+def channel_join_error(sender, channel):
+
+    if channel is None:
+        raise ValueError(description = "Channel with channel_id does not exist!")
+
+    if not channel.is_public():
+        if sender.get_slackr_role() != Role.admin and sender.get_slackr_role() != Role.owner:
+            raise AccessError(description = "Channel is private and user is not admin or owner!")
+
+############################# Channel Addowner ########################################
 
 # Make user with u_id an owner of channel. Returns {}.
 # Raise ValueError exception if channel with id does not exist or user is
 # already owner of channel.
 # Raise AccessError exception if user is not owner of either slackr or channel.
+
 def channel_addowner(token, channel_id, target_id):
     authorised_user = validate_token(token)
     
@@ -244,4 +259,3 @@ def channel_removeowner(token, channel_id, target_id):
     channel.remove_owner(target_user)
     
     return {}
-
