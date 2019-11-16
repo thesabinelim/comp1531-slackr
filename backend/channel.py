@@ -12,17 +12,27 @@ from .db import (
 from .auth import validate_token
 from .error import ValueError, AccessError
 
+############################## Channel Setup ########################################
+
+def channel_setup_target(token, channel_id, receiver_id):
+
+    # sets up the sender, channel and reciever
+    sender = validate_token(token)
+    channel = db_get_channel_by_channel_id(channel_id)
+    receiver = db_get_user_by_u_id(receiver_id)
+    
+    return sender, channel, receiver
+
+############################# Channel Invite #######################################
+
 # Invite user with u_id to channel with channel_id.
 # Return {} if successful.
 # Raises ValueError exception if channel_id is invalid/user is not in channel or
 # if u_id is invalid.
 
 def channel_invite(token, channel_id, receiver_id):
-    sender = validate_token(token)
-
-    receiver = db_get_user_by_u_id(receiver_id)
-    channel = db_get_channel_by_channel_id(channel_id)
     
+    sender, channel, receiver = channel_setup_target(token, channel_id, receiver_id)
     channel_invite_error(sender, channel)
 
     channel.add_member(receiver)
