@@ -120,10 +120,6 @@ def auth_login(email, password):
 
 # error list
 def auth_login_error(email, password, user):
-
-    # if given email is invalid
-    if not is_valid_email(email):
-        raise ValueError(description = "Email invalid!")
     
     # if password doesn't match the user
     if not user.password_matches(password):
