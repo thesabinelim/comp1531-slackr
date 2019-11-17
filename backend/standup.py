@@ -76,10 +76,17 @@ def standup_active(token, channel_id):
     standup = channel.get_standup()
     adjusted_time = time() + db_get_time_offset()
 
-    if standup is None or adjusted_time >= (standup.get_time_created()):
-            return None
 
-    return standup.get_time_created()
+    if standup is None or adjusted_time >= (standup.get_time_created()):
+        print(f'Standup is not active')
+        return {
+            'is_active': False,
+            'time_finish': None
+        }
+    return {
+        'is_active': True,
+        'time_finish': standup.get_time_created()
+    }
 
 ############################## Standup Send ########################################
 
@@ -92,7 +99,6 @@ def standup_active(token, channel_id):
 def standup_send(token, channel_id, message):
     
     user, channel = standup_setup(token, channel_id)
-    
     standup = channel.get_standup()
     adjusted_time = time() + db_get_time_offset()
     
