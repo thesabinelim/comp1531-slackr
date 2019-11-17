@@ -78,7 +78,6 @@ def standup_active(token, channel_id):
 
 
     if standup is None or adjusted_time >= (standup.get_time_created()):
-        print(f'Standup is not active')
         return {
             'is_active': False,
             'time_finish': None
