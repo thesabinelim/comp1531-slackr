@@ -114,12 +114,12 @@ def test_standup_active_simple():
     
     create_dict1 = channels_create(reg_dict1['token'], '1531 autotest', True)
     # SETUP END
-    assert standup_active(reg_dict1['token'], create_dict1['channel_id']) is None
+    assert standup_active(reg_dict1['token'], create_dict1['channel_id']) == { 'is_active': False, 'time_finish': None }
 
     sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'], 15 * 60)
 
     channel = db_get_channel_by_channel_id(create_dict1['channel_id'])
-    assert standup_active(reg_dict1['token'], create_dict1['channel_id']) == sup_dict1['time_finish']
+    assert standup_active(reg_dict1['token'], create_dict1['channel_id']) == { 'is_active': True, 'time_finish': sup_dict1['time_finish'] }
 
 def test_standup_active_finished():
     # SETUP BEGIN
@@ -132,10 +132,10 @@ def test_standup_active_finished():
     sup_dict1 = standup_start(reg_dict1['token'], create_dict1['channel_id'], 15 * 60)
 
     channel = db_get_channel_by_channel_id(create_dict1['channel_id'])
-    assert standup_active(reg_dict1['token'], create_dict1['channel_id']) == sup_dict1['time_finish']
+    assert standup_active(reg_dict1['token'], create_dict1['channel_id']) == { 'is_active': True, 'time_finish': sup_dict1['time_finish'] }
 
     db_add_time_offset(16 * 60)
-    assert standup_active(reg_dict1['token'], create_dict1['channel_id']) is None
+    assert standup_active(reg_dict1['token'], create_dict1['channel_id']) == { 'is_active': False, 'time_finish': None }
 
 def test_standup_active_invalid_channel():
     # SETUP BEGIN
