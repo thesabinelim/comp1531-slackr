@@ -42,8 +42,7 @@ def admin_userpermission_change_error(authorised_user, target, permission_id):
     if permission_id not in [perm.value for perm in Role]:
         raise ValueError(description="Invalid permission_id!")
     
-    if authorised_user.get_slackr_role() != Role.owner \
-        and authorised_user.get_slackr_role() != Role.admin:
+    if authorised_user.get_slackr_role() not in [Role.admin, Role.owner]:
         raise AccessError(description="Logged in user is not admin or owner!")
     
     if target.get_slackr_role().value < authorised_user.get_slackr_role().value:

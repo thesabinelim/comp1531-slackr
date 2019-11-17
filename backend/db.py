@@ -46,8 +46,14 @@ def get_data():
     global data
     return data
 
+def get_secret():
+    return get_data()['secret']
+
 def get_salt():
     return get_data()['salt']
+
+def reset_secret():
+    get_data()['secret'] = random_string(128)
 
 def reset_salt():
     get_data()['salt'] = urandom(32)
@@ -61,8 +67,10 @@ def reset_data():
         'reset_requests': [],
         'time_offset': 0,
         'backend_url': 'http://localhost:5001/',
+        'secret': None,
         'salt': None,
     }
+    reset_secret()
     reset_salt()
 
 ####################
@@ -397,13 +405,13 @@ class Message:
         self.reacts = []
         self.pinned = False
 
-    def to_dict(self):
+    def to_dict(self, u_id):
         return {
             'message_id': self.message_id,
             'u_id': self.sender.u_id,
             'message': self.text,
             'time_created': self.time_created,
-            'reacts': reacts_to_dict(self.reacts, self.sender.get_u_id()),
+            'reacts': reacts_to_dict(self.reacts, u_id),
             'is_pinned': self.pinned
         }
     def get_message_id(self):

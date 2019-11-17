@@ -118,7 +118,7 @@ def channel_messages(token, channel_id, start):
     channel_messages_error(sender, channel, all_messages, offset, start)
 
     # puts all messages into a list
-    messages, end = channel_messages_accumulate(start, offset, all_messages)
+    messages, end = channel_messages_accumulate(sender.get_u_id(), start, offset, all_messages)
     
     return {'messages': messages, 'start': start, 'end': end}
 
@@ -136,14 +136,14 @@ def channel_messages_count(channel, all_messages):
     return offset
 
 # accumulates all messages into a list
-def channel_messages_accumulate(start, offset, all_messages):
+def channel_messages_accumulate(u_id, start, offset, all_messages):
 
     counter = start
     messages = []
     
     while (counter + offset) < len(all_messages) and counter < start + 50:
         current_message = all_messages[counter + offset]
-        messages.append(current_message.to_dict())
+        messages.append(current_message.to_dict(u_id))
         counter += 1
     end = counter
     if end + offset >= len(all_messages):
@@ -260,8 +260,12 @@ def channel_removeowner(token, channel_id, target_id):
     return {}
 
 def channel_removeowner_error(sender, channel, reciever):
-    
-    # user already owner of channel
+
+    # user is Slackr admin/owner
+    if reciever.get_slackr_role() in [Role.admin, Role.owner]:
+        raise ValueError(description = "Slackr admins and owners cannot be removed from channel owners")
+
+    # user already not owner of channel
     if not channel.has_true_owner(reciever):
         raise ValueError(description = "User already not an owner of channel")
     
