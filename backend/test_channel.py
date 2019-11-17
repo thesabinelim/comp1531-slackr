@@ -4,19 +4,14 @@
 
 import pytest
 
-from .auth import (
-    auth_register
-)
-from .channels import (
-    channels_create, channels_list
-)
+from .auth import auth_register
+from .channels import channels_create, channels_list
 from .channel import (
     channel_addowner, channel_details, channel_invite, channel_join,
     channel_leave, channel_messages, channel_removeowner
 )
-from .message import (
-    message_send
-)
+from .message import message_send
+from .admin import admin_userpermission_change
 from .error import ValueError, AccessError
 from .db import reset_data
 
@@ -1098,6 +1093,26 @@ def test_channel_removeowner_simple():
         'name_last': 'Lim',
         'profile_img_url': None
     } not in channel_details(reg_dict3['token'], create_dict3['channel_id'])['owner_members']
+
+def test_channel_removeowner_target_slackr_owneroradmin():
+    # SETUP BEGIN
+    reset_data()
+    reg_dict1 = auth_register('user@example.com', 'validpassword', 'Test', 'User')
+    reg_dict2 = auth_register('sabine.lim@unsw.edu.au', 'ImSoAwes0me', 'Sabine', 'Lim')
+    reg_dict3 = auth_register('gamer@twitch.tv', 'gamers_rise_up', 'Gabe', 'Newell')
+
+    admin_userpermission_change(reg_dict1['token'], reg_dict2['u_id'], 2)
+
+    create_dict1 = channels_create(reg_dict3['token'], 'Steam', False)
+
+    channel_join(reg_dict1['token'], create_dict1['channel_id'])
+    channel_join(reg_dict2['token'], create_dict1['channel_id'])
+    # SETUP END
+
+    with pytest.raises(ValueError):
+        channel_removeowner(reg_dict3['token'], create_dict1['channel_id'], reg_dict1['u_id'])
+    with pytest.raises(ValueError):
+        channel_removeowner(reg_dict3['token'], create_dict1['channel_id'], reg_dict2['u_id'])
 
 def test_channel_removeowner_slackrowner_demoteother_notchannelowner():
     # SETUP BEGIN
