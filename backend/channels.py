@@ -51,6 +51,11 @@ def get_channel_list_details(channels):
 
 def channels_create(token, name, is_public):
     
+    if is_public == 'true':
+        is_public = True
+    if is_public == 'false':
+        is_public = False
+
     channels_create_error(name)
     user = validate_token(token)
 
