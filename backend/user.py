@@ -18,10 +18,13 @@ from .auth import validate_token
 from .utils import is_valid_email, random_string, is_valid_url
 from .error import ValueError
 
+############################## User Profile ########################################
+
 # For a valid user, returns information about their email, first name, last 
 # name, and handle.
 # Raises a ValueError when the u_id is not a valid user.
 # Returns a dictionary of user information.
+
 def user_profile(token, target_u_id):
     validate_token(token)
 
@@ -29,50 +32,90 @@ def user_profile(token, target_u_id):
 
     return target_user.to_dict()
 
+########################### User Profile Setname #####################################
+
 # Update the authorised user's first and last name
+
 def user_profile_setname(token, name_first, name_last):
     user = validate_token(token)
 
-    if len(name_first) < 1 or len(name_first) > 50:
-        raise ValueError(description="First name not between 1 and 50 characters")
-    if len(name_last) < 1 or len(name_last) > 50:
-        raise ValueError(description="Last name not between 1 and 50 characters")
-
+    # check for errors
+    user_profile_setname_error(name_first, name_last)
+    
     user.set_first_name(name_first)
     user.set_last_name(name_last)
 
     return {}
 
-# Update the authorised user's email address
-def user_profile_setemail(token, email):
-    user = validate_token(token)
+# error list
+def user_profile_setname_error(name_first, name_last):
+    
+    # first name is incorrect length
+    if len(name_first) < 1 or len(name_first) > 50:
+        raise ValueError(description = "First name not between 1 and 50 characters")
+    
+    # last name is incorrect length
+    if len(name_last) < 1 or len(name_last) > 50:
+        raise ValueError(description = "Last name not between 1 and 50 characters")
 
-    if not is_valid_email(email):
-        raise ValueError(description="Email invalid")
-    if db_get_user_by_email(email, error=False) is not None:
-        raise ValueError(description="Email already in use")
+########################### User Profile Setemail #####################################
+
+# Update the authorised user's email address
+
+def user_profile_setemail(token, email):
+
+    user = validate_token(token)
+    
+    # check for errors
+    user_profile_setemail_error(user, email)
 
     user.set_email(email)
 
     return {}
 
+# error list
+def user_profile_setemail_error(user, email):
+
+    # if email is invalid
+    if not is_valid_email(email):
+        raise ValueError(description = "Email invalid")
+    
+    # email is already used by another account
+    if db_get_user_by_email(email, error=False) is not None:
+        raise ValueError(description = "Email already in use")
+
+########################### User Profile Sethandle #####################################
+
 # Update the authorised user's handle (i.e. display name)
+
 def user_profile_sethandle(token, handle_str):
     user = validate_token(token)
 
-    if len(handle_str) < 3 or len(handle_str) > 20:
-        raise ValueError(description="Handle not between 3 and 20 characters")
-    if db_get_user_by_handle(handle_str, error=False) is not None:
-        raise ValueError(description="Handle is already in use")
-
+    # check for errors
+    user_profile_sethandle_error(user, handle_str)
+    
     user.set_handle(handle_str)
 
     return {}
+
+# error list
+def user_profile_sethandle_error(user, handle_str):
+    
+    # if handle is incorrect length
+    if len(handle_str) < 3 or len(handle_str) > 20:
+        raise ValueError(description = "Handle not between 3 and 20 characters")
+    
+    # if handle is already used
+    if db_get_user_by_handle(handle_str, error=False) is not None:
+        raise ValueError(description = "Handle is already in use")
+
+########################### User Profile Uploadphoto ###################################
 
 # Given a URL of an image on the internet, crops the image within bounds 
 # (x_start, y_start) and (x_end, y_end). Position (0,0) is the top left.
 # After processing this image is stored locally on the server, and the 
 # profile_img_url is a url to the server
+
 def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     user = validate_token(token)
 
@@ -99,9 +142,12 @@ def user_profiles_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     backend_url = db_get_backend_url()
     user.set_profile_img_url(f'{backend_url}{filepath}')
 
+########################### Attempt Img Url Request #####################################
+
 # Attempts a request on the img_url. Since this is client-side, more error checking
 # is required to make sure that the URL is valid and not malformed
 # Returns the reponse of the request, which will contain the content if successful
+
 def attempt_img_url_request(img_url):
     # Validate url, as requests does not work with malformed urls
     if not is_valid_url(img_url):
